@@ -1,0 +1,65 @@
+{
+  "env": {
+    "browser": false,
+    "node": true
+  },
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": { "project": ["./tsconfig.eslint.json"] },
+  "plugins": [
+    "@typescript-eslint",
+    "prettier",
+    "jest",
+    "import"
+  ],
+  "extends": [
+    "eslint:recommended",
+    "prettier"
+  ],
+  "rules": {
+    "semi": [
+      "error",
+      "always"
+    ],
+    "quotes": [
+      "error",
+      "double",
+      {
+        "avoidEscape": true
+      }
+    ],
+    "import/extensions": "off",
+    "mocha/no-setup-in-describe": "off",
+    "prettier/prettier": "error",
+    "no-use-before-define": "off",
+    "no-unused-vars": "off",
+    "no-var": "error",
+    "id-length": [
+      "error",
+      {
+        "exceptionPatterns": [
+          "[i-k]",
+          "e",
+          "c",
+          "x",
+          "y",
+          "r",
+          "s",
+          "v"
+        ],
+        "properties": "never"
+      }
+    ],
+    "allow-namespace": "off"
+  },
+  "overrides": [
+    {
+      "files": [
+        "**/*.test.ts",
+        "**/*.spec.ts"
+      ],
+      "env": {
+        "jest": true
+      }
+    }
+  ]
+}
