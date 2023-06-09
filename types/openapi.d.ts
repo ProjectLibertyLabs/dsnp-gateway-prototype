@@ -27,8 +27,31 @@ declare namespace Components {
     export interface ChallengeResponse {
       challenge: string;
     }
+    export interface CreateIdentityRequest {
+      algo: "SR25519";
+      encoding: "base16" | "base58";
+      encodedValue: string;
+      publicKey: string;
+      handle: string;
+    }
+    export interface CreateIdentityResponse {
+      accessToken: string;
+      expiresIn: number;
+      displayHandle: string;
+      dsnpId: number;
+    }
     export interface CreatePostRequest {
       content: string;
+    }
+    export interface DelegateRequest {
+      algo: "SR25519";
+      encoding: "base16" | "base58";
+      encodedValue: string;
+      publicKey: string;
+    }
+    export interface DelegateResponse {
+      accessToken: string;
+      expiresIn: number;
     }
     export interface EditPostRequest {
       targetContentHash: string;
@@ -60,6 +83,10 @@ declare namespace Components {
        */
       timestamp: string;
     }
+    export interface ProviderResponse {
+      providerId: number;
+      schemas: string;
+    }
     export interface ReplyExtended {
       fromId: number;
       contentHash: string;
@@ -84,6 +111,18 @@ declare namespace Paths {
       export type $200 = Components.Schemas.ChallengeResponse;
     }
   }
+  namespace AuthCreate {
+    export type RequestBody = Components.Schemas.CreateIdentityRequest;
+    namespace Responses {
+      export type $200 = Components.Schemas.CreateIdentityResponse;
+    }
+  }
+  namespace AuthDelegate {
+    export type RequestBody = Components.Schemas.DelegateRequest;
+    namespace Responses {
+      export type $200 = Components.Schemas.DelegateResponse;
+    }
+  }
   namespace AuthLogin {
     export type RequestBody = Components.Schemas.LoginRequest;
     namespace Responses {
@@ -93,6 +132,11 @@ declare namespace Paths {
   namespace AuthLogout {
     namespace Responses {
       export interface $201 {}
+    }
+  }
+  namespace AuthProvider {
+    namespace Responses {
+      export type $200 = Components.Schemas.ProviderResponse;
     }
   }
   namespace CreateBroadcast {
@@ -227,6 +271,14 @@ export interface OperationMethods {
     config?: AxiosRequestConfig
   ): OperationResponse<Paths.AuthChallenge.Responses.$200>;
   /**
+   * authProvider - Return the delegation and provider information
+   */
+  "authProvider"(
+    parameters?: Parameters<UnknownParamsObject> | null,
+    data?: any,
+    config?: AxiosRequestConfig
+  ): OperationResponse<Paths.AuthProvider.Responses.$200>;
+  /**
    * authLogin - Use a challenge to login
    */
   "authLogin"(
@@ -242,6 +294,22 @@ export interface OperationMethods {
     data?: any,
     config?: AxiosRequestConfig
   ): OperationResponse<Paths.AuthLogout.Responses.$201>;
+  /**
+   * authCreate - Creates a new DSNP Identity
+   */
+  "authCreate"(
+    parameters?: Parameters<UnknownParamsObject> | null,
+    data?: Paths.AuthCreate.RequestBody,
+    config?: AxiosRequestConfig
+  ): OperationResponse<Paths.AuthCreate.Responses.$200>;
+  /**
+   * authDelegate - Delegate to the provider with an existing DSNP Identity
+   */
+  "authDelegate"(
+    parameters?: Parameters<UnknownParamsObject> | null,
+    data?: Paths.AuthDelegate.RequestBody,
+    config?: AxiosRequestConfig
+  ): OperationResponse<Paths.AuthDelegate.Responses.$200>;
   /**
    * getUserFeed - Get recent posts from a user, paginated
    */
@@ -335,6 +403,16 @@ export interface PathsDictionary {
       config?: AxiosRequestConfig
     ): OperationResponse<Paths.AuthChallenge.Responses.$200>;
   };
+  ["/v1/auth/provider"]: {
+    /**
+     * authProvider - Return the delegation and provider information
+     */
+    "get"(
+      parameters?: Parameters<UnknownParamsObject> | null,
+      data?: any,
+      config?: AxiosRequestConfig
+    ): OperationResponse<Paths.AuthProvider.Responses.$200>;
+  };
   ["/v1/auth/login"]: {
     /**
      * authLogin - Use a challenge to login
@@ -354,6 +432,26 @@ export interface PathsDictionary {
       data?: any,
       config?: AxiosRequestConfig
     ): OperationResponse<Paths.AuthLogout.Responses.$201>;
+  };
+  ["/v1/auth/create"]: {
+    /**
+     * authCreate - Creates a new DSNP Identity
+     */
+    "post"(
+      parameters?: Parameters<UnknownParamsObject> | null,
+      data?: Paths.AuthCreate.RequestBody,
+      config?: AxiosRequestConfig
+    ): OperationResponse<Paths.AuthCreate.Responses.$200>;
+  };
+  ["/v1/auth/delegate"]: {
+    /**
+     * authDelegate - Delegate to the provider with an existing DSNP Identity
+     */
+    "post"(
+      parameters?: Parameters<UnknownParamsObject> | null,
+      data?: Paths.AuthDelegate.RequestBody,
+      config?: AxiosRequestConfig
+    ): OperationResponse<Paths.AuthDelegate.Responses.$200>;
   };
   ["/v1/content/{dsnpId}"]: {
     /**

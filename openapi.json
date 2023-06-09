@@ -1,398 +1,180 @@
 {
-    "openapi": "3.0.0",
-    "info": {
-      "title": "API Documentation",
-      "version": "1.0.0"
+  "openapi": "3.0.0",
+  "info": {
+    "title": "DSNP Link API Documentation",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/v1/auth/challenge": {
+      "get": {
+        "operationId": "authChallenge",
+        "summary": "Return a challenge for login",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChallengeResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     },
-    "paths": {
-      "/v1/auth/challenge": {
-        "get": {
-          "operationId": "authChallenge",
-          "summary": "Return a challenge for login",
-          "responses": {
-            "200": {
-              "description": "Successful response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/ChallengeResponse"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/v1/auth/login": {
-        "post": {
-          "operationId": "authLogin",
-          "summary": "Use a challenge to login",
-          "requestBody": {
-            "required": true,
+    "/v1/auth/provider": {
+      "get": {
+        "operationId": "authProvider",
+        "summary": "Return the delegation and provider information",
+        "responses": {
+          "200": {
+            "description": "Successful response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/LoginRequest"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "Successful response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/LoginResponse"
-                  }
+                  "$ref": "#/components/schemas/ProviderResponse"
                 }
               }
             }
           }
         }
-      },
-      "/v1/auth/logout": {
-        "post": {
-          "operationId": "authLogout",
-          "summary": "Logout and invalidate the access token",
-          "responses": {
-            "201": {
-              "description": "Successful response"
-            }
-          }
-        }
-      },
-      "/v1/content/{dsnpId}": {
-        "get": {
-          "operationId": "getUserFeed",
-          "summary": "Get recent posts from a user, paginated",
-          "parameters": [
-            {
-              "name": "dsnpId",
-              "in": "path",
-              "required": true,
+      }
+    },
+    "/v1/auth/login": {
+      "post": {
+        "operationId": "authLogin",
+        "summary": "Use a challenge to login",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
               "schema": {
-                "type": "integer"
-              }
-            },
-            {
-              "name": "blockNumber",
-              "in": "query",
-              "required": false,
-              "schema": {
-                "type": "integer"
-              }
-            },
-            {
-              "name": "pageSize",
-              "in": "query",
-              "required": false,
-              "schema": {
-                "type": "integer"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Successful response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/BroadcastExtended"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/v1/content/feed": {
-        "get": {
-          "operationId": "getFeed",
-          "summary": "Get the Feed for the current user, paginated",
-          "parameters": [
-            {
-              "name": "blockNumber",
-              "in": "query",
-              "required": false,
-              "schema": {
-                "type": "integer"
-              }
-            },
-            {
-              "name": "pageSize",
-              "in": "query",
-              "required": false,
-              "schema": {
-                "type": "integer"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Successful response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/BroadcastExtended"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/v1/content/create": {
-        "post": {
-          "operationId": "createBroadcast",
-          "summary": "Create a new post",
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CreatePostRequest"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "Successful response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BroadcastExtended"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/v1/content/{dsnpId}/{contentHash}": {
-        "get": {
-          "operationId": "getContent",
-          "summary": "Get details of a specific post",
-          "parameters": [
-            {
-              "name": "dsnpId",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "integer"
-              }
-            },
-            {
-              "name": "contentHash",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Successful response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BroadcastExtended"
-                  }
-                }
-              }
-            },
-            "404": {
-              "description": "Content not found"
-            }
-          }
-        }
-      },
-      "/v1/content/{type}/{contentHash}": {
-        "put": {
-          "operationId": "editContent",
-          "summary": "Edit the content of a specific post",
-          "parameters": [
-            {
-              "name": "contentHash",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "string"
-              }
-            },
-            {
-              "name": "type",
-              "description": "Broadcast or Reply",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/EditPostRequest"
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "Successful response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/BroadcastExtended"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/v1/graph/{dsnpId}/following": {
-        "get": {
-          "operationId": "userFollowing",
-          "summary": "Get a list of users that a specific user follows",
-          "parameters": [
-            {
-              "name": "dsnpId",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "integer"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Successful response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "description": "Array of DSNP Ids",
-                      "type": "integer"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "/v1/graph/{dsnpId}/follow": {
-        "post": {
-          "operationId": "graphFollow",
-          "summary": "Follow a user",
-          "parameters": [
-            {
-              "name": "dsnpId",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "integer"
-              }
-            }
-          ],
-          "responses": {
-            "201": {
-              "description": "Successful response"
-            }
-          }
-        }
-      },
-      "/v1/graph/{dsnpId}/unfollow": {
-        "post": {
-          "operationId": "graphUnfollow",
-          "summary": "Unfollow a user",
-          "parameters": [
-            {
-              "name": "dsnpId",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "integer"
-              }
-            }
-          ],
-          "responses": {
-            "201": {
-              "description": "Successful response"
-            }
-          }
-        }
-      },
-      "/v1/profiles/{dsnpId}": {
-        "get": {
-          "operationId": "getProfile",
-          "summary": "Get profile information for a specific user",
-          "parameters": [
-            {
-              "name": "dsnpId",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "integer"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Successful response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Profile"
-                  }
-                }
+                "$ref": "#/components/schemas/LoginRequest"
               }
             }
           }
         },
-        "put": {
-          "operationId": "createProfile",
-          "summary": "Create/Edit the profile information for a current user",
-          "parameters": [
-            {
-              "name": "dsnpId",
-              "in": "path",
-              "required": true,
-              "schema": {
-                "type": "integer"
-              }
-            }
-          ],
-          "requestBody": {
-            "required": true,
+        "responses": {
+          "200": {
+            "description": "Successful response",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/EditProfileRequest"
+                  "$ref": "#/components/schemas/LoginResponse"
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/v1/auth/logout": {
+      "post": {
+        "operationId": "authLogout",
+        "summary": "Logout and invalidate the access token",
+        "responses": {
+          "201": {
+            "description": "Successful response"
+          }
+        }
+      }
+    },
+    "/v1/auth/create": {
+      "post": {
+        "operationId": "authCreate",
+        "summary": "Creates a new DSNP Identity",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateIdentityRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateIdentityResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/auth/delegate": {
+      "post": {
+        "operationId": "authDelegate",
+        "summary": "Delegate to the provider with an existing DSNP Identity",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DelegateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DelegateResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/content/{dsnpId}": {
+      "get": {
+        "operationId": "getUserFeed",
+        "summary": "Get recent posts from a user, paginated",
+        "parameters": [
+          {
+            "name": "dsnpId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
           },
-          "responses": {
-            "200": {
-              "description": "Successful response",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Profile"
+          {
+            "name": "blockNumber",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BroadcastExtended"
                   }
                 }
               }
@@ -401,161 +183,548 @@
         }
       }
     },
-    "components": {
-      "schemas": {
-        "ChallengeResponse": {
-          "type": "object",
-          "properties": {
-            "challenge": {
-              "type": "string"
-            }
-          },
-          "required": ["challenge"]
-        },
-        "LoginRequest": {
-          "type": "object",
-          "properties": {
-            "algo": {
-              "type": "string",
-              "enum": [
-                "SR25519"
-              ]
-            },
-            "encoding": {
-              "type": "string",
-              "enum": [
-                "base16",
-                "base58"
-              ]
-            },
-            "encodedValue": {
-              "type": "string"
-            },
-            "publicKey": {
-              "type": "string"
-            }
-          },
-          "required": ["algo", "encodedValue", "encoding", "publicKey"]
-        },
-        "LoginResponse": {
-          "type": "object",
-          "properties": {
-            "accessToken": {
-              "type": "string"
-            },
-            "expiresIn": {
+    "/v1/content/feed": {
+      "get": {
+        "operationId": "getFeed",
+        "summary": "Get the Feed for the current user, paginated",
+        "parameters": [
+          {
+            "name": "blockNumber",
+            "in": "query",
+            "required": false,
+            "schema": {
               "type": "integer"
             }
           },
-          "required": ["expiresIn", "accessToken"]
-        },
-        "BroadcastExtended": {
-          "type": "object",
-          "properties": {
-            "fromId": {
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
               "type": "integer"
-            },
-            "contentHash": {
-              "type": "string"
-            },
-            "content": {
-              "description": "JSON-encoded Activity Content Note",
-              "type": "string"
-            },
-            "timestamp": {
-              "type": "string",
-              "description": "Timestamp of the post"
-            },
-            "replies": {
-              "type": "array",
-              "items": {
-                "$ref": "#/components/schemas/ReplyExtended"
-              },
-              "description": "Array of ReplyExtended objects"
             }
-          },
-          "required": ["fromId", "contentHash", "content", "timestamp"]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BroadcastExtended"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/content/create": {
+      "post": {
+        "operationId": "createBroadcast",
+        "summary": "Create a new post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePostRequest"
+              }
+            }
+          }
         },
-        "ReplyExtended": {
-          "type": "object",
-          "properties": {
-            "fromId": {
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BroadcastExtended"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/content/{dsnpId}/{contentHash}": {
+      "get": {
+        "operationId": "getContent",
+        "summary": "Get details of a specific post",
+        "parameters": [
+          {
+            "name": "dsnpId",
+            "in": "path",
+            "required": true,
+            "schema": {
               "type": "integer"
-            },
-            "contentHash": {
-              "type": "string"
-            },
-            "content": {
-              "description": "JSON-encoded Activity Content Note",
-              "type": "string"
-            },
-            "timestamp": {
-              "type": "string",
-              "description": "Timestamp of the post"
-            },
-            "replies": {
-              "type": "array",
-              "items": {
-                "$ref": "#/components/schemas/ReplyExtended"
-              },
-              "description": "Array of ReplyExtended objects"
             }
           },
-          "required": ["fromId", "contentHash", "content", "timestamp"]
-        },
-        "CreatePostRequest": {
-          "type": "object",
-          "properties": {
+          {
+            "name": "contentHash",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
             "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BroadcastExtended"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Content not found"
+          }
+        }
+      }
+    },
+    "/v1/content/{type}/{contentHash}": {
+      "put": {
+        "operationId": "editContent",
+        "summary": "Edit the content of a specific post",
+        "parameters": [
+          {
+            "name": "contentHash",
+            "in": "path",
+            "required": true,
+            "schema": {
               "type": "string"
             }
           },
-          "required": ["content"]
-        },
-        "EditPostRequest": {
-          "type": "object",
-          "properties": {
-            "targetContentHash": {
+          {
+            "name": "type",
+            "description": "Broadcast or Reply",
+            "in": "path",
+            "required": true,
+            "schema": {
               "type": "string"
-            },
-            "targetAnnouncementType": {
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditPostRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BroadcastExtended"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/graph/{dsnpId}/following": {
+      "get": {
+        "operationId": "userFollowing",
+        "summary": "Get a list of users that a specific user follows",
+        "parameters": [
+          {
+            "name": "dsnpId",
+            "in": "path",
+            "required": true,
+            "schema": {
               "type": "integer"
-            },
-            "content": {
-              "type": "string"
             }
-          },
-          "required": ["content", "targetAnnouncementType", "targetContentHash"]
-        },
-        "Profile": {
-          "type": "object",
-          "properties": {
-            "fromId": {
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "description": "Array of DSNP Ids",
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/graph/{dsnpId}/follow": {
+      "post": {
+        "operationId": "graphFollow",
+        "summary": "Follow a user",
+        "parameters": [
+          {
+            "name": "dsnpId",
+            "in": "path",
+            "required": true,
+            "schema": {
               "type": "integer"
-            },
-            "contentHash": {
-              "type": "string"
-            },
-            "content": {
-              "description": "JSON-encoded Activity Content Note",
-              "type": "string"
-            },
-            "timestamp": {
-              "type": "string",
-              "description": "Timestamp of the post"
             }
-          },
-          "required": ["fromId", "contentHash", "content", "timestamp"]
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful response"
+          }
+        }
+      }
+    },
+    "/v1/graph/{dsnpId}/unfollow": {
+      "post": {
+        "operationId": "graphUnfollow",
+        "summary": "Unfollow a user",
+        "parameters": [
+          {
+            "name": "dsnpId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successful response"
+          }
+        }
+      }
+    },
+    "/v1/profiles/{dsnpId}": {
+      "get": {
+        "operationId": "getProfile",
+        "summary": "Get profile information for a specific user",
+        "parameters": [
+          {
+            "name": "dsnpId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Profile"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "createProfile",
+        "summary": "Create/Edit the profile information for a current user",
+        "parameters": [
+          {
+            "name": "dsnpId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditProfileRequest"
+              }
+            }
+          }
         },
-        "EditProfileRequest": {
-          "type": "object",
-          "properties": {
+        "responses": {
+          "200": {
+            "description": "Successful response",
             "content": {
-              "type": "string"
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Profile"
+                }
+              }
             }
-          },
-          "required": ["content"]
+          }
         }
       }
     }
+  },
+  "components": {
+    "schemas": {
+      "ProviderResponse": {
+        "type": "object",
+        "properties": {
+          "providerId": {
+            "type": "integer"
+          },
+          "schemas": {
+            "type": "string"
+          }
+        },
+        "required": ["providerId", "schemas"]
+      },
+      "ChallengeResponse": {
+        "type": "object",
+        "properties": {
+          "challenge": {
+            "type": "string"
+          }
+        },
+        "required": ["challenge"]
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "algo": {
+            "type": "string",
+            "enum": [
+              "SR25519"
+            ]
+          },
+          "encoding": {
+            "type": "string",
+            "enum": [
+              "base16",
+              "base58"
+            ]
+          },
+          "encodedValue": {
+            "type": "string"
+          },
+          "publicKey": {
+            "type": "string"
+          }
+        },
+        "required": ["algo", "encodedValue", "encoding", "publicKey"]
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "expiresIn": {
+            "type": "integer"
+          }
+        },
+        "required": ["expiresIn", "accessToken"]
+      },
+      "CreateIdentityRequest": {
+        "type": "object",
+        "properties": {
+          "algo": {
+            "type": "string",
+            "enum": [
+              "SR25519"
+            ]
+          },
+          "encoding": {
+            "type": "string",
+            "enum": [
+              "base16",
+              "base58"
+            ]
+          },
+          "encodedValue": {
+            "type": "string"
+          },
+          "publicKey": {
+            "type": "string"
+          },
+          "handle": {
+            "type": "string"
+          }
+        },
+        "required": ["algo", "encodedValue", "encoding", "publicKey", "handle"]
+      },
+      "CreateIdentityResponse": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "expiresIn": {
+            "type": "integer"
+          },
+          "displayHandle": {
+            "type": "string"
+          },
+          "dsnpId": {
+            "type": "integer"
+          }
+        },
+        "required": ["expiresIn", "accessToken", "displayHandle", "dsnpId"]
+      },
+      "DelegateRequest": {
+        "type": "object",
+        "properties": {
+          "algo": {
+            "type": "string",
+            "enum": [
+              "SR25519"
+            ]
+          },
+          "encoding": {
+            "type": "string",
+            "enum": [
+              "base16",
+              "base58"
+            ]
+          },
+          "encodedValue": {
+            "type": "string"
+          },
+          "publicKey": {
+            "type": "string"
+          }
+        },
+        "required": ["algo", "encodedValue", "encoding", "publicKey"]
+      },
+      "DelegateResponse": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "expiresIn": {
+            "type": "integer"
+          }
+        },
+        "required": ["expiresIn", "accessToken"]
+      },
+      "BroadcastExtended": {
+        "type": "object",
+        "properties": {
+          "fromId": {
+            "type": "integer"
+          },
+          "contentHash": {
+            "type": "string"
+          },
+          "content": {
+            "description": "JSON-encoded Activity Content Note",
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "Timestamp of the post"
+          },
+          "replies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReplyExtended"
+            },
+            "description": "Array of ReplyExtended objects"
+          }
+        },
+        "required": ["fromId", "contentHash", "content", "timestamp"]
+      },
+      "ReplyExtended": {
+        "type": "object",
+        "properties": {
+          "fromId": {
+            "type": "integer"
+          },
+          "contentHash": {
+            "type": "string"
+          },
+          "content": {
+            "description": "JSON-encoded Activity Content Note",
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "Timestamp of the post"
+          },
+          "replies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ReplyExtended"
+            },
+            "description": "Array of ReplyExtended objects"
+          }
+        },
+        "required": ["fromId", "contentHash", "content", "timestamp"]
+      },
+      "CreatePostRequest": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          }
+        },
+        "required": ["content"]
+      },
+      "EditPostRequest": {
+        "type": "object",
+        "properties": {
+          "targetContentHash": {
+            "type": "string"
+          },
+          "targetAnnouncementType": {
+            "type": "integer"
+          },
+          "content": {
+            "type": "string"
+          }
+        },
+        "required": ["content", "targetAnnouncementType", "targetContentHash"]
+      },
+      "Profile": {
+        "type": "object",
+        "properties": {
+          "fromId": {
+            "type": "integer"
+          },
+          "contentHash": {
+            "type": "string"
+          },
+          "content": {
+            "description": "JSON-encoded Activity Content Note",
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "Timestamp of the post"
+          }
+        },
+        "required": ["fromId", "contentHash", "content", "timestamp"]
+      },
+      "EditProfileRequest": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          }
+        },
+        "required": ["content"]
+      }
+    }
   }
+}

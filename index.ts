@@ -40,4 +40,6 @@ app.use("/docs", swaggerUi.serve, swaggerUi.setup(require("./openapi.json")));
 app.use((req, res) => api.handleRequest(req as Request, req, res));
 
 // start server
-app.listen(3000, () => console.info("api listening at http://localhost:3000\nOpenAPI Docs at http://localhost:3000/docs"));
+app.listen(3000, () =>
+  console.info("api listening at http://localhost:3000\nOpenAPI Docs at http://localhost:3000/docs")
+);
