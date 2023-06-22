@@ -1,7 +1,9 @@
-import OpenAPIBackend from "openapi-backend";
+import 'dotenv/config';
+import * as openapiBackend from "openapi-backend";
 import Express from "express";
 import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
+import cors from "cors";
 
 import type { Request } from "openapi-backend";
 
@@ -10,12 +12,14 @@ import * as content from "./handlers/content";
 import * as graph from "./handlers/graph";
 import * as profile from "./handlers/profile";
 
+import openapiJson from "./openapi.json"  assert { type: "json" };
+
 const app = Express();
 app.use(Express.json());
 
 // define api
-const api = new OpenAPIBackend({
-  definition: "./openapi.json",
+const api = new openapiBackend.OpenAPIBackend({
+  definition: "openapi.json",
   handlers: {
     ...auth,
     ...content,
@@ -30,16 +34,19 @@ const api = new OpenAPIBackend({
 
 api.init();
 
+// cors
+app.use(cors());
+
 // logging
 app.use(morgan("combined"));
 
 // Swagger UI
-app.use("/docs", swaggerUi.serve, swaggerUi.setup(require("./openapi.json")));
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(openapiJson));
 
 // use as express middleware
 app.use((req, res) => api.handleRequest(req as Request, req, res));
 
 // start server
-app.listen(3000, () =>
-  console.info("api listening at http://localhost:3000\nOpenAPI Docs at http://localhost:3000/docs")
+app.listen(5000, () =>
+  console.info("api listening at http://localhost:5000\nOpenAPI Docs at http://localhost:5000/docs")
 );

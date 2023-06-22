@@ -1,5 +1,10 @@
 {
   "openapi": "3.0.0",
+  "servers": [
+    {
+      "url": "http://localhost:5000"
+    }
+  ],
   "info": {
     "title": "DSNP Link API Documentation",
     "version": "1.0.0"
@@ -108,6 +113,41 @@
         }
       }
     },
+    "/v1/auth/handles": {
+      "post": {
+        "operationId": "authHandles",
+        "summary": "Get handles for public keys",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Public key to fetch a handle"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response of accounts with handles",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/HandlesResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/auth/delegate": {
       "post": {
         "operationId": "authDelegate",
@@ -150,7 +190,7 @@
             }
           },
           {
-            "name": "blockNumber",
+            "name": "startBlockNumber",
             "in": "query",
             "required": false,
             "schema": {
@@ -172,10 +212,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/BroadcastExtended"
-                  }
+                  "$ref": "#/components/schemas/PaginatedBroadcast"
                 }
               }
             }
@@ -189,7 +226,7 @@
         "summary": "Get the Feed for the current user, paginated",
         "parameters": [
           {
-            "name": "blockNumber",
+            "name": "startBlockNumber",
             "in": "query",
             "required": false,
             "schema": {
@@ -211,10 +248,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/BroadcastExtended"
-                  }
+                  "$ref": "#/components/schemas/PaginatedBroadcast"
                 }
               }
             }
@@ -229,7 +263,7 @@
         "requestBody": {
           "required": true,
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
                 "$ref": "#/components/schemas/CreatePostRequest"
               }
@@ -484,10 +518,16 @@
             "type": "integer"
           },
           "schemas": {
-            "type": "string"
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
           }
         },
-        "required": ["providerId", "schemas"]
+        "required": [
+          "providerId",
+          "schemas"
+        ]
       },
       "ChallengeResponse": {
         "type": "object",
@@ -496,7 +536,9 @@
             "type": "string"
           }
         },
-        "required": ["challenge"]
+        "required": [
+          "challenge"
+        ]
       },
       "LoginRequest": {
         "type": "object",
@@ -521,7 +563,12 @@
             "type": "string"
           }
         },
-        "required": ["algo", "encodedValue", "encoding", "publicKey"]
+        "required": [
+          "algo",
+          "encodedValue",
+          "encoding",
+          "publicKey"
+        ]
       },
       "LoginResponse": {
         "type": "object",
@@ -531,18 +578,31 @@
           },
           "expiresIn": {
             "type": "integer"
+          },
+          "dsnpId": {
+            "type": "integer"
           }
         },
-        "required": ["expiresIn", "accessToken"]
+        "required": [
+          "expiresIn",
+          "accessToken",
+          "dsnpId"
+        ]
       },
       "CreateIdentityRequest": {
         "type": "object",
         "properties": {
+          "addProviderSignature": {
+            "type": "string"
+          },
           "algo": {
             "type": "string",
             "enum": [
               "SR25519"
             ]
+          },
+          "baseHandle": {
+            "type": "string"
           },
           "encoding": {
             "type": "string",
@@ -551,17 +611,25 @@
               "base58"
             ]
           },
-          "encodedValue": {
+          "expiration": {
+            "type": "number"
+          },
+          "handleSignature": {
             "type": "string"
           },
           "publicKey": {
             "type": "string"
-          },
-          "handle": {
-            "type": "string"
           }
         },
-        "required": ["algo", "encodedValue", "encoding", "publicKey", "handle"]
+        "required": [
+          "addProviderSignature",
+          "algo",
+          "baseHandle",
+          "encoding",
+          "expiration",
+          "handleSignature",
+          "publicKey"
+        ]
       },
       "CreateIdentityResponse": {
         "type": "object",
@@ -579,7 +647,12 @@
             "type": "integer"
           }
         },
-        "required": ["expiresIn", "accessToken", "displayHandle", "dsnpId"]
+        "required": [
+          "expiresIn",
+          "accessToken",
+          "displayHandle",
+          "dsnpId"
+        ]
       },
       "DelegateRequest": {
         "type": "object",
@@ -604,7 +677,12 @@
             "type": "string"
           }
         },
-        "required": ["algo", "encodedValue", "encoding", "publicKey"]
+        "required": [
+          "algo",
+          "encodedValue",
+          "encoding",
+          "publicKey"
+        ]
       },
       "DelegateResponse": {
         "type": "object",
@@ -616,7 +694,47 @@
             "type": "integer"
           }
         },
-        "required": ["expiresIn", "accessToken"]
+        "required": [
+          "expiresIn",
+          "accessToken"
+        ]
+      },
+      "HandlesResponse": {
+        "type": "object",
+        "properties": {
+          "publicKey": {
+            "type": "string"
+          },
+          "handle": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "publicKey",
+          "handle"
+        ]
+      },
+      "PaginatedBroadcast": {
+        "type": "object",
+        "properties": {
+          "newestBlockNumber": {
+            "type": "integer"
+          },
+          "oldestBlockNumber": {
+            "type": "integer"
+          },
+          "posts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BroadcastExtended"
+            }
+          }
+        },
+        "required": [
+          "newestBlockNumber",
+          "oldestBlockNumber",
+          "posts"
+        ]
       },
       "BroadcastExtended": {
         "type": "object",
@@ -643,7 +761,12 @@
             "description": "Array of ReplyExtended objects"
           }
         },
-        "required": ["fromId", "contentHash", "content", "timestamp"]
+        "required": [
+          "fromId",
+          "contentHash",
+          "content",
+          "timestamp"
+        ]
       },
       "ReplyExtended": {
         "type": "object",
@@ -670,13 +793,25 @@
             "description": "Array of ReplyExtended objects"
           }
         },
-        "required": ["fromId", "contentHash", "content", "timestamp"]
+        "required": [
+          "fromId",
+          "contentHash",
+          "content",
+          "timestamp"
+        ]
       },
       "CreatePostRequest": {
         "type": "object",
         "properties": {
           "content": {
             "type": "string"
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "binary"
+            }
           }
         },
         "required": ["content"]
@@ -694,7 +829,11 @@
             "type": "string"
           }
         },
-        "required": ["content", "targetAnnouncementType", "targetContentHash"]
+        "required": [
+          "content",
+          "targetAnnouncementType",
+          "targetContentHash"
+        ]
       },
       "Profile": {
         "type": "object",
@@ -712,9 +851,17 @@
           "timestamp": {
             "type": "string",
             "description": "Timestamp of the post"
+          },
+          "displayHandle": {
+            "type": "string"
           }
         },
-        "required": ["fromId", "contentHash", "content", "timestamp"]
+        "required": [
+          "fromId",
+          "contentHash",
+          "content",
+          "timestamp"
+        ]
       },
       "EditProfileRequest": {
         "type": "object",
@@ -723,7 +870,9 @@
             "type": "string"
           }
         },
-        "required": ["content"]
+        "required": [
+          "content"
+        ]
       }
     }
   }
