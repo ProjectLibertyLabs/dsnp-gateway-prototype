@@ -4,7 +4,7 @@ import type * as T from "../types/openapi";
 export const getProfile: Handler<{}> = async (c, req, res) => {
   // T.Paths.GetProfile.PathParameters
   const response: T.Paths.GetProfile.Responses.$200 = {
-    fromId: 123,
+    fromId: "123",
     contentHash: "0xabcd",
     content: "",
     timestamp: new Date().toISOString(),
@@ -19,7 +19,7 @@ export const createProfile: Handler<T.Paths.CreateProfile.RequestBody> = async (
   res
 ) => {
   const response: T.Paths.CreateProfile.Responses.$200 = {
-    fromId: 123,
+    fromId: "123",
     contentHash: "0xabcd",
     content: "",
     timestamp: new Date().toISOString(),

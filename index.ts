@@ -1,4 +1,7 @@
-import 'dotenv/config';
+// Config first
+import "dotenv/config";
+// Augment Polkadot Types First
+import "@frequency-chain/api-augment";
 import * as openapiBackend from "openapi-backend";
 import Express from "express";
 import morgan from "morgan";
@@ -12,7 +15,13 @@ import * as content from "./handlers/content";
 import * as graph from "./handlers/graph";
 import * as profile from "./handlers/profile";
 
-import openapiJson from "./openapi.json"  assert { type: "json" };
+import openapiJson from "./openapi.json" assert { type: "json" };
+import { getApi } from "./services/frequency";
+
+// Support BigInt JSON
+(BigInt.prototype as any).toJSON = function () {
+  return this.toString();
+};
 
 const app = Express();
 app.use(Express.json());
@@ -47,6 +56,9 @@ app.use("/docs", swaggerUi.serve, swaggerUi.setup(openapiJson));
 app.use((req, res) => api.handleRequest(req as Request, req, res));
 
 // start server
-app.listen(5000, () =>
-  console.info("api listening at http://localhost:5000\nOpenAPI Docs at http://localhost:5000/docs")
-);
+app.listen(5000, () => {
+  getApi().catch((e) => {
+    console.error("Error connecting to Frequency Node!!", e.message);
+  });
+  console.info("api listening at http://localhost:5000\nOpenAPI Docs at http://localhost:5000/docs");
+});

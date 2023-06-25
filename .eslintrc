@@ -38,13 +38,15 @@
       {
         "exceptionPatterns": [
           "[i-k]",
-          "e",
           "c",
-          "x",
-          "y",
+          "e",
+          "n",
+          "p",
           "r",
           "s",
-          "v"
+          "v",
+          "x",
+          "y"
         ],
         "properties": "never"
       }
