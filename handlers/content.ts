@@ -4,7 +4,6 @@ import type * as T from "../types/openapi";
 import { ipfsPin } from "../services/ipfs";
 import * as dsnp from "../services/dsnp";
 import { createImageAttachment, createImageLink, createNote } from "@dsnp/activity-content/factories";
-import { getMsaIdFromAuth } from "../services/auth";
 import { publishBroadcast } from "../services/announce";
 import { getPostsInRange } from "../services/feed";
 import { getCurrentBlockNumber } from "../services/frequency";
@@ -50,7 +49,7 @@ export const getFeed: Handler<{}> = async (c: Context<{}, {}, T.Paths.GetFeed.Qu
 export const createBroadcast: Handler<T.Paths.CreateBroadcast.RequestBody> = async (c, req, res) => {
   console.log("createBroadcast");
   try {
-    const msaId = await getMsaIdFromAuth(c.security);
+    const msaId = c.security.msaId;
     const bb = Busboy({ headers: req.headers });
 
     const formAsync: Promise<[Fields, File[]]> = new Promise((resolve, reject) => {

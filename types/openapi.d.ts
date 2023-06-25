@@ -7,7 +7,14 @@ import type {
 } from "openapi-client-axios";
 
 declare namespace Components {
+  namespace Responses {
+    export interface UnauthorizedError {}
+  }
   namespace Schemas {
+    export interface AuthAccountResponse {
+      dsnpId: string;
+      displayHandle?: string;
+    }
     export interface BroadcastExtended {
       fromId: string;
       contentHash: string;
@@ -38,9 +45,7 @@ declare namespace Components {
     }
     export interface CreateIdentityResponse {
       accessToken: string;
-      expiresIn: number;
-      displayHandle: string;
-      dsnpId: string;
+      expires: number;
     }
     export interface CreatePostRequest {
       content: string;
@@ -54,7 +59,7 @@ declare namespace Components {
     }
     export interface DelegateResponse {
       accessToken: string;
-      expiresIn: number;
+      expires: number;
     }
     export interface EditPostRequest {
       targetContentHash: string;
@@ -73,10 +78,11 @@ declare namespace Components {
       encoding: "base16" | "base58";
       encodedValue: string;
       publicKey: string;
+      challenge: string;
     }
     export interface LoginResponse {
       accessToken: string;
-      expiresIn: number;
+      expires: number;
       dsnpId: string;
     }
     export interface PaginatedBroadcast {
@@ -121,6 +127,13 @@ declare namespace Components {
   }
 }
 declare namespace Paths {
+  namespace AuthAccount {
+    namespace Responses {
+      export type $200 = Components.Schemas.AuthAccountResponse;
+      export interface $202 {}
+      export type $401 = Components.Responses.UnauthorizedError;
+    }
+  }
   namespace AuthChallenge {
     namespace Responses {
       export type $200 = Components.Schemas.ChallengeResponse;
@@ -130,12 +143,14 @@ declare namespace Paths {
     export type RequestBody = Components.Schemas.CreateIdentityRequest;
     namespace Responses {
       export type $200 = Components.Schemas.CreateIdentityResponse;
+      export type $401 = Components.Responses.UnauthorizedError;
     }
   }
   namespace AuthDelegate {
     export type RequestBody = Components.Schemas.DelegateRequest;
     namespace Responses {
       export type $200 = Components.Schemas.DelegateResponse;
+      export type $401 = Components.Responses.UnauthorizedError;
     }
   }
   namespace AuthHandles {
@@ -153,6 +168,7 @@ declare namespace Paths {
   namespace AuthLogout {
     namespace Responses {
       export interface $201 {}
+      export type $401 = Components.Responses.UnauthorizedError;
     }
   }
   namespace AuthProvider {
@@ -164,6 +180,7 @@ declare namespace Paths {
     export type RequestBody = Components.Schemas.CreatePostRequest;
     namespace Responses {
       export type $200 = Components.Schemas.BroadcastExtended;
+      export type $401 = Components.Responses.UnauthorizedError;
     }
   }
   namespace CreateProfile {
@@ -176,6 +193,7 @@ declare namespace Paths {
     export type RequestBody = Components.Schemas.EditProfileRequest;
     namespace Responses {
       export type $200 = Components.Schemas.Profile;
+      export type $401 = Components.Responses.UnauthorizedError;
     }
   }
   namespace EditContent {
@@ -190,6 +208,7 @@ declare namespace Paths {
     export type RequestBody = Components.Schemas.EditPostRequest;
     namespace Responses {
       export type $200 = Components.Schemas.BroadcastExtended;
+      export type $401 = Components.Responses.UnauthorizedError;
     }
   }
   namespace GetContent {
@@ -203,6 +222,7 @@ declare namespace Paths {
     }
     namespace Responses {
       export type $200 = Components.Schemas.BroadcastExtended;
+      export type $401 = Components.Responses.UnauthorizedError;
       export interface $404 {}
     }
   }
@@ -217,6 +237,7 @@ declare namespace Paths {
     }
     namespace Responses {
       export type $200 = Components.Schemas.PaginatedBroadcast;
+      export type $401 = Components.Responses.UnauthorizedError;
     }
   }
   namespace GetProfile {
@@ -228,6 +249,7 @@ declare namespace Paths {
     }
     namespace Responses {
       export type $200 = Components.Schemas.Profile;
+      export type $401 = Components.Responses.UnauthorizedError;
     }
   }
   namespace GetUserFeed {
@@ -245,6 +267,7 @@ declare namespace Paths {
     }
     namespace Responses {
       export type $200 = Components.Schemas.PaginatedBroadcast;
+      export type $401 = Components.Responses.UnauthorizedError;
     }
   }
   namespace GraphFollow {
@@ -256,6 +279,7 @@ declare namespace Paths {
     }
     namespace Responses {
       export interface $201 {}
+      export type $401 = Components.Responses.UnauthorizedError;
     }
   }
   namespace GraphUnfollow {
@@ -267,6 +291,7 @@ declare namespace Paths {
     }
     namespace Responses {
       export interface $201 {}
+      export type $401 = Components.Responses.UnauthorizedError;
     }
   }
   namespace UserFollowing {
@@ -278,6 +303,7 @@ declare namespace Paths {
     }
     namespace Responses {
       export type $200 = string[];
+      export type $401 = Components.Responses.UnauthorizedError;
     }
   }
 }
@@ -323,6 +349,14 @@ export interface OperationMethods {
     data?: Paths.AuthCreate.RequestBody,
     config?: AxiosRequestConfig
   ): OperationResponse<Paths.AuthCreate.Responses.$200>;
+  /**
+   * authAccount - For polling to get the created account as authCreate can take time
+   */
+  "authAccount"(
+    parameters?: Parameters<UnknownParamsObject> | null,
+    data?: any,
+    config?: AxiosRequestConfig
+  ): OperationResponse<Paths.AuthAccount.Responses.$200 | Paths.AuthAccount.Responses.$202>;
   /**
    * authHandles - Get handles for public keys
    */
@@ -471,6 +505,16 @@ export interface PathsDictionary {
       data?: Paths.AuthCreate.RequestBody,
       config?: AxiosRequestConfig
     ): OperationResponse<Paths.AuthCreate.Responses.$200>;
+  };
+  ["/v1/auth/account"]: {
+    /**
+     * authAccount - For polling to get the created account as authCreate can take time
+     */
+    "get"(
+      parameters?: Parameters<UnknownParamsObject> | null,
+      data?: any,
+      config?: AxiosRequestConfig
+    ): OperationResponse<Paths.AuthAccount.Responses.$200 | Paths.AuthAccount.Responses.$202>;
   };
   ["/v1/auth/handles"]: {
     /**

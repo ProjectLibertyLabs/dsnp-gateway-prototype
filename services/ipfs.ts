@@ -19,6 +19,10 @@ const ipfsEndpoint = process.env.IPFS_ENDPOINT;
 const ipfsAuthUser = process.env.IPFS_BASIC_AUTH_USER;
 const ipfsAuthSecret = process.env.IPFS_BASIC_AUTH_SECRET;
 
+if (!ipfsEndpoint) {
+  throw new Error("IPFS_ENDPOINT env variable is required");
+}
+
 const ipfsAuth =
   ipfsAuthUser && ipfsAuthSecret ? "Basic " + Buffer.from(ipfsAuthUser + ":" + ipfsAuthSecret).toString("base64") : "";
 

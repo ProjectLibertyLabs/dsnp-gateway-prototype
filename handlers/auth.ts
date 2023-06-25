@@ -1,17 +1,44 @@
 import { Handler } from "openapi-backend";
 import type * as T from "../types/openapi";
-import { getProviderHttp } from "../services/frequency";
+import { getApi, getNonce, getProviderHttp, getProviderKey } from "../services/frequency";
+import { generateChallenge, createAuthToken, getMsaByPublicKey, useChallenge } from "../services/auth";
+import { AnnouncementType } from "../services/dsnp";
+import { getSchemaId } from "../services/announce";
+
+// Environment Variables
+const providerId = process.env.PROVIDER_ID;
+if (!providerId) {
+  throw new Error("PROVIDER_ID env variable is required");
+}
+
+// Constants
+const addProviderSchemas = [
+  getSchemaId(AnnouncementType.Broadcast),
+  getSchemaId(AnnouncementType.Reaction),
+  getSchemaId(AnnouncementType.Reply),
+  getSchemaId(AnnouncementType.Tombstone),
+  getSchemaId(AnnouncementType.Profile),
+  getSchemaId(AnnouncementType.Update),
+];
+// Make sure they are sorted.
+addProviderSchemas.sort();
 
 export const authChallenge: Handler<{}> = async (_c, _req, res) => {
-  const response: T.Paths.AuthChallenge.Responses.$200 = { challenge: "ok" };
+  const response: T.Paths.AuthChallenge.Responses.$200 = { challenge: generateChallenge() };
   return res.status(200).json(response);
 };
 
 export const authLogin: Handler<T.Paths.AuthLogin.RequestBody> = async (c, _req, res) => {
+  const { publicKey, encodedValue: _encodedValue, challenge } = c.request.requestBody;
+  const msaId = await getMsaByPublicKey(publicKey);
+  if (!msaId || !useChallenge(challenge)) return res.status(401).send();
+  // TODO: Validate Challenge signature
+  // _encodedValue
+
   const response: T.Paths.AuthLogin.Responses.$200 = {
-    accessToken: "",
-    expiresIn: Date.now() + 60 * 60 * 24,
-    dsnpId: "2",
+    accessToken: await createAuthToken(c.request.requestBody.publicKey),
+    expires: Date.now() + 60 * 60 * 24,
+    dsnpId: msaId,
   };
   return res.status(200).json(response);
 };
@@ -23,36 +50,112 @@ export const authLogout: Handler<{}> = async (_c, _req, res) => {
 export const authProvider: Handler<{}> = async (_c, _req, res) => {
   const response: T.Paths.AuthProvider.Responses.$200 = {
     nodeUrl: getProviderHttp(),
-    providerId: "1",
-    schemas: [1, 2, 3],
+    providerId,
+    schemas: addProviderSchemas,
   };
   return res.status(200).json(response);
 };
 
 export const authCreate: Handler<T.Paths.AuthCreate.RequestBody> = async (c, _req, res) => {
-  const response: T.Paths.AuthCreate.Responses.$200 = {
-    accessToken: "",
-    expiresIn: 0,
-    displayHandle: `${c.request.requestBody.baseHandle}.123`,
-    dsnpId: "123",
-  };
-  return res.status(200).json(response);
+  try {
+    const api = await getApi();
+    const publicKey = c.request.requestBody.publicKey;
+    console.log(c.request.requestBody);
+
+    // TODO: Validate the expiration and the signature before submitting them
+    const addProviderData = {
+      authorizedMsaId: providerId,
+      expiration: c.request.requestBody.expiration,
+      schemaIds: addProviderSchemas,
+    };
+
+    const createSponsoredAccountWithDelegation = api.tx.msa.createSponsoredAccountWithDelegation(
+      publicKey,
+      { Sr25519: c.request.requestBody.addProviderSignature },
+      addProviderData
+    );
+
+    const handleBytes = api.registry.createType("Bytes", c.request.requestBody.baseHandle);
+    const handlePayload = {
+      baseHandle: handleBytes,
+      expiration: c.request.requestBody.expiration,
+    };
+
+    const claimHandle = api.tx.handles.claimHandle(
+      publicKey,
+      { Sr25519: c.request.requestBody.handleSignature },
+      handlePayload
+    );
+
+    const calls = [createSponsoredAccountWithDelegation, claimHandle];
+
+    // Trigger it and just log if there is an error later
+    await api.tx.frequencyTxPayment
+      .payWithCapacityBatchAll(calls)
+      .signAndSend(getProviderKey(), { nonce: await getNonce() }, ({ status, dispatchError }) => {
+        if (dispatchError) {
+          console.error("ERROR: ", dispatchError.toHuman());
+        } else if (status.isInBlock || status.isFinalized) {
+          console.log("Account Created", status.toHuman());
+        }
+      });
+
+    const response: T.Paths.AuthCreate.Responses.$200 = {
+      accessToken: await createAuthToken(c.request.requestBody.publicKey),
+      expires: Date.now() + 60 * 60 * 24,
+    };
+    return res.status(200).json(response);
+  } catch (e) {
+    console.error(e);
+    return res.status(500).send();
+  }
 };
 
-export const authDelegate: Handler<T.Paths.AuthDelegate.RequestBody> = async (_c, _req, res) => {
+export const authAccount: Handler<{}> = async (c, _req, res) => {
+  try {
+    console.log(c.security);
+    const account = c.security;
+    if (account === null || !account.msaId) return res.status(202).send();
+
+    const api = await getApi();
+    const displayHandle = await api.rpc.handles.getHandleForMsa(account.msaId);
+    // Handle still being created...
+    // TODO: Be OK with no handle
+    if (displayHandle.isEmpty) return res.status(202).send();
+
+    const response: T.Paths.AuthAccount.Responses.$200 = {
+      displayHandle: displayHandle.value.toJSON(),
+      dsnpId: account.msaId,
+    };
+    return res.status(200).json(response);
+  } catch (e) {
+    console.error(e);
+    return res.status(500).send();
+  }
+};
+
+export const authDelegate: Handler<T.Paths.AuthDelegate.RequestBody> = async (c, _req, res) => {
   const response: T.Paths.AuthDelegate.Responses.$200 = {
-    accessToken: "",
-    expiresIn: 0,
+    accessToken: await createAuthToken(c.request.requestBody.publicKey),
+    expires: Date.now() + 60 * 60 * 24,
   };
   return res.status(200).json(response);
 };
 
-export const authHandles: Handler<T.Paths.AuthHandles.RequestBody> = async (_c, _req, res) => {
-  const response: T.Paths.AuthHandles.Responses.$200 = [
-    {
-      publicKey: "5f",
-      handle: "test.34",
-    },
-  ];
+export const authHandles: Handler<T.Paths.AuthHandles.RequestBody> = async (c, _req, res) => {
+  const response: T.Paths.AuthHandles.Responses.$200 = [];
+  const api = await getApi();
+  for await (const publicKey of c.request.requestBody) {
+    const msaId = await api.query.msa.publicKeyToMsaId(publicKey);
+    if (msaId.isSome) {
+      const handle = await api.rpc.handles.getHandleForMsa(msaId.value);
+      if (handle.isSome) {
+        response.push({
+          publicKey,
+          handle: `${handle.value.base_handle}.${handle.value.suffix}`,
+        });
+      }
+    }
+  }
   return res.status(200).json(response);
 };

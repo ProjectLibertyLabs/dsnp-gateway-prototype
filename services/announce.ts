@@ -82,12 +82,14 @@ export const publishBroadcast = async (announcements: BroadcastAnnouncement[]) =
   const tx = api.tx.messages.addIpfsMessage(schemaId, cid, size);
 
   // Do NOT wait for all the callbacks. Assume for now that it will work...
-  await tx.signAndSend(getProviderKey(), { nonce: await getNonce() }, ({ status, dispatchError }) => {
-    if (dispatchError) {
-      console.error("ERROR: ", dispatchError.toHuman());
-    } else if (status.isInBlock || status.isFinalized) {
-      console.log(status.toHuman());
-    }
-  });
+  await api.tx.frequencyTxPayment
+    .payWithCapacity(tx)
+    .signAndSend(getProviderKey(), { nonce: await getNonce() }, ({ status, dispatchError }) => {
+      if (dispatchError) {
+        console.error("ERROR: ", dispatchError.toHuman());
+      } else if (status.isInBlock || status.isFinalized) {
+        console.log("Message Posted", status.toHuman());
+      }
+    });
   return;
 };

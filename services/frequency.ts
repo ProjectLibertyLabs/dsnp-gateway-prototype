@@ -1,7 +1,7 @@
 import { options } from "@frequency-chain/api-augment";
 import { WsProvider, ApiPromise, Keyring } from "@polkadot/api";
 
-// Infura API credentials
+// Environment Variables
 const providerUri = process.env.FREQUENCY_NODE;
 const publicNodeHttp = process.env.FREQUENCY_PUBLIC_ENDPOINT;
 const providerKeyUri = process.env.PROVIDER_KEY_URI;

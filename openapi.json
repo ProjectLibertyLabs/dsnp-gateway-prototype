@@ -78,7 +78,13 @@
       "post": {
         "operationId": "authLogout",
         "summary": "Logout and invalidate the access token",
+        "security": [{
+          "tokenAuth": []
+        }],
         "responses": {
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
           "201": {
             "description": "Successful response"
           }
@@ -100,12 +106,42 @@
           }
         },
         "responses": {
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
           "200": {
             "description": "Successful response",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CreateIdentityResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/auth/account": {
+      "get": {
+        "operationId": "authAccount",
+        "summary": "For polling to get the created account as authCreate can take time",
+        "security": [{
+          "tokenAuth": []
+        }],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "202": {
+            "description": "Account still pending creation"
+          },
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthAccountResponse"
                 }
               }
             }
@@ -163,6 +199,9 @@
           }
         },
         "responses": {
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
           "200": {
             "description": "Successful response",
             "content": {
@@ -180,6 +219,9 @@
       "get": {
         "operationId": "getUserFeed",
         "summary": "Get recent posts from a user, paginated",
+        "security": [{
+          "tokenAuth": []
+        }],
         "parameters": [
           {
             "name": "dsnpId",
@@ -207,6 +249,9 @@
           }
         ],
         "responses": {
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
           "200": {
             "description": "Successful response",
             "content": {
@@ -224,6 +269,9 @@
       "get": {
         "operationId": "getFeed",
         "summary": "Get the Feed for the current user, paginated",
+        "security": [{
+          "tokenAuth": []
+        }],
         "parameters": [
           {
             "name": "newestBlockNumber",
@@ -243,6 +291,9 @@
           }
         ],
         "responses": {
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
           "200": {
             "description": "Successful response",
             "content": {
@@ -260,6 +311,9 @@
       "post": {
         "operationId": "createBroadcast",
         "summary": "Create a new post",
+        "security": [{
+          "tokenAuth": []
+        }],
         "requestBody": {
           "required": true,
           "content": {
@@ -271,6 +325,9 @@
           }
         },
         "responses": {
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
           "200": {
             "description": "Successful response",
             "content": {
@@ -288,6 +345,9 @@
       "get": {
         "operationId": "getContent",
         "summary": "Get details of a specific post",
+        "security": [{
+          "tokenAuth": []
+        }],
         "parameters": [
           {
             "name": "dsnpId",
@@ -307,6 +367,9 @@
           }
         ],
         "responses": {
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
           "200": {
             "description": "Successful response",
             "content": {
@@ -326,6 +389,9 @@
     "/v1/content/{type}/{contentHash}": {
       "put": {
         "operationId": "editContent",
+        "security": [{
+          "tokenAuth": []
+        }],
         "summary": "Edit the content of a specific post",
         "parameters": [
           {
@@ -357,6 +423,9 @@
           }
         },
         "responses": {
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
           "200": {
             "description": "Successful response",
             "content": {
@@ -374,6 +443,9 @@
       "get": {
         "operationId": "userFollowing",
         "summary": "Get a list of users that a specific user follows",
+        "security": [{
+          "tokenAuth": []
+        }],
         "parameters": [
           {
             "name": "dsnpId",
@@ -385,6 +457,9 @@
           }
         ],
         "responses": {
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
           "200": {
             "description": "Successful response",
             "content": {
@@ -406,6 +481,9 @@
       "post": {
         "operationId": "graphFollow",
         "summary": "Follow a user",
+        "security": [{
+          "tokenAuth": []
+        }],
         "parameters": [
           {
             "name": "dsnpId",
@@ -417,6 +495,9 @@
           }
         ],
         "responses": {
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
           "201": {
             "description": "Successful response"
           }
@@ -427,6 +508,9 @@
       "post": {
         "operationId": "graphUnfollow",
         "summary": "Unfollow a user",
+        "security": [{
+          "tokenAuth": []
+        }],
         "parameters": [
           {
             "name": "dsnpId",
@@ -438,6 +522,9 @@
           }
         ],
         "responses": {
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
           "201": {
             "description": "Successful response"
           }
@@ -448,6 +535,9 @@
       "get": {
         "operationId": "getProfile",
         "summary": "Get profile information for a specific user",
+        "security": [{
+          "tokenAuth": []
+        }],
         "parameters": [
           {
             "name": "dsnpId",
@@ -459,6 +549,9 @@
           }
         ],
         "responses": {
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
           "200": {
             "description": "Successful response",
             "content": {
@@ -474,6 +567,9 @@
       "put": {
         "operationId": "createProfile",
         "summary": "Create/Edit the profile information for a current user",
+        "security": [{
+          "tokenAuth": []
+        }],
         "parameters": [
           {
             "name": "dsnpId",
@@ -495,6 +591,9 @@
           }
         },
         "responses": {
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
           "200": {
             "description": "Successful response",
             "content": {
@@ -510,6 +609,18 @@
     }
   },
   "components": {
+    "securitySchemes":{
+    "tokenAuth": {
+      "type": "http",
+      "scheme": "bearer",
+      "bearerFormat": "accessToken"
+      }
+    },
+    "responses": {
+      "UnauthorizedError": {
+        "description": "Access token invalid or not found"
+      }
+    },
     "schemas": {
       "ProviderResponse": {
         "type": "object",
@@ -565,13 +676,17 @@
           },
           "publicKey": {
             "type": "string"
+          },
+          "challenge": {
+            "type": "string"
           }
         },
         "required": [
           "algo",
           "encodedValue",
           "encoding",
-          "publicKey"
+          "publicKey",
+          "challenge"
         ]
       },
       "LoginResponse": {
@@ -580,7 +695,7 @@
           "accessToken": {
             "type": "string"
           },
-          "expiresIn": {
+          "expires": {
             "type": "integer"
           },
           "dsnpId": {
@@ -588,7 +703,7 @@
           }
         },
         "required": [
-          "expiresIn",
+          "expires",
           "accessToken",
           "dsnpId"
         ]
@@ -641,20 +756,26 @@
           "accessToken": {
             "type": "string"
           },
-          "expiresIn": {
+          "expires": {
             "type": "integer"
-          },
-          "displayHandle": {
+          }
+        },
+        "required": [
+          "expires",
+          "accessToken"
+        ]
+      },
+      "AuthAccountResponse": {
+        "type": "object",
+        "properties": {
+          "dsnpId": {
             "type": "string"
           },
-          "dsnpId": {
+          "displayHandle": {
             "type": "string"
           }
         },
         "required": [
-          "expiresIn",
-          "accessToken",
-          "displayHandle",
           "dsnpId"
         ]
       },
@@ -694,12 +815,12 @@
           "accessToken": {
             "type": "string"
           },
-          "expiresIn": {
+          "expires": {
             "type": "integer"
           }
         },
         "required": [
-          "expiresIn",
+          "expires",
           "accessToken"
         ]
       },

@@ -3,7 +3,6 @@
  */
 export enum AnnouncementType {
   Tombstone = 0,
-  GraphChange = 1,
   Broadcast = 2,
   Reply = 3,
   Reaction = 4,
