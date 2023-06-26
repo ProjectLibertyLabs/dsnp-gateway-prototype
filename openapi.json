@@ -667,8 +667,7 @@
           "encoding": {
             "type": "string",
             "enum": [
-              "base16",
-              "base58"
+              "hex"
             ]
           },
           "encodedValue": {
@@ -726,8 +725,7 @@
           "encoding": {
             "type": "string",
             "enum": [
-              "base16",
-              "base58"
+              "hex"
             ]
           },
           "expiration": {
@@ -791,8 +789,7 @@
           "encoding": {
             "type": "string",
             "enum": [
-              "base16",
-              "base58"
+              "hex"
             ]
           },
           "encodedValue": {

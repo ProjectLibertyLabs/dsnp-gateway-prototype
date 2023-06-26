@@ -69,6 +69,8 @@ export const authCreate: Handler<T.Paths.AuthCreate.RequestBody> = async (c, _re
       schemaIds: addProviderSchemas,
     };
 
+    console.log(addProviderData);
+
     const createSponsoredAccountWithDelegation = api.tx.msa.createSponsoredAccountWithDelegation(
       publicKey,
       { Sr25519: c.request.requestBody.addProviderSignature },
@@ -89,6 +91,7 @@ export const authCreate: Handler<T.Paths.AuthCreate.RequestBody> = async (c, _re
 
     const calls = [createSponsoredAccountWithDelegation, claimHandle];
 
+    // TEMP: Undo the actual submission for now.s
     // Trigger it and just log if there is an error later
     await api.tx.frequencyTxPayment
       .payWithCapacityBatchAll(calls)
@@ -113,19 +116,20 @@ export const authCreate: Handler<T.Paths.AuthCreate.RequestBody> = async (c, _re
 
 export const authAccount: Handler<{}> = async (c, _req, res) => {
   try {
-    console.log(c.security);
-    const account = c.security;
-    if (account === null || !account.msaId) return res.status(202).send();
+    const msaId = c.security?.tokenAuth?.msaId;
+    if (msaId === null) return res.status(202).send();
 
     const api = await getApi();
-    const displayHandle = await api.rpc.handles.getHandleForMsa(account.msaId);
+    const handleResp = await api.rpc.handles.getHandleForMsa(msaId);
     // Handle still being created...
     // TODO: Be OK with no handle
-    if (displayHandle.isEmpty) return res.status(202).send();
+    if (handleResp.isEmpty) return res.status(202).send();
+
+    const handle = handleResp.value.toJSON();
 
     const response: T.Paths.AuthAccount.Responses.$200 = {
-      displayHandle: displayHandle.value.toJSON(),
-      dsnpId: account.msaId,
+      displayHandle: `${handle.base_handle}.${handle.suffix}`,
+      dsnpId: msaId,
     };
     return res.status(200).json(response);
   } catch (e) {
