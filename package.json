@@ -12,7 +12,8 @@
     "test": "jest",
     "format": "tsc --noEmit --pretty && eslint --fix \"**/*.ts\"",
     "lint": "tsc --noEmit --pretty && eslint \"**/*.ts\"",
-    "gen:types": "npx openapi-client-axios-typegen ./openapi.json > types/openapi.d.ts"
+    "gen:types": "npx openapi-client-axios-typegen ./openapi.json > types/openapi.d.ts",
+    "local:init": "node scripts/local-init.cjs"
   },
   "repository": {
     "type": "git",
