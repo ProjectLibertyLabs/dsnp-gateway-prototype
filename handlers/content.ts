@@ -7,6 +7,7 @@ import { createImageAttachment, createImageLink, createNote } from "@dsnp/activi
 import { publishBroadcast } from "../services/announce";
 import { getPostsInRange } from "../services/feed";
 import { getCurrentBlockNumber } from "../services/frequency";
+import { getMsaByPublicKey } from "../services/auth";
 
 type Fields = Record<string, string>;
 type File = {
@@ -47,9 +48,8 @@ export const getFeed: Handler<{}> = async (c: Context<{}, {}, T.Paths.GetFeed.Qu
 };
 
 export const createBroadcast: Handler<T.Paths.CreateBroadcast.RequestBody> = async (c, req, res) => {
-  console.log("createBroadcast");
   try {
-    const msaId = c.security.msaId;
+    const msaId = c.security.tokenAuth.msaId || await getMsaByPublicKey(c.security.tokenAuth.publicKey);
     const bb = Busboy({ headers: req.headers });
 
     const formAsync: Promise<[Fields, File[]]> = new Promise((resolve, reject) => {
@@ -71,7 +71,6 @@ export const createBroadcast: Handler<T.Paths.CreateBroadcast.RequestBody> = asy
           });
       })
         .on("field", (name, val, info) => {
-          console.log("field", name, val, info);
           fields[name] = val;
         })
         .on("error", (e) => {
@@ -96,7 +95,7 @@ export const createBroadcast: Handler<T.Paths.CreateBroadcast.RequestBody> = asy
     const note = createNote(fields.content, new Date(), { attachment });
     const noteString = JSON.stringify(note);
     const { cid, hash: contentHash } = await ipfsPin("application/json", Buffer.from(noteString, "utf8"));
-    const announcement = dsnp.createBroadcast(msaId, `https://ipfs.io/ipfs/${cid}`, contentHash);
+    const announcement = dsnp.createBroadcast(msaId!, `https://ipfs.io/ipfs/${cid}`, contentHash);
 
     // Add it to the batch and publish
     await publishBroadcast([announcement]);

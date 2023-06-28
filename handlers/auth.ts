@@ -60,7 +60,6 @@ export const authCreate: Handler<T.Paths.AuthCreate.RequestBody> = async (c, _re
   try {
     const api = await getApi();
     const publicKey = c.request.requestBody.publicKey;
-    console.log(c.request.requestBody);
 
     // TODO: Validate the expiration and the signature before submitting them
     const addProviderData = {
@@ -68,8 +67,6 @@ export const authCreate: Handler<T.Paths.AuthCreate.RequestBody> = async (c, _re
       expiration: c.request.requestBody.expiration,
       schemaIds: addProviderSchemas,
     };
-
-    console.log(addProviderData);
 
     const createSponsoredAccountWithDelegation = api.tx.msa.createSponsoredAccountWithDelegation(
       publicKey,

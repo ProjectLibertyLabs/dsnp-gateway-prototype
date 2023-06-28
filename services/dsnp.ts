@@ -20,7 +20,7 @@ export type Announcement = TypedAnnouncement<AnnouncementType>;
  */
 export type TypedAnnouncement<T extends AnnouncementType> = {
   announcementType: T;
-  fromId: bigint;
+  fromId: string;
 } & (TombstoneFields | BroadcastFields | ReplyFields | ReactionFields | ProfileFields);
 
 type TombstoneFields = {
@@ -69,7 +69,7 @@ export type TombstoneAnnouncement = TypedAnnouncement<AnnouncementType.Tombstone
  * @returns A TombstoneAnnouncement
  */
 export const createTombstone = (
-  fromId: bigint,
+  fromId: string,
   targetType: AnnouncementType,
   targetSignature: string
 ): TombstoneAnnouncement => ({
@@ -93,7 +93,7 @@ export type BroadcastAnnouncement = TypedAnnouncement<AnnouncementType.Broadcast
  * @param hash      - The hash of the content at the URL
  * @returns A BroadcastAnnouncement
  */
-export const createBroadcast = (fromId: bigint, url: string, hash: string): BroadcastAnnouncement => ({
+export const createBroadcast = (fromId: string, url: string, hash: string): BroadcastAnnouncement => ({
   announcementType: AnnouncementType.Broadcast,
   contentHash: hash,
   fromId,
@@ -115,7 +115,7 @@ export type ReplyAnnouncement = TypedAnnouncement<AnnouncementType.Reply>;
  * @param inReplyTo - The DSNP Content Uri of the parent announcement
  * @returns A ReplyAnnouncement
  */
-export const createReply = (fromId: bigint, url: string, hash: string, inReplyTo: string): ReplyAnnouncement => ({
+export const createReply = (fromId: string, url: string, hash: string, inReplyTo: string): ReplyAnnouncement => ({
   announcementType: AnnouncementType.Reply,
   contentHash: hash,
   fromId,
@@ -137,7 +137,7 @@ export type ReactionAnnouncement = TypedAnnouncement<AnnouncementType.Reaction>;
  * @param inReplyTo - The DSNP Content Uri of the parent announcement
  * @returns A ReactionAnnouncement
  */
-export const createReaction = (fromId: bigint, emoji: string, inReplyTo: string): ReactionAnnouncement => ({
+export const createReaction = (fromId: string, emoji: string, inReplyTo: string): ReactionAnnouncement => ({
   announcementType: AnnouncementType.Reaction,
   emoji,
   fromId,
@@ -157,7 +157,7 @@ export type ProfileAnnouncement = TypedAnnouncement<AnnouncementType.Profile>;
  * @param hash      - The hash of the content at the URL
  * @returns A ProfileAnnouncement
  */
-export const createProfile = (fromId: bigint, url: string, hash: string): ProfileAnnouncement => ({
+export const createProfile = (fromId: string, url: string, hash: string): ProfileAnnouncement => ({
   announcementType: AnnouncementType.Profile,
   contentHash: hash,
   fromId,
