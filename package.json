@@ -1,7 +1,7 @@
 {
-  "name": "dsnp-link",
+  "name": "dsnp-gateway-prototype",
   "version": "0.0.0",
-  "description": "A DSNP API service that links to a DSNP System like Frequency",
+  "description": "A DSNP Gateway API service that links to Frequency",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -17,17 +17,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/AmplicaLabs/dsnp-link.git"
+    "url": "git+https://github.com/AmplicaLabs/dsnp-gateway-prototype.git"
   },
   "author": "Amplica Labs",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/AmplicaLabs/dsnp-link/issues"
+    "url": "https://github.com/AmplicaLabs/dsnp-gateway-prototype/issues"
   },
-  "homepage": "https://github.com/AmplicaLabs/dsnp-link#readme",
+  "homepage": "https://github.com/AmplicaLabs/dsnp-gateway-prototype#readme",
   "dependencies": {
     "@dsnp/activity-content": "^1.1.0",
-    "@dsnp/frequency-schemas": "^1.0.0",
+    "@dsnp/frequency-schemas": "^1.0.1",
     "@dsnp/parquetjs": "^1.3.1",
     "@frequency-chain/api-augment": "^1.7.0-rc1",
     "@multiformats/blake2": "^1.0.13",
