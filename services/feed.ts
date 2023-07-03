@@ -2,11 +2,12 @@ import type * as T from "../types/openapi";
 import { getSchemaId } from "./announce";
 import { AnnouncementType, BroadcastAnnouncement } from "./dsnp";
 import { getApi } from "./frequency";
-import { bases, bytes } from "multiformats/basics";
+import { bases } from "multiformats/basics";
 import { hexToString } from "@polkadot/util";
 import axios from "axios";
 import { ParquetReader } from "@dsnp/parquetjs";
 import { MessageResponse } from "@frequency-chain/api-augment/interfaces";
+import { ipfsUrl } from "./ipfs";
 
 type Post = T.Components.Schemas.BroadcastExtended;
 interface CachedPosts {
@@ -38,8 +39,6 @@ const getPostsForBlockRange = async ({ from, to }: BlockRange): Promise<[number,
     page_size: 10_000,
   });
 
-  console.log("messages length", resp.content.length);
-
   const messages: MsgParsed[] = resp.content.map((msg: any) => {
     const parsed = msg.toJSON() as unknown as MessageResponse;
     return {
@@ -51,32 +50,45 @@ const getPostsForBlockRange = async ({ from, to }: BlockRange): Promise<[number,
   const posts: [number, Post][] = [];
   // Fetch the parquet files
   for await (const msg of messages) {
-    const parquetFileUrl = `https://ipfs.io/ipfs/${msg.cid}`;
-    const resp = await axios.get(parquetFileUrl, {
-      responseType: "arraybuffer",
-      timeout: 10_000,
-    });
-
-    const reader = await ParquetReader.openBuffer(Buffer.from(resp.data));
-    // Fetch the individual posts
-    const cursor = reader.getCursor();
-    let announcement: null | BroadcastAnnouncement = null;
-    while ((announcement = (await cursor.next()) as null | BroadcastAnnouncement)) {
-      // TODO: Validate Hash
-      const postResp = await axios.get(announcement.url, {
-        responseType: "text",
+    try {
+      const parquetFileUrl = ipfsUrl(msg.cid);
+      const resp = await axios.get(parquetFileUrl, {
+        responseType: "arraybuffer",
         timeout: 10_000,
       });
-      posts.push([
-        msg.block_number,
-        {
-          fromId: announcement.fromId.toString(),
-          contentHash: bases.base58btc.encode(announcement.contentHash as any),
-          content: postResp.data as unknown as string,
-          timestamp: new Date().toISOString(), // TODO: Use Block timestamp
-          replies: [], // TODO: Support replies
-        },
-      ]);
+
+      const reader = await ParquetReader.openBuffer(Buffer.from(resp.data));
+      // Fetch the individual posts
+      const cursor = reader.getCursor();
+      let announcement: null | BroadcastAnnouncement = null;
+      while ((announcement = (await cursor.next()) as null | BroadcastAnnouncement)) {
+        try {
+          // TODO: Validate Hash
+          const postResp = await axios.get(announcement.url, {
+            responseType: "text",
+            timeout: 10_000,
+          });
+          posts.push([
+            msg.block_number,
+            {
+              fromId: announcement.fromId.toString(),
+              contentHash: bases.base58btc.encode(announcement.contentHash as any),
+              content: postResp.data as unknown as string,
+              timestamp: new Date().toISOString(), // TODO: Use Block timestamp
+              replies: [], // TODO: Support replies
+            },
+          ]);
+        } catch (e) {
+          // Skip this announcement
+          // TODO: Try again sometime?
+          console.error("Failed Content", e);
+        }
+      }
+    } catch(e) {
+      // Skip this parquet file.
+      // TODO: Try again sometime?
+      console.error("Failed Parquet File", e);
+      return [];
     }
   }
 
@@ -112,7 +124,6 @@ const fetchAndCachePosts = (newestBlockNumber: number, oldestBlockNumber: number
     // TODO: Handle single block requests
     // Cache the posts for each range and apply to the cache
     .map((range) => {
-      console.log("Range", range);
       const pending = getPostsForBlockRange(range);
       for (let i = range.from; i <= range.to; i++) {
         cache[i] = pending.then((x) => x.filter(([n]) => n === i));

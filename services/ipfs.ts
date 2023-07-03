@@ -18,9 +18,19 @@ export interface FilePin {
 const ipfsEndpoint = process.env.IPFS_ENDPOINT;
 const ipfsAuthUser = process.env.IPFS_BASIC_AUTH_USER;
 const ipfsAuthSecret = process.env.IPFS_BASIC_AUTH_SECRET;
+// IPFS Gateway
+const ipfsGateway = process.env.IPFS_GATEWAY;
 
 if (!ipfsEndpoint) {
   throw new Error("IPFS_ENDPOINT env variable is required");
+}
+
+if (!ipfsGateway) {
+  throw new Error("IPFS_GATEWAY env variable is required");
+}
+
+if (!ipfsGateway.includes("[CID]")) {
+  throw new Error("IPFS_GATEWAY env variable must have the '[CID]' positioning string.");
 }
 
 const ipfsAuth =
@@ -73,3 +83,7 @@ export const ipfsPin = async (mimeType: string, file: Buffer): Promise<FilePin> 
   const ipfs = await ipfsPinBuffer(`${hash}.${extension}`, mimeType, file);
   return { ...ipfs, hash };
 };
+
+export const ipfsUrl = (cid: string): string => {
+  return ipfsGateway.replace("[CID]", cid);
+}

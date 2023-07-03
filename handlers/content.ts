@@ -1,7 +1,7 @@
 import { Context, Handler } from "openapi-backend";
 import Busboy from "busboy";
 import type * as T from "../types/openapi";
-import { ipfsPin } from "../services/ipfs";
+import { ipfsPin, ipfsUrl } from "../services/ipfs";
 import * as dsnp from "../services/dsnp";
 import { createImageAttachment, createImageLink, createNote } from "@dsnp/activity-content/factories";
 import { publishBroadcast } from "../services/announce";
@@ -88,14 +88,14 @@ export const createBroadcast: Handler<T.Paths.CreateBroadcast.RequestBody> = asy
         .filter((x) => x.name === "images")
         .map(async (image) => {
           const { cid, hash } = await ipfsPin(image.info.mimeType, image.file);
-          return createImageAttachment([createImageLink(`https://ipfs.io/ipfs/${cid}`, image.info.mimeType, [hash])]);
+          return createImageAttachment([createImageLink(ipfsUrl(cid), image.info.mimeType, [hash])]);
         })
     );
 
     const note = createNote(fields.content, new Date(), { attachment });
     const noteString = JSON.stringify(note);
     const { cid, hash: contentHash } = await ipfsPin("application/json", Buffer.from(noteString, "utf8"));
-    const announcement = dsnp.createBroadcast(msaId!, `https://ipfs.io/ipfs/${cid}`, contentHash);
+    const announcement = dsnp.createBroadcast(msaId!, ipfsUrl(cid), contentHash);
 
     // Add it to the batch and publish
     await publishBroadcast([announcement]);
