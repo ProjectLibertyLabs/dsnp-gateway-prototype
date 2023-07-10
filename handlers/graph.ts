@@ -1,10 +1,14 @@
 import { Handler } from "openapi-backend";
 import type * as T from "../types/openapi";
 import { getMsaByPublicKey } from "../services/auth";
-import { follow, getPublicFollows } from "../services/graph";
+import { follow, getPublicFollows, unfollow } from "../services/graph";
 
 export const userFollowing: Handler<{}> = async (c, _req, res) => {
-  const msaId = c.security.tokenAuth.msaId || (await getMsaByPublicKey(c.security.tokenAuth.publicKey));
+  const msaId = c.request.params.dsnpId;
+
+  if (typeof msaId !== "string") {
+    return res.status(404).send();
+  }
 
   const follows = await getPublicFollows(msaId);
 
@@ -22,7 +26,7 @@ export const graphFollow: Handler<{}> = async (c, _req, res) => {
 
   await follow(msaId, parseInt(objectMsaId));
 
-  return res.status(201);
+  return res.status(201).send();
 };
 
 export const graphUnfollow: Handler<{}> = async (c, _req, res) => {
@@ -33,5 +37,7 @@ export const graphUnfollow: Handler<{}> = async (c, _req, res) => {
     return res.status(404).send();
   }
 
-  return res.status(201);
+  await unfollow(msaId, parseInt(objectMsaId));
+
+  return res.status(201).send();
 };

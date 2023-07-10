@@ -33,7 +33,7 @@ export const getUserFeed: Handler<{}> = async (c: Context<{}, {}, T.Paths.GetUse
   const response: T.Paths.GetUserFeed.Responses.$200 = {
     newestBlockNumber: newest,
     oldestBlockNumber: oldest,
-    posts: posts.filter(x => x.fromId === msaId),
+    posts: posts.filter((x) => x.fromId === msaId),
   };
   return res.status(200).json(response);
 };

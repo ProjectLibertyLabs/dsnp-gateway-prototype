@@ -53,11 +53,12 @@ export const getPublicFollows = async (msaId: string): Promise<string[]> => {
 };
 
 export const follow = async (actorId: string, objectId: number): Promise<void> => {
+  console.log("Follow Request", { actorId, objectId });
   const api = await getApi();
   const schemaId = getSchemaId(AnnouncementType.PublicFollows);
   const resp = await api.rpc.statefulStorage.getPaginatedStorage(actorId, schemaId);
 
-  const pages = [...resp];
+  const pages = resp.map((page) => page.toJSON());
 
   const followPages = pages.map((page) => {
     try {
@@ -83,7 +84,6 @@ export const follow = async (actorId: string, objectId: number): Promise<void> =
   if (pageNumber === -1 || followPages[pageNumber].length >= 93) {
     pageNumber = pageNumber >= 0 ? pageNumber + 1 : 0;
   } else {
-    console.log({ pageNumber, hash: pages[0].content_hash });
     const lastPage = pages[pageNumber];
     upsertEdges = inflatePage(lastPage.payload);
     hash = lastPage.content_hash;
@@ -91,6 +91,50 @@ export const follow = async (actorId: string, objectId: number): Promise<void> =
 
   upsertEdges.push({ userId: objectId, since: Math.floor(Date.now() / 1000) });
   console.log("upsertEdges", upsertEdges);
+
+  const encodedPage = deflatePage(upsertEdges);
+  const payload = "0x" + encodedPage.toString("hex");
+
+  // Do NOT wait for all the callbacks. Assume for now that it will work...
+  await api.tx.statefulStorage
+    .upsertPage(actorId, schemaId, pageNumber, hash, payload)
+    .signAndSend(getProviderKey(), { nonce: await getNonce() }, ({ status, dispatchError }) => {
+      if (dispatchError) {
+        console.error("Graph ERROR: ", dispatchError.toHuman());
+      } else if (status.isInBlock || status.isFinalized) {
+        console.log("Graph Updated: ", status.toHuman());
+      }
+    });
+};
+
+export const unfollow = async (actorId: string, objectId: number): Promise<void> => {
+  console.log("Unfollow Request", { actorId, objectId });
+  const api = await getApi();
+  const schemaId = getSchemaId(AnnouncementType.PublicFollows);
+  const resp = await api.rpc.statefulStorage.getPaginatedStorage(actorId, schemaId);
+
+  const pages = resp.map((page) => page.toJSON());
+
+  const followPages = pages.map((page) => {
+    try {
+      return inflatePage(page.payload).map((x: GraphEdge) => x.userId);
+    } catch (e) {
+      console.error("Failed to parse public follows...", e);
+      return [];
+    }
+  });
+
+  const pageNumber = followPages.findIndex((page) => page.includes(objectId));
+
+  if (pageNumber < 0) return;
+
+  // Check if we should use a new page
+  const editPage = pages[pageNumber];
+  const originalEdges = inflatePage(editPage.payload);
+  const hash = editPage.content_hash;
+
+  const upsertEdges = originalEdges.filter(({ userId }) => userId !== objectId);
+  console.log("upsertEdges", upsertEdges, "Length Difference: ", originalEdges.length - upsertEdges.length);
 
   const encodedPage = deflatePage(upsertEdges);
   const payload = "0x" + encodedPage.toString("hex");
