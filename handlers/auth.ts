@@ -19,6 +19,7 @@ const addProviderSchemas = [
   getSchemaId(AnnouncementType.Tombstone),
   getSchemaId(AnnouncementType.Profile),
   getSchemaId(AnnouncementType.Update),
+  getSchemaId(AnnouncementType.PublicFollows),
 ];
 // Make sure they are sorted.
 addProviderSchemas.sort();

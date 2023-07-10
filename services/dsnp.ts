@@ -8,6 +8,7 @@ export enum AnnouncementType {
   Reaction = 4,
   Profile = 5,
   Update = 6,
+  PublicFollows = 113
 }
 
 /**

@@ -14,7 +14,8 @@
         "skipLibCheck": true,
         "target": "ESNext",
         "typeRoots": [
-            "node_modules/@types"
+            "node_modules/@types",
+            "./types"
         ]
     },
     "ts-node": {

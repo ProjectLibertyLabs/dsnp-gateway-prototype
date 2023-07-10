@@ -19,6 +19,8 @@ const TestnetSchemas = (type: AnnouncementType): number => {
       return 6;
     case AnnouncementType.Update:
       return 5;
+    case AnnouncementType.PublicFollows:
+      return 13;
   }
   throw new Error("Unknown Announcement Type");
 };
@@ -37,6 +39,8 @@ const MainnetSchemas = (type: AnnouncementType): number => {
       return 5;
     case AnnouncementType.Update:
       return 6;
+    case AnnouncementType.PublicFollows:
+      return 8;
   }
   throw new Error("Unknown Announcement Type");
 };

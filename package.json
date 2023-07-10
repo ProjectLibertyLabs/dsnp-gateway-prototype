@@ -32,6 +32,7 @@
     "@frequency-chain/api-augment": "^1.7.0-rc1",
     "@multiformats/blake2": "^1.0.13",
     "@polkadot/api": "^10.9.1",
+    "avro-js": "^1.11.2",
     "busboy": "^1.6.0",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
