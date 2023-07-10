@@ -4,7 +4,7 @@ import { AnnouncementType } from "./dsnp";
 import { getApi, getNonce, getProviderKey } from "./frequency";
 import { dsnp } from "@dsnp/frequency-schemas";
 import avro from "avro-js";
-import { Bytes } from "@polkadot/types"
+import { Bytes } from "@polkadot/types";
 
 // { userId, since }
 const publicFollowsAvro = avro.parse(dsnp.userPublicFollows.types[0]);
@@ -28,13 +28,13 @@ const inflatePage = (payload: string): GraphEdge[] => {
     console.log("Error parsing page", e);
     return [];
   }
-}
+};
 
 const deflatePage = (edges: GraphEdge[]) => {
   const inside = publicFollowsAvro.toBuffer(edges);
   const compressedPublicGraph = zlib.deflateSync(inside);
   return publicFollowsCompressed.toBuffer({ compressedPublicGraph });
-}
+};
 
 export const getPublicFollows = async (msaId: string): Promise<string[]> => {
   const api = await getApi();
@@ -42,8 +42,7 @@ export const getPublicFollows = async (msaId: string): Promise<string[]> => {
   const resp = await api.rpc.statefulStorage.getPaginatedStorage(msaId, schemaId);
   const followList = resp.flatMap((page) => {
     try {
-    return inflatePage(page.toJSON().payload)
-      .map((x: { userId: number, since: number }) => x.userId.toString());
+      return inflatePage(page.toJSON().payload).map((x: { userId: number; since: number }) => x.userId.toString());
     } catch (e) {
       console.error("Failed to parse public follows...", e);
       return [];
@@ -51,7 +50,7 @@ export const getPublicFollows = async (msaId: string): Promise<string[]> => {
   });
 
   return followList;
-}
+};
 
 export const follow = async (actorId: string, objectId: number): Promise<void> => {
   const api = await getApi();
@@ -62,8 +61,7 @@ export const follow = async (actorId: string, objectId: number): Promise<void> =
 
   const followPages = pages.map((page) => {
     try {
-    return inflatePage(page.payload)
-      .map((x: GraphEdge) => x.userId);
+      return inflatePage(page.payload).map((x: GraphEdge) => x.userId);
     } catch (e) {
       console.error("Failed to parse public follows...", e);
       return [];
@@ -82,10 +80,10 @@ export const follow = async (actorId: string, objectId: number): Promise<void> =
   let hash = null;
 
   // Check if we should use a new page
-  if (pageNumber === - 1 || followPages[pageNumber].length >= 93) {
+  if (pageNumber === -1 || followPages[pageNumber].length >= 93) {
     pageNumber = pageNumber >= 0 ? pageNumber + 1 : 0;
   } else {
-    console.log({pageNumber, hash: pages[0].content_hash});
+    console.log({ pageNumber, hash: pages[0].content_hash });
     const lastPage = pages[pageNumber];
     upsertEdges = inflatePage(lastPage.payload);
     hash = lastPage.content_hash;
@@ -101,10 +99,10 @@ export const follow = async (actorId: string, objectId: number): Promise<void> =
   await api.tx.statefulStorage
     .upsertPage(actorId, schemaId, pageNumber, hash, payload)
     .signAndSend(getProviderKey(), { nonce: await getNonce() }, ({ status, dispatchError }) => {
-    if (dispatchError) {
-      console.error("Graph ERROR: ", dispatchError.toHuman());
-    } else if (status.isInBlock || status.isFinalized) {
-      console.log("Graph Updated: ", status.toHuman());
-    }
-  });
-}
+      if (dispatchError) {
+        console.error("Graph ERROR: ", dispatchError.toHuman());
+      } else if (status.isInBlock || status.isFinalized) {
+        console.log("Graph Updated: ", status.toHuman());
+      }
+    });
+};

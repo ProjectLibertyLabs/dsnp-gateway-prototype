@@ -49,7 +49,7 @@ export const getFeed: Handler<{}> = async (c: Context<{}, {}, T.Paths.GetFeed.Qu
 
 export const createBroadcast: Handler<T.Paths.CreateBroadcast.RequestBody> = async (c, req, res) => {
   try {
-    const msaId = c.security.tokenAuth.msaId || await getMsaByPublicKey(c.security.tokenAuth.publicKey);
+    const msaId = c.security.tokenAuth.msaId || (await getMsaByPublicKey(c.security.tokenAuth.publicKey));
     const bb = Busboy({ headers: req.headers });
 
     const formAsync: Promise<[Fields, File[]]> = new Promise((resolve, reject) => {

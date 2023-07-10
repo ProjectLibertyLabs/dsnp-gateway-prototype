@@ -16,9 +16,8 @@ export const getProfile: Handler<{}> = async (c, _req, res) => {
     let displayHandle = "";
     const handle = await api.rpc.handles.getHandleForMsa(msaId);
     if (handle.isSome) {
-      displayHandle = `${handle.value.base_handle}.${handle.value.suffix}`
+      displayHandle = `${handle.value.base_handle}.${handle.value.suffix}`;
     }
-
 
     const response: T.Paths.GetProfile.Responses.$200 = {
       fromId: msaId,

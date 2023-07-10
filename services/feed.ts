@@ -84,7 +84,7 @@ const getPostsForBlockRange = async ({ from, to }: BlockRange): Promise<[number,
           console.error("Failed Content", e);
         }
       }
-    } catch(e) {
+    } catch (e) {
       // Skip this parquet file.
       // TODO: Try again sometime?
       console.error("Failed Parquet File", e);

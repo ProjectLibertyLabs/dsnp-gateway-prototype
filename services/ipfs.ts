@@ -86,4 +86,4 @@ export const ipfsPin = async (mimeType: string, file: Buffer): Promise<FilePin> 
 
 export const ipfsUrl = (cid: string): string => {
   return ipfsGateway.replace("[CID]", cid);
-}
+};

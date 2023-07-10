@@ -4,7 +4,7 @@ import { getMsaByPublicKey } from "../services/auth";
 import { follow, getPublicFollows } from "../services/graph";
 
 export const userFollowing: Handler<{}> = async (c, _req, res) => {
-  const msaId = c.security.tokenAuth.msaId || await getMsaByPublicKey(c.security.tokenAuth.publicKey);
+  const msaId = c.security.tokenAuth.msaId || (await getMsaByPublicKey(c.security.tokenAuth.publicKey));
 
   const follows = await getPublicFollows(msaId);
 
@@ -13,7 +13,7 @@ export const userFollowing: Handler<{}> = async (c, _req, res) => {
 };
 
 export const graphFollow: Handler<{}> = async (c, _req, res) => {
-  const msaId = c.security.tokenAuth.msaId || await getMsaByPublicKey(c.security.tokenAuth.publicKey);
+  const msaId = c.security.tokenAuth.msaId || (await getMsaByPublicKey(c.security.tokenAuth.publicKey));
   const objectMsaId = c.request.params.dsnpId;
 
   if (typeof objectMsaId !== "string") {
@@ -26,7 +26,7 @@ export const graphFollow: Handler<{}> = async (c, _req, res) => {
 };
 
 export const graphUnfollow: Handler<{}> = async (c, _req, res) => {
-  const msaId = c.security.tokenAuth.msaId || await getMsaByPublicKey(c.security.tokenAuth.publicKey);
+  const msaId = c.security.tokenAuth.msaId || (await getMsaByPublicKey(c.security.tokenAuth.publicKey));
   const objectMsaId = c.request.params.dsnpId;
 
   if (typeof objectMsaId !== "string") {
