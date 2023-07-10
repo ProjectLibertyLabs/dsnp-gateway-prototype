@@ -23,8 +23,31 @@ export const getUserFeed: Handler<{}> = async (c: Context<{}, {}, T.Paths.GetUse
   const newest = newestBlockNumber ?? (await getCurrentBlockNumber());
   const oldest = Math.max(1, oldestBlockNumber || 1, newest - 10_000); // 10k blocks at a time max
 
+  const msaId = (c.request.params as any).dsnpId;
+
+  if (typeof msaId !== "string") {
+    return res.status(404).send();
+  }
+
   const posts = await getPostsInRange(newest, oldest);
   const response: T.Paths.GetUserFeed.Responses.$200 = {
+    newestBlockNumber: newest,
+    oldestBlockNumber: oldest,
+    posts: posts.filter(x => x.fromId === msaId),
+  };
+  return res.status(200).json(response);
+};
+
+export const getFeed: Handler<{}> = async (c: Context<{}, {}, T.Paths.GetFeed.QueryParameters>, _req, res) => {
+  // TODO: Return only items from who the user follows
+
+  const { newestBlockNumber, oldestBlockNumber } = c.request.query;
+  // Default to now
+  const newest = newestBlockNumber ?? (await getCurrentBlockNumber());
+  const oldest = Math.max(1, oldestBlockNumber || 1, newest - 10_000); // 10k blocks at a time max
+
+  const posts = await getPostsInRange(newest, oldest);
+  const response: T.Paths.GetFeed.Responses.$200 = {
     newestBlockNumber: newest,
     oldestBlockNumber: oldest,
     posts: posts,
@@ -32,7 +55,7 @@ export const getUserFeed: Handler<{}> = async (c: Context<{}, {}, T.Paths.GetUse
   return res.status(200).json(response);
 };
 
-export const getFeed: Handler<{}> = async (c: Context<{}, {}, T.Paths.GetFeed.QueryParameters>, req, res) => {
+export const getDiscover: Handler<{}> = async (c: Context<{}, {}, T.Paths.GetDiscover.QueryParameters>, _req, res) => {
   const { newestBlockNumber, oldestBlockNumber } = c.request.query;
   // Default to now
   const newest = newestBlockNumber ?? (await getCurrentBlockNumber());
