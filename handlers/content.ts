@@ -1,13 +1,13 @@
 import { Context, Handler } from "openapi-backend";
 import Busboy from "busboy";
-import type * as T from "../types/openapi";
-import { ipfsPin, ipfsUrl } from "../services/ipfs";
-import * as dsnp from "../services/dsnp";
+import type * as T from "../types/openapi.js";
+import { ipfsPin, ipfsUrl } from "../services/ipfs.js";
+import * as dsnp from "../services/dsnp.js";
 import { createImageAttachment, createImageLink, createNote } from "@dsnp/activity-content/factories";
-import { publishBroadcast } from "../services/announce";
-import { getPostsInRange } from "../services/feed";
-import { getCurrentBlockNumber } from "../services/frequency";
-import { getMsaByPublicKey } from "../services/auth";
+import { publishBroadcast } from "../services/announce.js";
+import { getPostsInRange } from "../services/feed.js";
+import { getCurrentBlockNumber } from "../services/frequency.js";
+import { getMsaByPublicKey } from "../services/auth.js";
 
 type Fields = Record<string, string>;
 type File = {

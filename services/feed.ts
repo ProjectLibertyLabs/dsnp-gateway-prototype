@@ -1,13 +1,13 @@
-import type * as T from "../types/openapi";
-import { getSchemaId } from "./announce";
-import { AnnouncementType, BroadcastAnnouncement } from "./dsnp";
-import { getApi } from "./frequency";
+import type * as T from "../types/openapi.js";
+import { getSchemaId } from "./announce.js";
+import { AnnouncementType, BroadcastAnnouncement } from "./dsnp.js";
+import { getApi } from "./frequency.js";
 import { bases } from "multiformats/basics";
 import { hexToString } from "@polkadot/util";
 import axios from "axios";
 import { ParquetReader } from "@dsnp/parquetjs";
 import { MessageResponse } from "@frequency-chain/api-augment/interfaces";
-import { ipfsUrl } from "./ipfs";
+import { ipfsUrl } from "./ipfs.js";
 
 type Post = T.Components.Schemas.BroadcastExtended;
 interface CachedPosts {

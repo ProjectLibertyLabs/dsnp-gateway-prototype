@@ -1,7 +1,7 @@
 import { Handler } from "openapi-backend";
-import type * as T from "../types/openapi";
-import { getMsaByPublicKey } from "../services/auth";
-import { follow, getPublicFollows, unfollow } from "../services/graph";
+import type * as T from "../types/openapi.js";
+import { getMsaByPublicKey } from "../services/auth.js";
+import { follow, getPublicFollows, unfollow } from "../services/graph.js";
 
 export const userFollowing: Handler<{}> = async (c, _req, res) => {
   const msaId = c.request.params.dsnpId;

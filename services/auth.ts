@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import { getApi } from "./frequency";
+import { getApi } from "./frequency.js";
 
 export type RequestAccount = { publicKey: string; msaId?: string };
 

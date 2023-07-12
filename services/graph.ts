@@ -1,7 +1,7 @@
 import zlib from "node:zlib";
-import { getSchemaId } from "./announce";
-import { AnnouncementType } from "./dsnp";
-import { getApi, getNonce, getProviderKey } from "./frequency";
+import { getSchemaId } from "./announce.js";
+import { AnnouncementType } from "./dsnp.js";
+import { getApi, getNonce, getProviderKey } from "./frequency.js";
 import { dsnp } from "@dsnp/frequency-schemas";
 import avro from "avro-js";
 import { Bytes } from "@polkadot/types";

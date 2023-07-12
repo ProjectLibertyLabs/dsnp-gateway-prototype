@@ -1,6 +1,6 @@
 import { Handler } from "openapi-backend";
-import type * as T from "../types/openapi";
-import { getApi } from "../services/frequency";
+import type * as T from "../types/openapi.js";
+import { getApi } from "../services/frequency.js";
 
 export const getProfile: Handler<{}> = async (c, _req, res) => {
   // T.Paths.GetProfile.PathParameters

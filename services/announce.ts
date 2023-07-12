@@ -1,9 +1,9 @@
 import { PassThrough } from "node:stream";
 import { parquet } from "@dsnp/frequency-schemas";
 import { ParquetWriter } from "@dsnp/parquetjs";
-import { ChainType, getApi, getChainType, getNonce, getProviderKey } from "./frequency";
-import { ipfsPin } from "./ipfs";
-import { AnnouncementType, BroadcastAnnouncement } from "./dsnp";
+import { ChainType, getApi, getChainType, getNonce, getProviderKey } from "./frequency.js";
+import { ipfsPin } from "./ipfs.js";
+import { AnnouncementType, BroadcastAnnouncement } from "./dsnp.js";
 
 const TestnetSchemas = (type: AnnouncementType): number => {
   switch (type) {

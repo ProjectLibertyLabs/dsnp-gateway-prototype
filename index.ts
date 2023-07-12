@@ -10,14 +10,14 @@ import cors from "cors";
 
 import type { Request } from "openapi-backend";
 
-import * as auth from "./handlers/auth";
-import * as content from "./handlers/content";
-import * as graph from "./handlers/graph";
-import * as profile from "./handlers/profile";
+import * as auth from "./handlers/auth.js";
+import * as content from "./handlers/content.js";
+import * as graph from "./handlers/graph.js";
+import * as profile from "./handlers/profile.js";
 
 import openapiJson from "./openapi.json" assert { type: "json" };
-import { getApi } from "./services/frequency";
-import { getAccountFromAuth } from "./services/auth";
+import { getApi } from "./services/frequency.js";
+import { getAccountFromAuth } from "./services/auth.js";
 
 // Support BigInt JSON
 (BigInt.prototype as any).toJSON = function () {

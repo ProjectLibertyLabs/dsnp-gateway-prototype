@@ -27,7 +27,7 @@
         "avoidEscape": true
       }
     ],
-    "import/extensions": "off",
+    "import/extensions": ["error", "always", { "ignorePackages": true } ],
     "mocha/no-setup-in-describe": "off",
     "prettier/prettier": "error",
     "no-use-before-define": "off",
@@ -51,7 +51,7 @@
         "properties": "never"
       }
     ],
-    "allow-namespace": "off"
+    "allow-namespace": "off",
   },
   "overrides": [
     {

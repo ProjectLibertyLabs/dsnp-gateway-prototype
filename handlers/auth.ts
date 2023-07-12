@@ -1,9 +1,9 @@
 import { Handler } from "openapi-backend";
-import type * as T from "../types/openapi";
-import { getApi, getNonce, getProviderHttp, getProviderKey } from "../services/frequency";
-import { generateChallenge, createAuthToken, getMsaByPublicKey, useChallenge } from "../services/auth";
-import { AnnouncementType } from "../services/dsnp";
-import { getSchemaId } from "../services/announce";
+import type * as T from "../types/openapi.js";
+import { getApi, getNonce, getProviderHttp, getProviderKey } from "../services/frequency.js";
+import { generateChallenge, createAuthToken, getMsaByPublicKey, useChallenge } from "../services/auth.js";
+import { AnnouncementType } from "../services/dsnp.js";
+import { getSchemaId } from "../services/announce.js";
 
 // Environment Variables
 const providerId = process.env.PROVIDER_ID;
