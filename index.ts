@@ -74,7 +74,7 @@ api.register("unauthorizedHandler", (_c, _req, res) => {
 app.use((req, res) => api.handleRequest(req as Request, req, res));
 
 // start server
-app.listen(5000, () => {
+app.listen(5001, () => {
   getApi().catch((e) => {
     console.error("Error connecting to Frequency Node!!", e.message);
   });

@@ -12,7 +12,7 @@ const eventWithSectionAndMethod = (events, section, method) => {
 const main = async () => {
   console.log("A quick script that will setup a clean localhost instance of Frequency for DSNP ");
 
-  const providerUri = "ws://127.0.0.1:9944";
+  const providerUri = "ws://127.0.0.1:9960";
   const provider = new WsProvider(providerUri);
   const api = await ApiPromise.create({ provider, throwOnConnect: true, ...options });
   const keys = new Keyring().addFromUri("//Alice", {}, "sr25519");
