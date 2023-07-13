@@ -4,6 +4,7 @@ import { getApi, getNonce, getProviderHttp, getProviderKey } from "../services/f
 import { generateChallenge, createAuthToken, getMsaByPublicKey, useChallenge } from "../services/auth.js";
 import { AnnouncementType } from "../services/dsnp.js";
 import { getSchemaId } from "../services/announce.js";
+import { getIpfsGateway } from "../services/ipfs.js";
 
 // Environment Variables
 const providerId = process.env.PROVIDER_ID;
@@ -51,6 +52,7 @@ export const authLogout: Handler<{}> = async (_c, _req, res) => {
 export const authProvider: Handler<{}> = async (_c, _req, res) => {
   const response: T.Paths.AuthProvider.Responses.$200 = {
     nodeUrl: getProviderHttp(),
+    ipfsGateway: getIpfsGateway(),
     providerId,
     schemas: addProviderSchemas,
   };

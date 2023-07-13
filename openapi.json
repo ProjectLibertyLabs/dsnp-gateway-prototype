@@ -670,6 +670,10 @@
           "nodeUrl": {
             "type": "string"
           },
+          "ipfsGateway": {
+            "description": "IPFS Path Style Gateway base URI",
+            "type": "string"
+          },
           "providerId": {
             "type": "string"
           },

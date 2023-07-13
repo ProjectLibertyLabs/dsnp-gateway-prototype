@@ -33,6 +33,13 @@ if (!ipfsGateway.includes("[CID]")) {
   throw new Error("IPFS_GATEWAY env variable must have the '[CID]' positioning string.");
 }
 
+// Returns the root of the path style IPFS Gateway
+export const getIpfsGateway = (): string | undefined => {
+  if (ipfsGateway.includes("/ipfs/[CID]")) {
+    return ipfsGateway.replace("/ipfs/[CID]", "");
+  }
+};
+
 const ipfsAuth =
   ipfsAuthUser && ipfsAuthSecret ? "Basic " + Buffer.from(ipfsAuthUser + ":" + ipfsAuthSecret).toString("base64") : "";
 
@@ -84,6 +91,10 @@ export const ipfsPin = async (mimeType: string, file: Buffer): Promise<FilePin> 
   return { ...ipfs, hash };
 };
 
-export const ipfsUrl = (cid: string): string => {
+export const localIpfsUrl = (cid: string): string => {
   return ipfsGateway.replace("[CID]", cid);
+};
+
+export const ipfsUrl = (cid: string): string => {
+  return `https://ipfs.io/ipfs/${cid}`;
 };

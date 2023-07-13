@@ -105,6 +105,10 @@ declare namespace Components {
     }
     export interface ProviderResponse {
       nodeUrl: string;
+      /**
+       * IPFS Path Style Gateway base URI
+       */
+      ipfsGateway?: string;
       providerId: string;
       schemas: number[];
     }
