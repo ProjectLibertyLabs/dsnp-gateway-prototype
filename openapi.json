@@ -974,6 +974,9 @@
           "content": {
             "type": "string"
           },
+          "inReplyTo": {
+            "type": "string"
+          },
           "images": {
             "type": "array",
             "items": {

@@ -3,7 +3,7 @@ import { parquet } from "@dsnp/frequency-schemas";
 import { ParquetWriter } from "@dsnp/parquetjs";
 import { ChainType, getApi, getChainType, getNonce, getProviderKey } from "./frequency.js";
 import { ipfsPin } from "./ipfs.js";
-import { AnnouncementType, BroadcastAnnouncement } from "./dsnp.js";
+import { AnnouncementType, BroadcastAnnouncement, ReplyAnnouncement } from "./dsnp.js";
 
 const TestnetSchemas = (type: AnnouncementType): number => {
   switch (type) {
@@ -53,14 +53,15 @@ export const getSchemaId = (type: AnnouncementType): number => {
   }
 };
 
-export const publishBroadcast = async (announcements: BroadcastAnnouncement[]) => {
+export const publish = async <T extends BroadcastAnnouncement | ReplyAnnouncement>(announcements: Array<T>) => {
   console.log(`Preparing to publish a batch of announcements. Count: ${announcements.length}`);
-
   const api = await getApi();
-  const schemaId = getSchemaId(AnnouncementType.Broadcast);
-  // Generate the parquet file
 
-  const [parquetSchema, writerOptions] = parquet.fromFrequencySchema("broadcast");
+  const announcementType = announcements[0].announcementType;
+
+  const schemaString = announcementType === AnnouncementType.Broadcast ? "broadcast" : "reply";
+
+  const [parquetSchema, writerOptions] = parquet.fromFrequencySchema(schemaString);
 
   const publishStream = new PassThrough();
   const parquetBufferAwait = new Promise<Buffer>((resolve, reject) => {
@@ -83,6 +84,7 @@ export const publishBroadcast = async (announcements: BroadcastAnnouncement[]) =
 
   // Pin to IPFS
   const { cid, size } = await ipfsPin("application/octet-stream", buf);
+  const schemaId = getSchemaId(announcementType);
   const tx = api.tx.messages.addIpfsMessage(schemaId, cid, size);
 
   // Do NOT wait for all the callbacks. Assume for now that it will work...

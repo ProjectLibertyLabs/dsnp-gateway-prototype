@@ -4,7 +4,7 @@ import type * as T from "../types/openapi.js";
 import { ipfsPin, ipfsUrl } from "../services/ipfs.js";
 import * as dsnp from "../services/dsnp.js";
 import { createImageAttachment, createImageLink, createNote } from "@dsnp/activity-content/factories";
-import { publishBroadcast } from "../services/announce.js";
+import { publish } from "../services/announce.js";
 import { getPostsInRange } from "../services/feed.js";
 import { getCurrentBlockNumber } from "../services/frequency.js";
 import { getMsaByPublicKey } from "../services/auth.js";
@@ -118,10 +118,13 @@ export const createBroadcast: Handler<T.Paths.CreateBroadcast.RequestBody> = asy
     const note = createNote(fields.content, new Date(), { attachment });
     const noteString = JSON.stringify(note);
     const { cid, hash: contentHash } = await ipfsPin("application/json", Buffer.from(noteString, "utf8"));
-    const announcement = dsnp.createBroadcast(msaId!, ipfsUrl(cid), contentHash);
+
+    const announcement = fields.inReplyTo
+      ? dsnp.createReply(msaId!, ipfsUrl(cid), contentHash, fields.inReplyTo)
+      : dsnp.createBroadcast(msaId!, ipfsUrl(cid), contentHash);
 
     // Add it to the batch and publish
-    await publishBroadcast([announcement]);
+    await publish([announcement]);
 
     const response: T.Paths.CreateBroadcast.Responses.$200 = {
       ...announcement,

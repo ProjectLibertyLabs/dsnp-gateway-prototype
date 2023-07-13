@@ -49,6 +49,7 @@ declare namespace Components {
     }
     export interface CreatePostRequest {
       content: string;
+      inReplyTo?: string;
       images?: string /* binary */[];
     }
     export interface DelegateRequest {
