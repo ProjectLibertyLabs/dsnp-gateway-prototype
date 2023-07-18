@@ -34,6 +34,24 @@ declare namespace Components {
     export interface ChallengeResponse {
       challenge: string;
     }
+
+    export interface DidIdentityProof {
+      merkleLeaves: {
+        blinded: string[],
+        revealed: any[],
+      },
+      didSignature: any[],
+    }
+
+    export interface CreateIdentityWithDidRequest {
+      algo: "SR25519";
+      baseHandle: string;
+      encoding: "hex";
+      identifier: string;
+      proof: DidIdentityProof;
+      expiration: number;
+      handleSignature: string;
+    }
     export interface CreateIdentityRequest {
       addProviderSignature: string;
       algo: "SR25519";
@@ -139,6 +157,14 @@ declare namespace Paths {
       export type $200 = Components.Schemas.ChallengeResponse;
     }
   }
+  namespace AuthCreateWithDid {
+    export type RequestBody = Components.Schemas.CreateIdentityWithDidRequest;
+    namespace Responses {
+      export type $200 = Components.Schemas.CreateIdentityResponse;
+      export type $401 = Components.Responses.UnauthorizedError;
+    }
+  }
+
   namespace AuthCreate {
     export type RequestBody = Components.Schemas.CreateIdentityRequest;
     namespace Responses {

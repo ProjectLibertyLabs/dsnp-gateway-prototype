@@ -57,6 +57,61 @@ export const authProvider: Handler<{}> = async (_c, _req, res) => {
   return res.status(200).json(response);
 };
 
+export const authDidCreate: Handler<T.Paths.AuthCreateWithDid.RequestBody> = async (c, _req, res) => {
+  try {
+    const api = await getApi();
+
+    // TODO: Validate the expiration and the signature before submitting them
+    const createSponsoredMsaWithDidParams = {
+      authorizedMsaId: providerId,
+      schemaIds: addProviderSchemas,
+    };
+    const expiration = c.request.requestBody.expiration;
+    const identifier = c.request.requestBody.identifier;
+    console.log("c.request.requestBody.proof", c.request.requestBody.proof);
+    const proof = c.request.requestBody.proof;
+
+
+    const createSponsoredAccountWithDelegation = api.tx.msa.createSponsoredMsaWithDid(providerId, addProviderSchemas);
+
+    // const handleBytes = api.registry.createType("Bytes", c.request.requestBody.baseHandle);
+    // const handlePayload = {
+    //   baseHandle: handleBytes,
+      
+    //   expiration: c.request.requestBody.expiration,
+    // };
+
+    // const claimHandle = api.tx.handles.claimHandleForDid(handlePayload);
+    // 0x4801a8dacfa33d9cd0612382d536e6bb6f4ccb3e1767b2eefbdbcb9eb01819dac00d0834800600204b04656e6464790000947f040cfcdc16b3384bd72777296b6384ac9a6c64fd9b49ecb6dcb21f683391b531b701000008002cfcdc16b3384bd72777296b6384ac9a6c64fd9b49ecb6dcb21f683391b531b701000001a8dacfa33d9cd0612382d536e6bb6f4ccb3e1767b2eefbdbcb9eb01819dac00d0b0000000114656e646479b20000000102f0d44c931dc07a91b94253684b115bd512ca3277c97bccff615bbce7517a4062d16cdba0319c99b68bf30de1f69c87b36bce021541fb77610bcc93425de38f1d0100003c0e01000000000000001c0100020003000400050006000800
+    const dispatchAsCall = api.tx.dipConsumer.dispatchAs(identifier, proof, createSponsoredAccountWithDelegation);
+    console.log("dispatchAsCall", dispatchAsCall.toHex())
+
+    // const calls = [createSponsoredAccountWithDelegation, claimHandle];
+    const calls = [dispatchAsCall];
+
+    // TEMP: Undo the actual submission for now.s
+    // Trigger it and just log if there is an error later
+    await api.tx.frequencyTxPayment
+      .payWithCapacityBatchAll(calls)
+      .signAndSend(getProviderKey(), { nonce: await getNonce() }, ({ status, dispatchError }) => {
+        if (dispatchError) {
+          console.error("ERROR: ", dispatchError.toHuman());
+        } else if (status.isInBlock || status.isFinalized) {
+          console.log("Account Created", status.toHuman());
+        }
+      });
+
+    const response: T.Paths.AuthCreate.Responses.$200 = {
+      accessToken: await createAuthToken(c.request.requestBody.identifier),
+      expires: Date.now() + 60 * 60 * 24,
+    };
+    return res.status(200).json(response);
+  } catch (e) {
+    console.error(e);
+    return res.status(500).send();
+  }
+};
+
 export const authCreate: Handler<T.Paths.AuthCreate.RequestBody> = async (c, _req, res) => {
   try {
     const api = await getApi();
