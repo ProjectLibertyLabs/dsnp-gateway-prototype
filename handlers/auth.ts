@@ -62,32 +62,33 @@ export const authDidCreate: Handler<T.Paths.AuthCreateWithDid.RequestBody> = asy
     const api = await getApi();
 
     // TODO: Validate the expiration and the signature before submitting them
+    const expiration = c.request.requestBody.expiration;
+    const identifier = c.request.requestBody.identifier;
+    const proof = c.request.requestBody.proof;
+    const handleProof = c.request.requestBody.handleProof;
+
     const createSponsoredMsaWithDidParams = {
       authorizedMsaId: providerId,
       schemaIds: addProviderSchemas,
     };
-    const expiration = c.request.requestBody.expiration;
-    const identifier = c.request.requestBody.identifier;
-    console.log("c.request.requestBody.proof", c.request.requestBody.proof);
-    const proof = c.request.requestBody.proof;
+    const createSponsoredAccountWithDelegationCall = await api.tx.msa.createSponsoredMsaWithDid(providerId, addProviderSchemas);
 
+    const handleBytes = api.registry.createType("Bytes", c.request.requestBody.baseHandle);
+    const handlePayload = {
+      baseHandle: handleBytes,
+      expiration: c.request.requestBody.expiration,
+    };
+    const claimHandleCall = api.tx.handles.claimHandleForDid(handlePayload);
 
-    const createSponsoredAccountWithDelegation = api.tx.msa.createSponsoredMsaWithDid(providerId, addProviderSchemas);
+    const dispatchAsHandleCall = api.tx.dipConsumer.dispatchAs(identifier, handleProof, claimHandleCall);
+    const dispatchAsDidCreateCall = api.tx.dipConsumer.dispatchAs(identifier, proof, createSponsoredAccountWithDelegationCall);
 
-    // const handleBytes = api.registry.createType("Bytes", c.request.requestBody.baseHandle);
-    // const handlePayload = {
-    //   baseHandle: handleBytes,
-      
-    //   expiration: c.request.requestBody.expiration,
-    // };
-
-    // const claimHandle = api.tx.handles.claimHandleForDid(handlePayload);
-    // 0x4801a8dacfa33d9cd0612382d536e6bb6f4ccb3e1767b2eefbdbcb9eb01819dac00d0834800600204b04656e6464790000947f040cfcdc16b3384bd72777296b6384ac9a6c64fd9b49ecb6dcb21f683391b531b701000008002cfcdc16b3384bd72777296b6384ac9a6c64fd9b49ecb6dcb21f683391b531b701000001a8dacfa33d9cd0612382d536e6bb6f4ccb3e1767b2eefbdbcb9eb01819dac00d0b0000000114656e646479b20000000102f0d44c931dc07a91b94253684b115bd512ca3277c97bccff615bbce7517a4062d16cdba0319c99b68bf30de1f69c87b36bce021541fb77610bcc93425de38f1d0100003c0e01000000000000001c0100020003000400050006000800
-    const dispatchAsCall = api.tx.dipConsumer.dispatchAs(identifier, proof, createSponsoredAccountWithDelegation);
-    console.log("dispatchAsCall", dispatchAsCall.toHex())
-
-    // const calls = [createSponsoredAccountWithDelegation, claimHandle];
-    const calls = [dispatchAsCall];
+    // These txs will work independently but will fail when batched
+    // This is because the nonce needs to be incremented by one for the
+    // second transaction in the batch.. 
+    // const calls = [dispatchAsDidCreateCall, dispatchAsHandleCall];
+    const calls = [dispatchAsDidCreateCall];
+    // const calls = [dispatchAsHandleCall];
 
     // TEMP: Undo the actual submission for now.s
     // Trigger it and just log if there is an error later

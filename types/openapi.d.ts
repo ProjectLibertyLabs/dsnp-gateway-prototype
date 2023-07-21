@@ -8,7 +8,7 @@ import type {
 
 declare namespace Components {
   namespace Responses {
-    export interface UnauthorizedError {}
+    export interface UnauthorizedError { }
   }
   namespace Schemas {
     export interface AuthAccountResponse {
@@ -45,12 +45,12 @@ declare namespace Components {
 
     export interface CreateIdentityWithDidRequest {
       algo: "SR25519";
-      baseHandle: string;
       encoding: "hex";
       identifier: string;
       proof: DidIdentityProof;
+      handleProof: DidIdentityProof;
+      baseHandle: string;
       expiration: number;
-      handleSignature: string;
     }
     export interface CreateIdentityRequest {
       addProviderSignature: string;
@@ -148,7 +148,7 @@ declare namespace Paths {
   namespace AuthAccount {
     namespace Responses {
       export type $200 = Components.Schemas.AuthAccountResponse;
-      export interface $202 {}
+      export interface $202 { }
       export type $401 = Components.Responses.UnauthorizedError;
     }
   }
@@ -193,7 +193,7 @@ declare namespace Paths {
   }
   namespace AuthLogout {
     namespace Responses {
-      export interface $201 {}
+      export interface $201 { }
       export type $401 = Components.Responses.UnauthorizedError;
     }
   }
@@ -249,7 +249,7 @@ declare namespace Paths {
     namespace Responses {
       export type $200 = Components.Schemas.BroadcastExtended;
       export type $401 = Components.Responses.UnauthorizedError;
-      export interface $404 {}
+      export interface $404 { }
     }
   }
   namespace GetDiscover {
@@ -318,7 +318,7 @@ declare namespace Paths {
       dsnpId: Parameters.DsnpId;
     }
     namespace Responses {
-      export interface $201 {}
+      export interface $201 { }
       export type $401 = Components.Responses.UnauthorizedError;
     }
   }
@@ -330,7 +330,7 @@ declare namespace Paths {
       dsnpId: Parameters.DsnpId;
     }
     namespace Responses {
-      export interface $201 {}
+      export interface $201 { }
       export type $401 = Components.Responses.UnauthorizedError;
     }
   }

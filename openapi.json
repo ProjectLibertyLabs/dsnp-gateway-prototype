@@ -821,7 +821,23 @@
           "expiration": {
             "type": "number"
           },
-          "handleSignature": { "type": "string"}
+          "handleProof": {
+            "type": "object",
+            "properties": {
+              "merkleLeaves": {
+                "type": "object", 
+                "properties": {
+                  "blinded": {
+                    "type": "array"
+                  },
+                  "revealed": {
+                    "type": "array"
+                  }
+                } 
+              },
+              "didSignature": { "type": "array"}
+            }
+          }
         },
         "required": [
           "algo",
