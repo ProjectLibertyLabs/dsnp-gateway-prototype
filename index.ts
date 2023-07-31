@@ -73,10 +73,11 @@ api.register("unauthorizedHandler", (_c, _req, res) => {
 // use as express middleware
 app.use((req, res) => api.handleRequest(req as Request, req, res));
 
+const port = parseInt(process.env.PORT || "0") || "5005";
 // start server
-app.listen(5000, () => {
+app.listen(port, () => {
   getApi().catch((e) => {
     console.error("Error connecting to Frequency Node!!", e.message);
   });
-  console.info("api listening at http://localhost:5000\nOpenAPI Docs at http://localhost:5000/docs");
+  console.info(`api listening at http://localhost:${port}\nOpenAPI Docs at http://localhost:${port}/docs`);
 });

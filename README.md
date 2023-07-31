@@ -18,6 +18,7 @@ Environment variables can be setup by creating a `.env` file in the root folder.
 - `FREQUENCY_PUBLIC_ENDPOINT`: The HTTP(S) endpoint so the website can interact with the bare minimum of node interactions. (Required for the Social Web Example Client)
 - `PROVIDER_KEY_URI`: The URI or seed phrase for the provider key. e.g. `//Alice`
 - `PROVIDER_ID`: The ID of the Provider that will be used.
+- `PORT`: The port to launch the service on. Defaults to `5005`
 
 ### IPFS Endpoint
 
