@@ -15,7 +15,7 @@ export const userFollowing: Handler<{}> = async (c, _req, res) => {
 
     const response: T.Paths.UserFollowing.Responses.$200 = follows;
     return res.status(200).json(response);
-  } catch(e) {
+  } catch (e) {
     console.error("Error getting user followers", e);
     return res.status(500).send();
   }
@@ -33,7 +33,7 @@ export const graphFollow: Handler<{}> = async (c, _req, res) => {
     await follow(msaId, parseInt(objectMsaId));
 
     return res.status(201).send();
-  } catch(e) {
+  } catch (e) {
     console.error("Error changing graph: follow", e);
     return res.status(500).send();
   }
@@ -51,7 +51,7 @@ export const graphUnfollow: Handler<{}> = async (c, _req, res) => {
     await unfollow(msaId, parseInt(objectMsaId));
 
     return res.status(201).send();
-  } catch(e) {
+  } catch (e) {
     console.error("Error changing graph: unfollow", e);
     return res.status(500).send();
   }

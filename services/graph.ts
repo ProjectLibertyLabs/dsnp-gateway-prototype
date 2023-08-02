@@ -95,8 +95,7 @@ export const follow = async (actorId: string, objectId: number): Promise<void> =
   const encodedPage = deflatePage(upsertEdges);
   const payload = "0x" + encodedPage.toString("hex");
 
-  const tx = api.tx.statefulStorage
-    .upsertPage(actorId, schemaId, pageNumber, hash, payload);
+  const tx = api.tx.statefulStorage.upsertPage(actorId, schemaId, pageNumber, hash, payload);
   // Do NOT wait for all the callbacks. Assume for now that it will work...
   await api.tx.frequencyTxPayment
     .payWithCapacity(tx)
@@ -141,8 +140,7 @@ export const unfollow = async (actorId: string, objectId: number): Promise<void>
   const encodedPage = deflatePage(upsertEdges);
   const payload = "0x" + encodedPage.toString("hex");
 
-  const tx = api.tx.statefulStorage
-    .upsertPage(actorId, schemaId, pageNumber, hash, payload);
+  const tx = api.tx.statefulStorage.upsertPage(actorId, schemaId, pageNumber, hash, payload);
   // Do NOT wait for all the callbacks. Assume for now that it will work...
   await api.tx.frequencyTxPayment
     .payWithCapacity(tx)
