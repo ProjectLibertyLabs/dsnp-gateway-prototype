@@ -10,10 +10,15 @@ export const userFollowing: Handler<{}> = async (c, _req, res) => {
     return res.status(404).send();
   }
 
-  const follows = await getPublicFollows(msaId);
+  try {
+    const follows = await getPublicFollows(msaId);
 
-  const response: T.Paths.UserFollowing.Responses.$200 = follows;
-  return res.status(200).json(response);
+    const response: T.Paths.UserFollowing.Responses.$200 = follows;
+    return res.status(200).json(response);
+  } catch(e) {
+    console.error("Error getting user followers", e);
+    return res.status(500).send();
+  }
 };
 
 export const graphFollow: Handler<{}> = async (c, _req, res) => {
@@ -24,9 +29,14 @@ export const graphFollow: Handler<{}> = async (c, _req, res) => {
     return res.status(404).send();
   }
 
-  await follow(msaId, parseInt(objectMsaId));
+  try {
+    await follow(msaId, parseInt(objectMsaId));
 
-  return res.status(201).send();
+    return res.status(201).send();
+  } catch(e) {
+    console.error("Error changing graph: follow", e);
+    return res.status(500).send();
+  }
 };
 
 export const graphUnfollow: Handler<{}> = async (c, _req, res) => {
@@ -37,7 +47,12 @@ export const graphUnfollow: Handler<{}> = async (c, _req, res) => {
     return res.status(404).send();
   }
 
-  await unfollow(msaId, parseInt(objectMsaId));
+  try {
+    await unfollow(msaId, parseInt(objectMsaId));
 
-  return res.status(201).send();
+    return res.status(201).send();
+  } catch(e) {
+    console.error("Error changing graph: unfollow", e);
+    return res.status(500).send();
+  }
 };
