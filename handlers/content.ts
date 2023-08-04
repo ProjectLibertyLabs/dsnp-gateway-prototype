@@ -22,7 +22,7 @@ export const getUserFeed: Handler<{}> = async (c: Context<{}, {}, T.Paths.GetUse
   const { newestBlockNumber, oldestBlockNumber } = c.request.query;
   // Default to now
   const newest = newestBlockNumber ?? (await getCurrentBlockNumber());
-  const oldest = Math.max(1, oldestBlockNumber || 1, newest - 50_000); // 50k blocks at a time max
+  const oldest = Math.max(1, oldestBlockNumber || 1, newest - 45_000); // 45k blocks at a time max
 
   const msaId = (c.request.params as any).dsnpId;
 
@@ -50,7 +50,7 @@ export const getFeed: Handler<{}> = async (c: Context<{}, {}, T.Paths.GetFeed.Qu
   const { newestBlockNumber, oldestBlockNumber } = c.request.query;
   // Default to now
   const newest = newestBlockNumber ?? (await getCurrentBlockNumber());
-  const oldest = Math.max(1, oldestBlockNumber || 1, newest - 10_000); // 10k blocks at a time max
+  const oldest = Math.max(1, oldestBlockNumber || 1, newest - 45_000); // 45k blocks at a time max
 
   try {
     const following = await getPublicFollows(msaId);
@@ -72,7 +72,7 @@ export const getDiscover: Handler<{}> = async (c: Context<{}, {}, T.Paths.GetDis
   const { newestBlockNumber, oldestBlockNumber } = c.request.query;
   // Default to now
   const newest = newestBlockNumber ?? (await getCurrentBlockNumber());
-  const oldest = Math.max(1, oldestBlockNumber || 1, newest - 10_000); // 10k blocks at a time max
+  const oldest = Math.max(1, oldestBlockNumber || 1, newest - 45_000); // 45k blocks at a time max
 
   const posts = await getPostsInRange(newest, oldest);
   const response: T.Paths.GetFeed.Responses.$200 = {
