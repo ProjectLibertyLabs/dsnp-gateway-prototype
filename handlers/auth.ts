@@ -1,6 +1,6 @@
 import { Handler } from "openapi-backend";
 import type * as T from "../types/openapi.js";
-import { getApi, getNonce, getProviderHttp, getProviderKey } from "../services/frequency.js";
+import { getApi, getNetwork, getNonce, getProviderHttp, getProviderKey } from "../services/frequency.js";
 import { generateChallenge, createAuthToken, getMsaByPublicKey, useChallenge } from "../services/auth.js";
 import { AnnouncementType } from "../services/dsnp.js";
 import { getSchemaId } from "../services/announce.js";
@@ -55,6 +55,7 @@ export const authProvider: Handler<{}> = async (_c, _req, res) => {
     ipfsGateway: getIpfsGateway(),
     providerId,
     schemas: addProviderSchemas,
+    network: getNetwork(),
   };
   return res.status(200).json(response);
 };

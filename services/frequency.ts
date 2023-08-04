@@ -5,6 +5,7 @@ import { WsProvider, ApiPromise, Keyring } from "@polkadot/api";
 const providerUri = process.env.FREQUENCY_NODE;
 const publicNodeHttp = process.env.FREQUENCY_PUBLIC_ENDPOINT;
 const providerKeyUri = process.env.PROVIDER_KEY_URI;
+const frequencyNetwork = process.env.FREQUENCY_NETWORK;
 
 if (!providerKeyUri) {
   throw new Error("PROVIDER_KEY_URI env variable is required");
@@ -18,7 +19,13 @@ if (!publicNodeHttp) {
   throw new Error("FREQUENCY_PUBLIC_ENDPOINT env variable is required");
 }
 
+if (!frequencyNetwork || !["local", "testnet", "mainnet"].includes(frequencyNetwork)) {
+  throw new Error('FREQUENCY_NETWORK env variable must be one of: "local", "testnet", "mainnet"');
+}
+
 export const getProviderHttp = () => publicNodeHttp;
+
+export const getNetwork = () => frequencyNetwork as "local" | "testnet" | "mainnet";
 
 export const getProviderKey = () => {
   return new Keyring().addFromUri(providerKeyUri, {}, "sr25519");

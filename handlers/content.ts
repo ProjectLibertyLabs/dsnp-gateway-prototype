@@ -8,6 +8,7 @@ import { publish } from "../services/announce.js";
 import { getPostsInRange } from "../services/feed.js";
 import { getCurrentBlockNumber } from "../services/frequency.js";
 import { getMsaByPublicKey } from "../services/auth.js";
+import { getPublicFollows } from "../services/graph.js";
 
 type Fields = Record<string, string>;
 type File = {
@@ -39,20 +40,32 @@ export const getUserFeed: Handler<{}> = async (c: Context<{}, {}, T.Paths.GetUse
 };
 
 export const getFeed: Handler<{}> = async (c: Context<{}, {}, T.Paths.GetFeed.QueryParameters>, _req, res) => {
-  // TODO: Return only items from who the user follows
+  // Return only items from who the user follows
+  const msaId = c.security.tokenAuth.msaId || (await getMsaByPublicKey(c.security.tokenAuth.publicKey));
+
+  if (typeof msaId !== "string") {
+    return res.status(404).send();
+  }
 
   const { newestBlockNumber, oldestBlockNumber } = c.request.query;
   // Default to now
   const newest = newestBlockNumber ?? (await getCurrentBlockNumber());
   const oldest = Math.max(1, oldestBlockNumber || 1, newest - 10_000); // 10k blocks at a time max
 
-  const posts = await getPostsInRange(newest, oldest);
-  const response: T.Paths.GetFeed.Responses.$200 = {
-    newestBlockNumber: newest,
-    oldestBlockNumber: oldest,
-    posts: posts,
-  };
-  return res.status(200).json(response);
+  try {
+    const following = await getPublicFollows(msaId);
+
+    const posts = await getPostsInRange(newest, oldest);
+    const response: T.Paths.GetFeed.Responses.$200 = {
+      newestBlockNumber: newest,
+      oldestBlockNumber: oldest,
+      posts: posts.filter((x) => following.includes(x.fromId)),
+    };
+    return res.status(200).json(response);
+  } catch (e) {
+    console.error("Error fetching feed for current user", e);
+    return res.status(500).send();
+  }
 };
 
 export const getDiscover: Handler<{}> = async (c: Context<{}, {}, T.Paths.GetDiscover.QueryParameters>, _req, res) => {

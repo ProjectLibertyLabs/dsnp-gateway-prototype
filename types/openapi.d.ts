@@ -112,6 +112,7 @@ declare namespace Components {
       ipfsGateway?: string;
       providerId: string;
       schemas: number[];
+      network: "local" | "testnet" | "mainnet";
     }
     export interface ReplyExtended {
       fromId: string;

@@ -682,12 +682,21 @@
             "items": {
               "type": "integer"
             }
+          },
+          "network": {
+            "type": "string",
+            "enum": [
+              "local",
+              "testnet",
+              "mainnet"
+            ]
           }
         },
         "required": [
           "nodeUrl",
           "providerId",
-          "schemas"
+          "schemas",
+          "network"
         ]
       },
       "ChallengeResponse": {
