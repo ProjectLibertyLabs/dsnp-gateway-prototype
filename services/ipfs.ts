@@ -14,6 +14,7 @@ export interface FilePin {
   hash: string;
 }
 
+const CID_PLACEHOLDER = "[CID]"
 // IPFS Kubo API Information
 const ipfsEndpoint = process.env.IPFS_ENDPOINT;
 const ipfsAuthUser = process.env.IPFS_BASIC_AUTH_USER;
@@ -91,10 +92,9 @@ export const ipfsPin = async (mimeType: string, file: Buffer): Promise<FilePin> 
   return { ...ipfs, hash };
 };
 
-export const localIpfsUrl = (cid: string): string => {
-  return ipfsGateway.replace("[CID]", cid);
-};
-
 export const ipfsUrl = (cid: string): string => {
+  if (ipfsGateway.includes(CID_PLACEHOLDER)) {
+    return ipfsGateway.replace(CID_PLACEHOLDER, cid);
+  }
   return `https://ipfs.io/ipfs/${cid}`;
 };
