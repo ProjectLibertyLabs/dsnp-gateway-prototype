@@ -14,7 +14,7 @@ export interface FilePin {
   hash: string;
 }
 
-const CID_PLACEHOLDER = "[CID]"
+const CID_PLACEHOLDER = "[CID]";
 // IPFS Kubo API Information
 const ipfsEndpoint = process.env.IPFS_ENDPOINT;
 const ipfsAuthUser = process.env.IPFS_BASIC_AUTH_USER;

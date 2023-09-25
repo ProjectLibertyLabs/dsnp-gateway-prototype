@@ -70,7 +70,7 @@ This is for simple local development work.
 2. Run the Node in local "Instant Sealing" mode `make start` OR "Interval Sealing" mode for more realistic delay `make start-interval`
 3. Setup the Environment Variables
     - `FREQUENCY_NODE="ws://127.0.0.1:9944"`
-    - `FREQUENCY_PUBLIC_ENDPOINT="http://127.0.0.1:9933"`
+    - `FREQUENCY_PUBLIC_ENDPOINT="http://127.0.0.1:9944"`
 
 ### Provider Setup
 

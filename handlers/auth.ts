@@ -1,10 +1,19 @@
 import { Handler } from "openapi-backend";
 import type * as T from "../types/openapi.js";
-import { getApi, getNetwork, getNonce, getProviderHttp, getProviderKey } from "../services/frequency.js";
+import {
+  getApi,
+  getCurrentBlockNumber,
+  getNetwork,
+  getNonce,
+  getProviderHttp,
+  getProviderKey,
+} from "../services/frequency.js";
 import { generateChallenge, createAuthToken, getMsaByPublicKey, useChallenge } from "../services/auth.js";
 import { AnnouncementType } from "../services/dsnp.js";
 import { getSchemaId } from "../services/announce.js";
 import { getIpfsGateway } from "../services/ipfs.js";
+import { signatureVerify } from "@polkadot/util-crypto";
+import { hexToU8a, numberToU8a } from "@polkadot/util";
 
 // Environment Variables
 const providerId = process.env.PROVIDER_ID;
@@ -31,11 +40,12 @@ export const authChallenge: Handler<{}> = async (_c, _req, res) => {
 };
 
 export const authLogin: Handler<T.Paths.AuthLogin.RequestBody> = async (c, _req, res) => {
-  const { publicKey, encodedValue: _encodedValue, challenge } = c.request.requestBody;
+  const { publicKey, encodedValue, challenge } = c.request.requestBody;
   const msaId = await getMsaByPublicKey(publicKey);
   if (!msaId || !useChallenge(challenge)) return res.status(401).send();
-  // TODO: Validate Challenge signature
-  // _encodedValue
+  // Validate Challenge signature
+  const { isValid } = signatureVerify(challenge, encodedValue, publicKey);
+  if (!isValid) return res.status(401).send();
 
   const response: T.Paths.AuthLogin.Responses.$200 = {
     accessToken: await createAuthToken(c.request.requestBody.publicKey),
@@ -65,7 +75,6 @@ export const authCreate: Handler<T.Paths.AuthCreate.RequestBody> = async (c, _re
     const api = await getApi();
     const publicKey = c.request.requestBody.publicKey;
 
-    // TODO: Validate the expiration and the signature before submitting them
     const addProviderData = {
       authorizedMsaId: providerId,
       expiration: c.request.requestBody.expiration,
@@ -89,6 +98,19 @@ export const authCreate: Handler<T.Paths.AuthCreate.RequestBody> = async (c, _re
       { Sr25519: c.request.requestBody.handleSignature },
       handlePayload
     );
+
+    // Validate the expiration and the signature before submitting them
+    const blockNum = await getCurrentBlockNumber();
+    if (blockNum > handlePayload.expiration) return res.status(409).send();
+
+    const claimHandlePayload = api.registry.createType("CommonPrimitivesHandlesClaimHandlePayload", handlePayload);
+
+    const { isValid } = signatureVerify(
+      claimHandlePayload.toU8a(),
+      hexToU8a(c.request.requestBody.handleSignature),
+      publicKey
+    );
+    if (!isValid) return res.status(401).send();
 
     const calls = [createSponsoredAccountWithDelegation, claimHandle];
 

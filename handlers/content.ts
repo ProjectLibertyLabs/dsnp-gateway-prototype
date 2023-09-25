@@ -1,7 +1,7 @@
 import { Context, Handler } from "openapi-backend";
 import Busboy from "busboy";
 import type * as T from "../types/openapi.js";
-import {ipfsPin, ipfsUrl} from "../services/ipfs.js";
+import { ipfsPin, ipfsUrl } from "../services/ipfs.js";
 import * as dsnp from "../services/dsnp.js";
 import { createImageAttachment, createImageLink, createNote } from "@dsnp/activity-content/factories";
 import { publish } from "../services/announce.js";
