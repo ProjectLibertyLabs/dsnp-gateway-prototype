@@ -33,6 +33,7 @@
     "@multiformats/blake2": "^1.0.13",
     "@polkadot/api": "^10.9.1",
     "@polkadot/util": "^12.3.2",
+    "@polkadot/util-crypto": "^12.3.2",
     "avro-js": "^1.11.2",
     "busboy": "^1.6.0",
     "cors": "^2.8.5",
