@@ -36,9 +36,9 @@ sequenceDiagram
     RWD->>B: Prompt for review
     B->>RWD: Write and submit review
     RWD->>GW: Submit to content publisher
+    GW->>RWD: Confirm operation
+    RWD->>BAPF: Confirm and prompt user to close popup
     GW->>IPFS: Create and pin Activity Content Note
     GW->>IPFS: Create and pin Parquet batch file
     GW->>FRQCY: Announce batch
-    GW->>RWD: Confirm operation
-    RWD->>BAPF: Close popup
 ```
