@@ -14,6 +14,7 @@ import * as auth from "./handlers/auth.js";
 import * as content from "./handlers/content.js";
 import * as graph from "./handlers/graph.js";
 import * as profile from "./handlers/profile.js";
+import * as interaction from "./handlers/interaction.js";
 
 import openapiJson from "./openapi.json" assert { type: "json" };
 import { getApi } from "./services/frequency.js";
@@ -35,6 +36,7 @@ const api = new openapiBackend.OpenAPIBackend({
     ...content,
     ...graph,
     ...profile,
+    ...interaction,
 
     validationFail: async (c, req: Express.Request, res: Express.Response) =>
       res.status(400).json({ err: c.validation.errors }),

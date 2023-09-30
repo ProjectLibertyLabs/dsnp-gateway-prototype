@@ -4,674 +4,759 @@ import type {
   UnknownParamsObject,
   OperationResponse,
   AxiosRequestConfig,
-} from "openapi-client-axios";
+} from 'openapi-client-axios'; 
 
 declare namespace Components {
-  namespace Responses {
-    export interface UnauthorizedError {}
-  }
-  namespace Schemas {
-    export interface AuthAccountResponse {
-      dsnpId: string;
-      displayHandle?: string;
+    namespace Responses {
+        export interface UnauthorizedError {
+        }
     }
-    export interface BroadcastExtended {
-      fromId: string;
-      contentHash: string;
-      /**
-       * JSON-encoded Activity Content Note
-       */
-      content: string;
-      /**
-       * Timestamp of the post
-       */
-      timestamp: string;
-      /**
-       * Array of ReplyExtended objects
-       */
-      replies?: ReplyExtended[];
+    namespace Schemas {
+        export interface AuthAccountResponse {
+            dsnpId: string;
+            displayHandle?: string;
+        }
+        export interface BroadcastExtended {
+            fromId: string;
+            contentHash: string;
+            /**
+             * JSON-encoded Activity Content Note
+             */
+            content: string;
+            /**
+             * Timestamp of the post
+             */
+            timestamp: string;
+            /**
+             * Array of ReplyExtended objects
+             */
+            replies?: ReplyExtended[];
+        }
+        export interface ChallengeResponse {
+            challenge: string;
+        }
+        export interface CreateIdentityRequest {
+            addProviderSignature: string;
+            algo: "SR25519";
+            baseHandle: string;
+            encoding: "hex";
+            expiration: number;
+            handleSignature: string;
+            publicKey: string;
+        }
+        export interface CreateIdentityResponse {
+            accessToken: string;
+            expires: number;
+        }
+        export interface CreatePostRequest {
+            content: string;
+            inReplyTo?: string;
+            images?: string /* binary */[];
+        }
+        export interface DelegateRequest {
+            algo: "SR25519";
+            encoding: "hex";
+            encodedValue: string;
+            publicKey: string;
+        }
+        export interface DelegateResponse {
+            accessToken: string;
+            expires: number;
+        }
+        export interface EditPostRequest {
+            targetContentHash: string;
+            targetAnnouncementType: number;
+            content: string;
+        }
+        export interface EditProfileRequest {
+            content: string;
+        }
+        export interface HandlesResponse {
+            publicKey: string;
+            handle: string;
+        }
+        export interface InteractionRequest {
+            attributeSetType: string;
+            interactionId: string;
+            href: string;
+            reference: {
+                [key: string]: any;
+            };
+        }
+        export interface InteractionResponse {
+            attributeSetType: string;
+            ticket: InteractionTicket;
+        }
+        export interface InteractionTicket {
+            "@context": /* Either a string, or an array containing strings and objects with string values */ JsonLdContext;
+            type: string[];
+            issuer: string;
+            issuanceDate: string;
+            credentialSchema: {
+                type: "VerifiableCredentialSchema2023";
+                /**
+                 * URL of schema verifiable credential
+                 */
+                id: string;
+            };
+            credentialSubject: {
+                interactionId: string;
+                href?: string;
+                reference: {
+                    [key: string]: any;
+                };
+            };
+            proof?: {
+                type: "Ed25519Signature2020";
+                /**
+                 * URI of public key, e.g. dsnp://{yourMsa}#1
+                 */
+                verificationMethod: string;
+                /**
+                 * ISO 8601 datetime, e.g. 2023-01-01T12:00:00.000Z
+                 */
+                created: string;
+                proofPurpose: "assertionMethod";
+                /**
+                 * multibase-encoded signature
+                 */
+                proofValue: string;
+            };
+        }
+        /**
+         * Either a string, or an array containing strings and objects with string values
+         */
+        export type JsonLdContext = /* Either a string, or an array containing strings and objects with string values */ string | (string | {
+            [name: string]: string;
+        })[];
+        export interface LoginRequest {
+            algo: "SR25519";
+            encoding: "hex";
+            encodedValue: string;
+            publicKey: string;
+            challenge: string;
+        }
+        export interface LoginResponse {
+            accessToken: string;
+            expires: number;
+            dsnpId: string;
+        }
+        export interface PaginatedBroadcast {
+            newestBlockNumber: number;
+            oldestBlockNumber: number;
+            posts: BroadcastExtended[];
+        }
+        export interface Profile {
+            fromId: string;
+            contentHash: string;
+            /**
+             * JSON-encoded Activity Content Note
+             */
+            content: string;
+            /**
+             * Timestamp of the post
+             */
+            timestamp: string;
+            displayHandle?: string;
+        }
+        export interface ProviderResponse {
+            nodeUrl: string;
+            /**
+             * IPFS Path Style Gateway base URI
+             */
+            ipfsGateway?: string;
+            providerId: string;
+            schemas: number[];
+            network: "local" | "testnet" | "mainnet";
+        }
+        export interface ReplyExtended {
+            fromId: string;
+            contentHash: string;
+            /**
+             * JSON-encoded Activity Content Note
+             */
+            content: string;
+            /**
+             * Timestamp of the post
+             */
+            timestamp: string;
+            /**
+             * Array of ReplyExtended objects
+             */
+            replies?: ReplyExtended[];
+        }
     }
-    export interface ChallengeResponse {
-      challenge: string;
-    }
-    export interface CreateIdentityRequest {
-      addProviderSignature: string;
-      algo: "SR25519";
-      baseHandle: string;
-      encoding: "hex";
-      expiration: number;
-      handleSignature: string;
-      publicKey: string;
-    }
-    export interface CreateIdentityResponse {
-      accessToken: string;
-      expires: number;
-    }
-    export interface CreatePostRequest {
-      content: string;
-      inReplyTo?: string;
-      images?: string /* binary */[];
-    }
-    export interface DelegateRequest {
-      algo: "SR25519";
-      encoding: "hex";
-      encodedValue: string;
-      publicKey: string;
-    }
-    export interface DelegateResponse {
-      accessToken: string;
-      expires: number;
-    }
-    export interface EditPostRequest {
-      targetContentHash: string;
-      targetAnnouncementType: number;
-      content: string;
-    }
-    export interface EditProfileRequest {
-      content: string;
-    }
-    export interface HandlesResponse {
-      publicKey: string;
-      handle: string;
-    }
-    export interface LoginRequest {
-      algo: "SR25519";
-      encoding: "hex";
-      encodedValue: string;
-      publicKey: string;
-      challenge: string;
-    }
-    export interface LoginResponse {
-      accessToken: string;
-      expires: number;
-      dsnpId: string;
-    }
-    export interface PaginatedBroadcast {
-      newestBlockNumber: number;
-      oldestBlockNumber: number;
-      posts: BroadcastExtended[];
-    }
-    export interface Profile {
-      fromId: string;
-      contentHash: string;
-      /**
-       * JSON-encoded Activity Content Note
-       */
-      content: string;
-      /**
-       * Timestamp of the post
-       */
-      timestamp: string;
-      displayHandle?: string;
-    }
-    export interface ProviderResponse {
-      nodeUrl: string;
-      /**
-       * IPFS Path Style Gateway base URI
-       */
-      ipfsGateway?: string;
-      providerId: string;
-      schemas: number[];
-      network: "local" | "testnet" | "mainnet";
-    }
-    export interface ReplyExtended {
-      fromId: string;
-      contentHash: string;
-      /**
-       * JSON-encoded Activity Content Note
-       */
-      content: string;
-      /**
-       * Timestamp of the post
-       */
-      timestamp: string;
-      /**
-       * Array of ReplyExtended objects
-       */
-      replies?: ReplyExtended[];
-    }
-  }
 }
 declare namespace Paths {
-  namespace AuthAccount {
-    namespace Responses {
-      export type $200 = Components.Schemas.AuthAccountResponse;
-      export interface $202 {}
-      export type $401 = Components.Responses.UnauthorizedError;
+    namespace AuthAccount {
+        namespace Responses {
+            export type $200 = Components.Schemas.AuthAccountResponse;
+            export interface $202 {
+            }
+            export type $401 = Components.Responses.UnauthorizedError;
+        }
     }
-  }
-  namespace AuthChallenge {
-    namespace Responses {
-      export type $200 = Components.Schemas.ChallengeResponse;
+    namespace AuthChallenge {
+        namespace Responses {
+            export type $200 = Components.Schemas.ChallengeResponse;
+        }
     }
-  }
-  namespace AuthCreate {
-    export type RequestBody = Components.Schemas.CreateIdentityRequest;
-    namespace Responses {
-      export type $200 = Components.Schemas.CreateIdentityResponse;
-      export type $401 = Components.Responses.UnauthorizedError;
+    namespace AuthCreate {
+        export type RequestBody = Components.Schemas.CreateIdentityRequest;
+        namespace Responses {
+            export type $200 = Components.Schemas.CreateIdentityResponse;
+            export type $401 = Components.Responses.UnauthorizedError;
+        }
     }
-  }
-  namespace AuthDelegate {
-    export type RequestBody = Components.Schemas.DelegateRequest;
-    namespace Responses {
-      export type $200 = Components.Schemas.DelegateResponse;
-      export type $401 = Components.Responses.UnauthorizedError;
+    namespace AuthDelegate {
+        export type RequestBody = Components.Schemas.DelegateRequest;
+        namespace Responses {
+            export type $200 = Components.Schemas.DelegateResponse;
+            export type $401 = Components.Responses.UnauthorizedError;
+        }
     }
-  }
-  namespace AuthHandles {
-    export type RequestBody = string[];
-    namespace Responses {
-      export type $200 = Components.Schemas.HandlesResponse[];
+    namespace AuthHandles {
+        export type RequestBody = string[];
+        namespace Responses {
+            export type $200 = Components.Schemas.HandlesResponse[];
+        }
     }
-  }
-  namespace AuthLogin {
-    export type RequestBody = Components.Schemas.LoginRequest;
-    namespace Responses {
-      export type $200 = Components.Schemas.LoginResponse;
+    namespace AuthLogin {
+        export type RequestBody = Components.Schemas.LoginRequest;
+        namespace Responses {
+            export type $200 = Components.Schemas.LoginResponse;
+        }
     }
-  }
-  namespace AuthLogout {
-    namespace Responses {
-      export interface $201 {}
-      export type $401 = Components.Responses.UnauthorizedError;
+    namespace AuthLogout {
+        namespace Responses {
+            export interface $201 {
+            }
+            export type $401 = Components.Responses.UnauthorizedError;
+        }
     }
-  }
-  namespace AuthProvider {
-    namespace Responses {
-      export type $200 = Components.Schemas.ProviderResponse;
+    namespace AuthProvider {
+        namespace Responses {
+            export type $200 = Components.Schemas.ProviderResponse;
+        }
     }
-  }
-  namespace CreateBroadcast {
-    export type RequestBody = Components.Schemas.CreatePostRequest;
-    namespace Responses {
-      export type $200 = Components.Schemas.BroadcastExtended;
-      export type $401 = Components.Responses.UnauthorizedError;
+    namespace CreateBroadcast {
+        export type RequestBody = Components.Schemas.CreatePostRequest;
+        namespace Responses {
+            export type $200 = Components.Schemas.BroadcastExtended;
+            export type $401 = Components.Responses.UnauthorizedError;
+        }
     }
-  }
-  namespace CreateProfile {
-    namespace Parameters {
-      export type DsnpId = string;
+    namespace CreateProfile {
+        namespace Parameters {
+            export type DsnpId = string;
+        }
+        export interface PathParameters {
+            dsnpId: Parameters.DsnpId;
+        }
+        export type RequestBody = Components.Schemas.EditProfileRequest;
+        namespace Responses {
+            export type $200 = Components.Schemas.Profile;
+            export type $401 = Components.Responses.UnauthorizedError;
+        }
     }
-    export interface PathParameters {
-      dsnpId: Parameters.DsnpId;
+    namespace EditContent {
+        namespace Parameters {
+            export type ContentHash = string;
+            export type Type = string;
+        }
+        export interface PathParameters {
+            contentHash: Parameters.ContentHash;
+            type: Parameters.Type;
+        }
+        export type RequestBody = Components.Schemas.EditPostRequest;
+        namespace Responses {
+            export type $200 = Components.Schemas.BroadcastExtended;
+            export type $401 = Components.Responses.UnauthorizedError;
+        }
     }
-    export type RequestBody = Components.Schemas.EditProfileRequest;
-    namespace Responses {
-      export type $200 = Components.Schemas.Profile;
-      export type $401 = Components.Responses.UnauthorizedError;
+    namespace GetContent {
+        namespace Parameters {
+            export type ContentHash = string;
+            export type DsnpId = string;
+        }
+        export interface PathParameters {
+            dsnpId: Parameters.DsnpId;
+            contentHash: Parameters.ContentHash;
+        }
+        namespace Responses {
+            export type $200 = Components.Schemas.BroadcastExtended;
+            export type $401 = Components.Responses.UnauthorizedError;
+            export interface $404 {
+            }
+        }
     }
-  }
-  namespace EditContent {
-    namespace Parameters {
-      export type ContentHash = string;
-      export type Type = string;
+    namespace GetDiscover {
+        namespace Parameters {
+            export type NewestBlockNumber = number;
+            export type OldestBlockNumber = number;
+        }
+        export interface QueryParameters {
+            newestBlockNumber?: Parameters.NewestBlockNumber;
+            oldestBlockNumber?: Parameters.OldestBlockNumber;
+        }
+        namespace Responses {
+            export type $200 = Components.Schemas.PaginatedBroadcast;
+            export type $401 = Components.Responses.UnauthorizedError;
+        }
     }
-    export interface PathParameters {
-      contentHash: Parameters.ContentHash;
-      type: Parameters.Type;
+    namespace GetFeed {
+        namespace Parameters {
+            export type NewestBlockNumber = number;
+            export type OldestBlockNumber = number;
+        }
+        export interface QueryParameters {
+            newestBlockNumber?: Parameters.NewestBlockNumber;
+            oldestBlockNumber?: Parameters.OldestBlockNumber;
+        }
+        namespace Responses {
+            export type $200 = Components.Schemas.PaginatedBroadcast;
+            export type $401 = Components.Responses.UnauthorizedError;
+        }
     }
-    export type RequestBody = Components.Schemas.EditPostRequest;
-    namespace Responses {
-      export type $200 = Components.Schemas.BroadcastExtended;
-      export type $401 = Components.Responses.UnauthorizedError;
+    namespace GetProfile {
+        namespace Parameters {
+            export type DsnpId = string;
+        }
+        export interface PathParameters {
+            dsnpId: Parameters.DsnpId;
+        }
+        namespace Responses {
+            export type $200 = Components.Schemas.Profile;
+            export type $401 = Components.Responses.UnauthorizedError;
+        }
     }
-  }
-  namespace GetContent {
-    namespace Parameters {
-      export type ContentHash = string;
-      export type DsnpId = string;
+    namespace GetUserFeed {
+        namespace Parameters {
+            export type DsnpId = string;
+            export type NewestBlockNumber = number;
+            export type OldestBlockNumber = number;
+        }
+        export interface PathParameters {
+            dsnpId: Parameters.DsnpId;
+        }
+        export interface QueryParameters {
+            newestBlockNumber?: Parameters.NewestBlockNumber;
+            oldestBlockNumber?: Parameters.OldestBlockNumber;
+        }
+        namespace Responses {
+            export type $200 = Components.Schemas.PaginatedBroadcast;
+            export type $401 = Components.Responses.UnauthorizedError;
+        }
     }
-    export interface PathParameters {
-      dsnpId: Parameters.DsnpId;
-      contentHash: Parameters.ContentHash;
+    namespace GraphFollow {
+        namespace Parameters {
+            export type DsnpId = string;
+        }
+        export interface PathParameters {
+            dsnpId: Parameters.DsnpId;
+        }
+        namespace Responses {
+            export interface $201 {
+            }
+            export type $401 = Components.Responses.UnauthorizedError;
+        }
     }
-    namespace Responses {
-      export type $200 = Components.Schemas.BroadcastExtended;
-      export type $401 = Components.Responses.UnauthorizedError;
-      export interface $404 {}
+    namespace GraphUnfollow {
+        namespace Parameters {
+            export type DsnpId = string;
+        }
+        export interface PathParameters {
+            dsnpId: Parameters.DsnpId;
+        }
+        namespace Responses {
+            export interface $201 {
+            }
+            export type $401 = Components.Responses.UnauthorizedError;
+        }
     }
-  }
-  namespace GetDiscover {
-    namespace Parameters {
-      export type NewestBlockNumber = number;
-      export type OldestBlockNumber = number;
+    namespace SubmitInteraction {
+        export type RequestBody = Components.Schemas.InteractionRequest;
+        namespace Responses {
+            export type $200 = Components.Schemas.InteractionResponse;
+            export type $401 = Components.Responses.UnauthorizedError;
+        }
     }
-    export interface QueryParameters {
-      newestBlockNumber?: Parameters.NewestBlockNumber;
-      oldestBlockNumber?: Parameters.OldestBlockNumber;
+    namespace UserFollowing {
+        namespace Parameters {
+            export type DsnpId = string;
+        }
+        export interface PathParameters {
+            dsnpId: Parameters.DsnpId;
+        }
+        namespace Responses {
+            export type $200 = string[];
+            export type $401 = Components.Responses.UnauthorizedError;
+        }
     }
-    namespace Responses {
-      export type $200 = Components.Schemas.PaginatedBroadcast;
-      export type $401 = Components.Responses.UnauthorizedError;
-    }
-  }
-  namespace GetFeed {
-    namespace Parameters {
-      export type NewestBlockNumber = number;
-      export type OldestBlockNumber = number;
-    }
-    export interface QueryParameters {
-      newestBlockNumber?: Parameters.NewestBlockNumber;
-      oldestBlockNumber?: Parameters.OldestBlockNumber;
-    }
-    namespace Responses {
-      export type $200 = Components.Schemas.PaginatedBroadcast;
-      export type $401 = Components.Responses.UnauthorizedError;
-    }
-  }
-  namespace GetProfile {
-    namespace Parameters {
-      export type DsnpId = string;
-    }
-    export interface PathParameters {
-      dsnpId: Parameters.DsnpId;
-    }
-    namespace Responses {
-      export type $200 = Components.Schemas.Profile;
-      export type $401 = Components.Responses.UnauthorizedError;
-    }
-  }
-  namespace GetUserFeed {
-    namespace Parameters {
-      export type DsnpId = string;
-      export type NewestBlockNumber = number;
-      export type OldestBlockNumber = number;
-    }
-    export interface PathParameters {
-      dsnpId: Parameters.DsnpId;
-    }
-    export interface QueryParameters {
-      newestBlockNumber?: Parameters.NewestBlockNumber;
-      oldestBlockNumber?: Parameters.OldestBlockNumber;
-    }
-    namespace Responses {
-      export type $200 = Components.Schemas.PaginatedBroadcast;
-      export type $401 = Components.Responses.UnauthorizedError;
-    }
-  }
-  namespace GraphFollow {
-    namespace Parameters {
-      export type DsnpId = string;
-    }
-    export interface PathParameters {
-      dsnpId: Parameters.DsnpId;
-    }
-    namespace Responses {
-      export interface $201 {}
-      export type $401 = Components.Responses.UnauthorizedError;
-    }
-  }
-  namespace GraphUnfollow {
-    namespace Parameters {
-      export type DsnpId = string;
-    }
-    export interface PathParameters {
-      dsnpId: Parameters.DsnpId;
-    }
-    namespace Responses {
-      export interface $201 {}
-      export type $401 = Components.Responses.UnauthorizedError;
-    }
-  }
-  namespace UserFollowing {
-    namespace Parameters {
-      export type DsnpId = string;
-    }
-    export interface PathParameters {
-      dsnpId: Parameters.DsnpId;
-    }
-    namespace Responses {
-      export type $200 = string[];
-      export type $401 = Components.Responses.UnauthorizedError;
-    }
-  }
 }
 
 export interface OperationMethods {
   /**
    * authChallenge - Return a challenge for login
    */
-  "authChallenge"(
+  'authChallenge'(
     parameters?: Parameters<UnknownParamsObject> | null,
     data?: any,
-    config?: AxiosRequestConfig
-  ): OperationResponse<Paths.AuthChallenge.Responses.$200>;
+    config?: AxiosRequestConfig  
+  ): OperationResponse<Paths.AuthChallenge.Responses.$200>
   /**
    * authProvider - Return the delegation and provider information
    */
-  "authProvider"(
+  'authProvider'(
     parameters?: Parameters<UnknownParamsObject> | null,
     data?: any,
-    config?: AxiosRequestConfig
-  ): OperationResponse<Paths.AuthProvider.Responses.$200>;
+    config?: AxiosRequestConfig  
+  ): OperationResponse<Paths.AuthProvider.Responses.$200>
   /**
    * authLogin - Use a challenge to login
    */
-  "authLogin"(
+  'authLogin'(
     parameters?: Parameters<UnknownParamsObject> | null,
     data?: Paths.AuthLogin.RequestBody,
-    config?: AxiosRequestConfig
-  ): OperationResponse<Paths.AuthLogin.Responses.$200>;
+    config?: AxiosRequestConfig  
+  ): OperationResponse<Paths.AuthLogin.Responses.$200>
   /**
    * authLogout - Logout and invalidate the access token
    */
-  "authLogout"(
+  'authLogout'(
     parameters?: Parameters<UnknownParamsObject> | null,
     data?: any,
-    config?: AxiosRequestConfig
-  ): OperationResponse<Paths.AuthLogout.Responses.$201>;
+    config?: AxiosRequestConfig  
+  ): OperationResponse<Paths.AuthLogout.Responses.$201>
   /**
    * authCreate - Creates a new DSNP Identity
    */
-  "authCreate"(
+  'authCreate'(
     parameters?: Parameters<UnknownParamsObject> | null,
     data?: Paths.AuthCreate.RequestBody,
-    config?: AxiosRequestConfig
-  ): OperationResponse<Paths.AuthCreate.Responses.$200>;
+    config?: AxiosRequestConfig  
+  ): OperationResponse<Paths.AuthCreate.Responses.$200>
   /**
    * authAccount - For polling to get the created account as authCreate can take time
    */
-  "authAccount"(
+  'authAccount'(
     parameters?: Parameters<UnknownParamsObject> | null,
     data?: any,
-    config?: AxiosRequestConfig
-  ): OperationResponse<Paths.AuthAccount.Responses.$200 | Paths.AuthAccount.Responses.$202>;
+    config?: AxiosRequestConfig  
+  ): OperationResponse<Paths.AuthAccount.Responses.$200 | Paths.AuthAccount.Responses.$202>
   /**
    * authHandles - Get handles for public keys
    */
-  "authHandles"(
+  'authHandles'(
     parameters?: Parameters<UnknownParamsObject> | null,
     data?: Paths.AuthHandles.RequestBody,
-    config?: AxiosRequestConfig
-  ): OperationResponse<Paths.AuthHandles.Responses.$200>;
+    config?: AxiosRequestConfig  
+  ): OperationResponse<Paths.AuthHandles.Responses.$200>
   /**
    * authDelegate - Delegate to the provider with an existing DSNP Identity
    */
-  "authDelegate"(
+  'authDelegate'(
     parameters?: Parameters<UnknownParamsObject> | null,
     data?: Paths.AuthDelegate.RequestBody,
-    config?: AxiosRequestConfig
-  ): OperationResponse<Paths.AuthDelegate.Responses.$200>;
+    config?: AxiosRequestConfig  
+  ): OperationResponse<Paths.AuthDelegate.Responses.$200>
   /**
    * getUserFeed - Get recent posts from a user, paginated
    */
-  "getUserFeed"(
+  'getUserFeed'(
     parameters?: Parameters<Paths.GetUserFeed.PathParameters & Paths.GetUserFeed.QueryParameters> | null,
     data?: any,
-    config?: AxiosRequestConfig
-  ): OperationResponse<Paths.GetUserFeed.Responses.$200>;
+    config?: AxiosRequestConfig  
+  ): OperationResponse<Paths.GetUserFeed.Responses.$200>
   /**
    * getFeed - Get the Feed for the current user, paginated
    */
-  "getFeed"(
+  'getFeed'(
     parameters?: Parameters<Paths.GetFeed.QueryParameters> | null,
     data?: any,
-    config?: AxiosRequestConfig
-  ): OperationResponse<Paths.GetFeed.Responses.$200>;
+    config?: AxiosRequestConfig  
+  ): OperationResponse<Paths.GetFeed.Responses.$200>
   /**
    * getDiscover - Get the Discovery Feed for the current user, paginated
    */
-  "getDiscover"(
+  'getDiscover'(
     parameters?: Parameters<Paths.GetDiscover.QueryParameters> | null,
     data?: any,
-    config?: AxiosRequestConfig
-  ): OperationResponse<Paths.GetDiscover.Responses.$200>;
+    config?: AxiosRequestConfig  
+  ): OperationResponse<Paths.GetDiscover.Responses.$200>
   /**
    * createBroadcast - Create a new post
    */
-  "createBroadcast"(
+  'createBroadcast'(
     parameters?: Parameters<UnknownParamsObject> | null,
     data?: Paths.CreateBroadcast.RequestBody,
-    config?: AxiosRequestConfig
-  ): OperationResponse<Paths.CreateBroadcast.Responses.$200>;
+    config?: AxiosRequestConfig  
+  ): OperationResponse<Paths.CreateBroadcast.Responses.$200>
   /**
    * getContent - Get details of a specific post
    */
-  "getContent"(
+  'getContent'(
     parameters?: Parameters<Paths.GetContent.PathParameters> | null,
     data?: any,
-    config?: AxiosRequestConfig
-  ): OperationResponse<Paths.GetContent.Responses.$200>;
+    config?: AxiosRequestConfig  
+  ): OperationResponse<Paths.GetContent.Responses.$200>
   /**
    * editContent - Edit the content of a specific post
    */
-  "editContent"(
+  'editContent'(
     parameters?: Parameters<Paths.EditContent.PathParameters> | null,
     data?: Paths.EditContent.RequestBody,
-    config?: AxiosRequestConfig
-  ): OperationResponse<Paths.EditContent.Responses.$200>;
+    config?: AxiosRequestConfig  
+  ): OperationResponse<Paths.EditContent.Responses.$200>
   /**
    * userFollowing - Get a list of users that a specific user follows
    */
-  "userFollowing"(
+  'userFollowing'(
     parameters?: Parameters<Paths.UserFollowing.PathParameters> | null,
     data?: any,
-    config?: AxiosRequestConfig
-  ): OperationResponse<Paths.UserFollowing.Responses.$200>;
+    config?: AxiosRequestConfig  
+  ): OperationResponse<Paths.UserFollowing.Responses.$200>
   /**
    * graphFollow - Follow a user
    */
-  "graphFollow"(
+  'graphFollow'(
     parameters?: Parameters<Paths.GraphFollow.PathParameters> | null,
     data?: any,
-    config?: AxiosRequestConfig
-  ): OperationResponse<Paths.GraphFollow.Responses.$201>;
+    config?: AxiosRequestConfig  
+  ): OperationResponse<Paths.GraphFollow.Responses.$201>
   /**
    * graphUnfollow - Unfollow a user
    */
-  "graphUnfollow"(
+  'graphUnfollow'(
     parameters?: Parameters<Paths.GraphUnfollow.PathParameters> | null,
     data?: any,
-    config?: AxiosRequestConfig
-  ): OperationResponse<Paths.GraphUnfollow.Responses.$201>;
+    config?: AxiosRequestConfig  
+  ): OperationResponse<Paths.GraphUnfollow.Responses.$201>
   /**
    * getProfile - Get profile information for a specific user
    */
-  "getProfile"(
+  'getProfile'(
     parameters?: Parameters<Paths.GetProfile.PathParameters> | null,
     data?: any,
-    config?: AxiosRequestConfig
-  ): OperationResponse<Paths.GetProfile.Responses.$200>;
+    config?: AxiosRequestConfig  
+  ): OperationResponse<Paths.GetProfile.Responses.$200>
   /**
    * createProfile - Create/Edit the profile information for a current user
    */
-  "createProfile"(
+  'createProfile'(
     parameters?: Parameters<Paths.CreateProfile.PathParameters> | null,
     data?: Paths.CreateProfile.RequestBody,
-    config?: AxiosRequestConfig
-  ): OperationResponse<Paths.CreateProfile.Responses.$200>;
+    config?: AxiosRequestConfig  
+  ): OperationResponse<Paths.CreateProfile.Responses.$200>
+  /**
+   * submitInteraction - Request attestation for a pseudonymous interaction claim
+   */
+  'submitInteraction'(
+    parameters?: Parameters<UnknownParamsObject> | null,
+    data?: Paths.SubmitInteraction.RequestBody,
+    config?: AxiosRequestConfig  
+  ): OperationResponse<Paths.SubmitInteraction.Responses.$200>
 }
 
 export interface PathsDictionary {
-  ["/v1/auth/challenge"]: {
+  ['/v1/auth/challenge']: {
     /**
      * authChallenge - Return a challenge for login
      */
-    "get"(
+    'get'(
       parameters?: Parameters<UnknownParamsObject> | null,
       data?: any,
-      config?: AxiosRequestConfig
-    ): OperationResponse<Paths.AuthChallenge.Responses.$200>;
-  };
-  ["/v1/auth/provider"]: {
+      config?: AxiosRequestConfig  
+    ): OperationResponse<Paths.AuthChallenge.Responses.$200>
+  }
+  ['/v1/auth/provider']: {
     /**
      * authProvider - Return the delegation and provider information
      */
-    "get"(
+    'get'(
       parameters?: Parameters<UnknownParamsObject> | null,
       data?: any,
-      config?: AxiosRequestConfig
-    ): OperationResponse<Paths.AuthProvider.Responses.$200>;
-  };
-  ["/v1/auth/login"]: {
+      config?: AxiosRequestConfig  
+    ): OperationResponse<Paths.AuthProvider.Responses.$200>
+  }
+  ['/v1/auth/login']: {
     /**
      * authLogin - Use a challenge to login
      */
-    "post"(
+    'post'(
       parameters?: Parameters<UnknownParamsObject> | null,
       data?: Paths.AuthLogin.RequestBody,
-      config?: AxiosRequestConfig
-    ): OperationResponse<Paths.AuthLogin.Responses.$200>;
-  };
-  ["/v1/auth/logout"]: {
+      config?: AxiosRequestConfig  
+    ): OperationResponse<Paths.AuthLogin.Responses.$200>
+  }
+  ['/v1/auth/logout']: {
     /**
      * authLogout - Logout and invalidate the access token
      */
-    "post"(
+    'post'(
       parameters?: Parameters<UnknownParamsObject> | null,
       data?: any,
-      config?: AxiosRequestConfig
-    ): OperationResponse<Paths.AuthLogout.Responses.$201>;
-  };
-  ["/v1/auth/create"]: {
+      config?: AxiosRequestConfig  
+    ): OperationResponse<Paths.AuthLogout.Responses.$201>
+  }
+  ['/v1/auth/create']: {
     /**
      * authCreate - Creates a new DSNP Identity
      */
-    "post"(
+    'post'(
       parameters?: Parameters<UnknownParamsObject> | null,
       data?: Paths.AuthCreate.RequestBody,
-      config?: AxiosRequestConfig
-    ): OperationResponse<Paths.AuthCreate.Responses.$200>;
-  };
-  ["/v1/auth/account"]: {
+      config?: AxiosRequestConfig  
+    ): OperationResponse<Paths.AuthCreate.Responses.$200>
+  }
+  ['/v1/auth/account']: {
     /**
      * authAccount - For polling to get the created account as authCreate can take time
      */
-    "get"(
+    'get'(
       parameters?: Parameters<UnknownParamsObject> | null,
       data?: any,
-      config?: AxiosRequestConfig
-    ): OperationResponse<Paths.AuthAccount.Responses.$200 | Paths.AuthAccount.Responses.$202>;
-  };
-  ["/v1/auth/handles"]: {
+      config?: AxiosRequestConfig  
+    ): OperationResponse<Paths.AuthAccount.Responses.$200 | Paths.AuthAccount.Responses.$202>
+  }
+  ['/v1/auth/handles']: {
     /**
      * authHandles - Get handles for public keys
      */
-    "post"(
+    'post'(
       parameters?: Parameters<UnknownParamsObject> | null,
       data?: Paths.AuthHandles.RequestBody,
-      config?: AxiosRequestConfig
-    ): OperationResponse<Paths.AuthHandles.Responses.$200>;
-  };
-  ["/v1/auth/delegate"]: {
+      config?: AxiosRequestConfig  
+    ): OperationResponse<Paths.AuthHandles.Responses.$200>
+  }
+  ['/v1/auth/delegate']: {
     /**
      * authDelegate - Delegate to the provider with an existing DSNP Identity
      */
-    "post"(
+    'post'(
       parameters?: Parameters<UnknownParamsObject> | null,
       data?: Paths.AuthDelegate.RequestBody,
-      config?: AxiosRequestConfig
-    ): OperationResponse<Paths.AuthDelegate.Responses.$200>;
-  };
-  ["/v1/content/{dsnpId}"]: {
+      config?: AxiosRequestConfig  
+    ): OperationResponse<Paths.AuthDelegate.Responses.$200>
+  }
+  ['/v1/content/{dsnpId}']: {
     /**
      * getUserFeed - Get recent posts from a user, paginated
      */
-    "get"(
+    'get'(
       parameters?: Parameters<Paths.GetUserFeed.PathParameters & Paths.GetUserFeed.QueryParameters> | null,
       data?: any,
-      config?: AxiosRequestConfig
-    ): OperationResponse<Paths.GetUserFeed.Responses.$200>;
-  };
-  ["/v1/content/feed"]: {
+      config?: AxiosRequestConfig  
+    ): OperationResponse<Paths.GetUserFeed.Responses.$200>
+  }
+  ['/v1/content/feed']: {
     /**
      * getFeed - Get the Feed for the current user, paginated
      */
-    "get"(
+    'get'(
       parameters?: Parameters<Paths.GetFeed.QueryParameters> | null,
       data?: any,
-      config?: AxiosRequestConfig
-    ): OperationResponse<Paths.GetFeed.Responses.$200>;
-  };
-  ["/v1/content/discover"]: {
+      config?: AxiosRequestConfig  
+    ): OperationResponse<Paths.GetFeed.Responses.$200>
+  }
+  ['/v1/content/discover']: {
     /**
      * getDiscover - Get the Discovery Feed for the current user, paginated
      */
-    "get"(
+    'get'(
       parameters?: Parameters<Paths.GetDiscover.QueryParameters> | null,
       data?: any,
-      config?: AxiosRequestConfig
-    ): OperationResponse<Paths.GetDiscover.Responses.$200>;
-  };
-  ["/v1/content/create"]: {
+      config?: AxiosRequestConfig  
+    ): OperationResponse<Paths.GetDiscover.Responses.$200>
+  }
+  ['/v1/content/create']: {
     /**
      * createBroadcast - Create a new post
      */
-    "post"(
+    'post'(
       parameters?: Parameters<UnknownParamsObject> | null,
       data?: Paths.CreateBroadcast.RequestBody,
-      config?: AxiosRequestConfig
-    ): OperationResponse<Paths.CreateBroadcast.Responses.$200>;
-  };
-  ["/v1/content/{dsnpId}/{contentHash}"]: {
+      config?: AxiosRequestConfig  
+    ): OperationResponse<Paths.CreateBroadcast.Responses.$200>
+  }
+  ['/v1/content/{dsnpId}/{contentHash}']: {
     /**
      * getContent - Get details of a specific post
      */
-    "get"(
+    'get'(
       parameters?: Parameters<Paths.GetContent.PathParameters> | null,
       data?: any,
-      config?: AxiosRequestConfig
-    ): OperationResponse<Paths.GetContent.Responses.$200>;
-  };
-  ["/v1/content/{type}/{contentHash}"]: {
+      config?: AxiosRequestConfig  
+    ): OperationResponse<Paths.GetContent.Responses.$200>
+  }
+  ['/v1/content/{type}/{contentHash}']: {
     /**
      * editContent - Edit the content of a specific post
      */
-    "put"(
+    'put'(
       parameters?: Parameters<Paths.EditContent.PathParameters> | null,
       data?: Paths.EditContent.RequestBody,
-      config?: AxiosRequestConfig
-    ): OperationResponse<Paths.EditContent.Responses.$200>;
-  };
-  ["/v1/graph/{dsnpId}/following"]: {
+      config?: AxiosRequestConfig  
+    ): OperationResponse<Paths.EditContent.Responses.$200>
+  }
+  ['/v1/graph/{dsnpId}/following']: {
     /**
      * userFollowing - Get a list of users that a specific user follows
      */
-    "get"(
+    'get'(
       parameters?: Parameters<Paths.UserFollowing.PathParameters> | null,
       data?: any,
-      config?: AxiosRequestConfig
-    ): OperationResponse<Paths.UserFollowing.Responses.$200>;
-  };
-  ["/v1/graph/{dsnpId}/follow"]: {
+      config?: AxiosRequestConfig  
+    ): OperationResponse<Paths.UserFollowing.Responses.$200>
+  }
+  ['/v1/graph/{dsnpId}/follow']: {
     /**
      * graphFollow - Follow a user
      */
-    "post"(
+    'post'(
       parameters?: Parameters<Paths.GraphFollow.PathParameters> | null,
       data?: any,
-      config?: AxiosRequestConfig
-    ): OperationResponse<Paths.GraphFollow.Responses.$201>;
-  };
-  ["/v1/graph/{dsnpId}/unfollow"]: {
+      config?: AxiosRequestConfig  
+    ): OperationResponse<Paths.GraphFollow.Responses.$201>
+  }
+  ['/v1/graph/{dsnpId}/unfollow']: {
     /**
      * graphUnfollow - Unfollow a user
      */
-    "post"(
+    'post'(
       parameters?: Parameters<Paths.GraphUnfollow.PathParameters> | null,
       data?: any,
-      config?: AxiosRequestConfig
-    ): OperationResponse<Paths.GraphUnfollow.Responses.$201>;
-  };
-  ["/v1/profiles/{dsnpId}"]: {
+      config?: AxiosRequestConfig  
+    ): OperationResponse<Paths.GraphUnfollow.Responses.$201>
+  }
+  ['/v1/profiles/{dsnpId}']: {
     /**
      * getProfile - Get profile information for a specific user
      */
-    "get"(
+    'get'(
       parameters?: Parameters<Paths.GetProfile.PathParameters> | null,
       data?: any,
-      config?: AxiosRequestConfig
-    ): OperationResponse<Paths.GetProfile.Responses.$200>;
+      config?: AxiosRequestConfig  
+    ): OperationResponse<Paths.GetProfile.Responses.$200>
     /**
      * createProfile - Create/Edit the profile information for a current user
      */
-    "put"(
+    'put'(
       parameters?: Parameters<Paths.CreateProfile.PathParameters> | null,
       data?: Paths.CreateProfile.RequestBody,
-      config?: AxiosRequestConfig
-    ): OperationResponse<Paths.CreateProfile.Responses.$200>;
-  };
+      config?: AxiosRequestConfig  
+    ): OperationResponse<Paths.CreateProfile.Responses.$200>
+  }
+  ['/v1/interactions']: {
+    /**
+     * submitInteraction - Request attestation for a pseudonymous interaction claim
+     */
+    'post'(
+      parameters?: Parameters<UnknownParamsObject> | null,
+      data?: Paths.SubmitInteraction.RequestBody,
+      config?: AxiosRequestConfig  
+    ): OperationResponse<Paths.SubmitInteraction.Responses.$200>
+  }
 }
 
-export type Client = OpenAPIClient<OperationMethods, PathsDictionary>;
+export type Client = OpenAPIClient<OperationMethods, PathsDictionary>

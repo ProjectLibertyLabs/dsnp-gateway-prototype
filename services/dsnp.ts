@@ -9,6 +9,8 @@ export enum AnnouncementType {
   Profile = 5,
   Update = 6,
   PublicFollows = 113,
+  PublicKey_KeyAgreement = 201,
+  PublicKey_AssertionMethod = 202,
 }
 
 /**
