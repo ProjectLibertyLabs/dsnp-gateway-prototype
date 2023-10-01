@@ -88,7 +88,6 @@ const main = async () => {
   // Deploy Schemas
   const schemaInfo = await deploy();
 
-
   // Announce a public key for Alice
   const assertionMethodSchemaId = schemaInfo.filter((obj) => {
     return obj.schemaName == "publicKey_assertionMethod";
@@ -105,14 +104,17 @@ const main = async () => {
   const publicKeyMulticodec = Buffer.from(
     new Uint8Array([ ...ed25519pubPrefix, ...signingKeys.publicKey ])
   );
-
+  const avroBuffer = publicKeyAvroSchema.toBuffer({ publicKey: publicKeyMulticodec });
+  
+  const bufferWithHeader = Buffer.concat([Buffer.from([ avroBuffer.length << 2 ]), avroBuffer]);
+  
   const keyPayloadRaw = {
     schemaId: assertionMethodSchemaId,
     expiration: blockNum + 50,
     actions: [
       {
         Add: {
-          data: publicKeyAvroSchema.toBuffer({ publicKey: publicKeyMulticodec })
+          data: bufferWithHeader
         }
       }
     ]

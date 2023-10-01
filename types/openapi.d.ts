@@ -106,22 +106,6 @@ declare namespace Components {
                     [key: string]: any;
                 };
             };
-            proof?: {
-                type: "Ed25519Signature2020";
-                /**
-                 * URI of public key, e.g. dsnp://{yourMsa}#1
-                 */
-                verificationMethod: string;
-                /**
-                 * ISO 8601 datetime, e.g. 2023-01-01T12:00:00.000Z
-                 */
-                created: string;
-                proofPurpose: "assertionMethod";
-                /**
-                 * multibase-encoded signature
-                 */
-                proofValue: string;
-            };
         }
         /**
          * Either a string, or an array containing strings and objects with string values
@@ -184,6 +168,62 @@ declare namespace Components {
              * Array of ReplyExtended objects
              */
             replies?: ReplyExtended[];
+        }
+        export interface VerifiableCredentialWithEd25519Proof {
+            "@context": /* Either a string, or an array containing strings and objects with string values */ JsonLdContext;
+            type: string[];
+            issuer: string;
+            issuanceDate: string;
+            credentialSchema: {
+                type: "VerifiableCredentialSchema2023";
+                /**
+                 * URL of schema verifiable credential
+                 */
+                id: string;
+            };
+            credentialSubject: {
+                interactionId: string;
+                href?: string;
+                reference: {
+                    [key: string]: any;
+                };
+            };
+            proof: {
+                type: "Ed25519Signature2020";
+                /**
+                 * URI of public key, e.g. dsnp://{yourMsa}#1
+                 */
+                verificationMethod: string;
+                /**
+                 * ISO 8601 datetime, e.g. 2023-01-01T12:00:00.000Z
+                 */
+                created: string;
+                proofPurpose: "assertionMethod";
+                /**
+                 * multibase-encoded signature
+                 */
+                proofValue: string;
+            };
+        }
+        export interface VerifiableCredentialWithoutProof {
+            "@context": /* Either a string, or an array containing strings and objects with string values */ JsonLdContext;
+            type: string[];
+            issuer: string;
+            issuanceDate: string;
+            credentialSchema: {
+                type: "VerifiableCredentialSchema2023";
+                /**
+                 * URL of schema verifiable credential
+                 */
+                id: string;
+            };
+            credentialSubject: {
+                interactionId: string;
+                href?: string;
+                reference: {
+                    [key: string]: any;
+                };
+            };
         }
     }
 }

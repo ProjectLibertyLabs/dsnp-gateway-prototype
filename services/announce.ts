@@ -19,8 +19,16 @@ const TestnetSchemas = (type: AnnouncementType): number => {
       return 6;
     case AnnouncementType.Update:
       return 5;
+    case AnnouncementType.PublicKey_KeyAgreement:
+      return 18;
     case AnnouncementType.PublicFollows:
       return 13;
+    case AnnouncementType.PrivateFollows:
+      return 14;
+    case AnnouncementType.PrivateConnections:
+      return 15;
+    case AnnouncementType.PublicKey_AssertionMethod:
+      throw new Error("Schema not yet published");
   }
   throw new Error("Unknown Announcement Type");
 };
@@ -39,8 +47,16 @@ const MainnetSchemas = (type: AnnouncementType): number => {
       return 5;
     case AnnouncementType.Update:
       return 6;
+    case AnnouncementType.PublicKey_KeyAgreement:
+      return 7;
     case AnnouncementType.PublicFollows:
       return 8;
+    case AnnouncementType.PrivateFollows:
+      return 9;
+    case AnnouncementType.PrivateConnections:
+      return 10;
+    case AnnouncementType.PublicKey_AssertionMethod:
+      return 11;
   }
   throw new Error("Unknown Announcement Type");
 };

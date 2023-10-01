@@ -1199,7 +1199,7 @@
             ]
       },
       "VerifiableCredentialWithEd25519Proof": {
-        "$ref": "#/components/schemas/VerifiableCredentialWithoutProof";
+        "allOf": [{"$ref": "#/components/schemas/VerifiableCredentialWithoutProof"}],
         "properties": {
           "proof": {
                 "type": "object",
@@ -1243,44 +1243,9 @@
         ]
       },
       "InteractionTicket": {
-            "type": "object",
-            "properties": {
-              "@context": {
-                "$ref": "#/components/schemas/JsonLdContext"
-              },
-              "type": {
-                "type": "array",
-                "uniqueItems": true,
-                "items": {
-                  "type": "string"
-                }
-              },
-              "issuer": {
-                "type": "string"
-              },
-              "issuanceDate": {
-                "type": "string"
-              },
-              "credentialSchema": {
-                "type": "object",
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "VerifiableCredentialSchema2023"
-                    ]
-                  },
-                  "id": {
-                    "type": "string",
-                    "description": "URL of schema verifiable credential"
-                  }
-                },
-                "required": [
-                  "type",
-                  "id"
-                ]
-              },
-              "credentialSubject": {
+        "allOf": [{"$ref": "#/components/schemas/VerifiableCredentialWithoutProof"}],
+        "properties": {
+          "credentialSubject": {
                 "type": "object",
                 "properties": {
                   "interactionId": {
@@ -1297,52 +1262,8 @@
                   "interactionId",
                   "reference"
                 ]
-              },
-              "proof": {
-                "type": "object",
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "Ed25519Signature2020"
-                    ]
-                  },
-                  "verificationMethod": {
-                    "type": "string",
-                    "description": "URI of public key, e.g. dsnp://{yourMsa}#1"
-                  },
-                  "created": {
-                    "type": "string",
-                    "description": "ISO 8601 datetime, e.g. 2023-01-01T12:00:00.000Z"
-                  },
-                  "proofPurpose": {
-                    "type": "string",
-                    "enum": [
-                      "assertionMethod"
-                    ]
-                  },
-                  "proofValue": {
-                    "type": "string",
-                    "description": "multibase-encoded signature"
-                  }
-                },
-                "required": [
-                  "type",
-                  "verificationMethod",
-                  "created",
-                  "proofPurpose",
-                  "proofValue"
-                ]
-              }
-            },
-            "required": [
-              "@context",
-              "type",
-              "issuer",
-              "issuanceDate",
-              "credentialSchema",
-              "credentialSubject"
-            ]
+          }
+        }
       },
       "InteractionResponse": {
         "type": "object",

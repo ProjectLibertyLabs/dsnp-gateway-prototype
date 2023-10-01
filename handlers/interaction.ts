@@ -14,10 +14,12 @@ type VerifierOutput = {
 type Verifier = (c: Context) => VerifierOutput;
 
 const verifiers: any = {
-  "xxx": (c: Context) => {
+  "dsnp://1#OndcProofOfPurchase": (c: Context) => {
+    // Insert logic to validate c.request.body.reference here
+
     return {
       verified: true,
-      ticketType: "ProductLink",
+      ticketType: "ProofOfPurchase",
       schemaUrl: "https://ondc.org/schema/interactions/ProductLinkV1",
       href: "https://ondc.org/product/123"
     };
@@ -40,9 +42,6 @@ export const submitInteraction: Handler<T.Paths.SubmitInteraction.RequestBody> =
     return res.status(401).send();
   }
   try {
-    // Insert logic to validate c.request.body.reference here
-
-    // TODO: First create the (unsigned) credential, then sign it
     const unsignedTicket : T.Components.Schemas.InteractionTicket = {
       "@context": [
         "https://www.w3.org/2018/credentials/v1",
@@ -50,7 +49,7 @@ export const submitInteraction: Handler<T.Paths.SubmitInteraction.RequestBody> =
           "@vocab": "dsnp://" + process.env.PROVIDER_ID + "#",
         },
       ],
-      "type": ["ProductLink", "VerifiableCredential"],
+      "type": [verifyOutput.ticketType, "VerifiableCredential"],
       "issuer": "dsnp://" + process.env.PROVIDER_ID,
       "issuanceDate": new Date().toISOString(),
       "credentialSchema": {
@@ -70,7 +69,7 @@ export const submitInteraction: Handler<T.Paths.SubmitInteraction.RequestBody> =
     const signedTicket = await signedCopyOf(
       unsignedTicket,
       signingKeys,
-      "dsnp://" + process.env.PROVIDER_ID + "#1" // FIXME need correct index?
+      "dsnp://" + process.env.PROVIDER_ID + "#0" // key is announced in local-init.cjs
     );
 
     const response: T.Paths.SubmitInteraction.Responses.$200 = {

@@ -1,6 +1,7 @@
 declare module "@digitalbazaar/vc" {
-  export function issue(params: IssueParams): T.Components.Schemas.InteractionTicket;
   export function defaultDocumentLoader(url: string): any;
+  export function issue(params: IssueParams): T.Components.Schemas.VerifiableCredentialWithEd25519Proof;
+  export function verifyCredential(options: any): any;
 }
 
 declare module "@digitalbazaar/ed25519-verification-key-2020" {
