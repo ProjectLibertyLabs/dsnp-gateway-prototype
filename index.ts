@@ -7,6 +7,8 @@ import Express from "express";
 import morgan from "morgan";
 import swaggerUi from "swagger-ui-express";
 import cors from "cors";
+import axios from "axios";
+import { load } from "cheerio";
 
 import type { Request } from "openapi-backend";
 
@@ -72,6 +74,41 @@ api.register("unauthorizedHandler", (_c, _req, res) => {
   return res.status(401).send();
 });
 
+app.get("/preview", async (req, res) =>  {
+  try {
+    //get url to generate preview, the url will be based as a query param.
+
+    const url = req.query.url as string;
+    /*request url html document*/
+    const { data } = await axios.get(url);
+    //load html document in cheerio
+    const $ = load(data);
+    /*function to get needed values from meta tags to generate preview*/
+    const getMetaTag = (name: string) => {
+      return (
+        $(`meta[name=${name}]`).attr("content") ||
+        $(`meta[property="twitter${name}"]`).attr("content") ||
+        $(`meta[property="og:${name}"]`).attr("content")
+      );
+    };
+
+    /*Fetch values into an object */
+    const preview = {
+      title: $("title").first().text(),
+      description: getMetaTag("description"),
+      image: getMetaTag("image"),
+    };
+
+    //Send object as response
+    res.status(200).json(preview);
+  } catch (error) {
+    res
+      .status(500)
+      .json(error)
+      ;
+  }
+});
+    
 // use as express middleware
 app.use((req, res) => api.handleRequest(req as Request, req, res));
 

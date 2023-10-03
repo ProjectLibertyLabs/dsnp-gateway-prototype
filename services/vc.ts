@@ -6,9 +6,9 @@ import { bases } from "multiformats/basics";
 import { hexToString } from "@polkadot/util";
 import axios from "axios";
 import { Keyring } from "@polkadot/api";
-import type { KeyringPair } from "@polkadot/keyring/types.js"
+import type { KeyringPair } from "@polkadot/keyring/types.js";
 import { signatureVerify } from "@polkadot/util-crypto";
-import * as vc from '@digitalbazaar/vc';
+import * as vc from "@digitalbazaar/vc";
 import { Ed25519VerificationKey2020 } from "@digitalbazaar/ed25519-verification-key-2020";
 import { Ed25519Signature2020, suiteContext } from "@digitalbazaar/ed25519-signature-2020";
 import { dsnp } from "@dsnp/frequency-schemas";
@@ -28,15 +28,16 @@ const documentLoader = extendContextLoader(async (url: string) => {
   if (url === "https://w3id.org/security/suites/ed25519-2020/v1") return suiteContext.documentLoader(url);
 
   // DSNP URIs may be used for public keys
-  if (url.startsWith("dsnp://")) return {
-    document: {
-      "@context": "https://w3id.org/security/suites/ed25519-2020/v1",
-      type: "Ed25519VerificationKey2020",
-    }
-  };
-    
+  if (url.startsWith("dsnp://"))
+    return {
+      document: {
+        "@context": "https://w3id.org/security/suites/ed25519-2020/v1",
+        type: "Ed25519VerificationKey2020",
+      },
+    };
+
   // Fall back to loading from the web
-  const {data: document} = await axios.get(url);
+  const { data: document } = await axios.get(url);
   return {
     contextUrl: null,
     document,
@@ -44,23 +45,26 @@ const documentLoader = extendContextLoader(async (url: string) => {
   };
 });
 
-export const signedCopyOf = async (credential: T.Components.Schemas.VerifiableCredentialWithoutProof, keyPair: KeyringPair, issuer: string) => {
-
+export const signedCopyOf = async (
+  credential: T.Components.Schemas.VerifiableCredentialWithoutProof,
+  keyPair: KeyringPair,
+  issuer: string
+) => {
   const signer = {
     sign: (obj: any) => {
       return keyPair.sign(obj.data);
-    }
+    },
   };
 
-  const suite = new Ed25519Signature2020({signer});
+  const suite = new Ed25519Signature2020({ signer });
   suite.verificationMethod = issuer;
 
   const signedCredential = await vc.issue({ credential, suite, documentLoader });
   // verify it (just for testing)
-  const verified = await verify(signedCredential);
-  console.log("verified? ", verified);
+  // const verified = await verify(signedCredential);
+  // console.log("verified? ", verified);
   return signedCredential;
-}
+};
 
 const dsnpUserUriRegex = new RegExp("^dsnp://[1-9][0-9]*$");
 
@@ -96,28 +100,26 @@ export const verify = async (credential: T.Components.Schemas.VerifiableCredenti
       // assert that prefix is [237,1]
       const { isValid } = signatureVerify(obj.data, obj.signature, publicKeyMulticodec.slice(2));
       return isValid;
-    }
-  }; 
+    },
+  };
 
-  const suite = new Ed25519Signature2020({verifier});
+  const suite = new Ed25519Signature2020({ verifier });
 
   // Perform verification
-  const output = await vc.verifyCredential(
-    {
-      credential,
-      suite,
-      documentLoader,
-      purpose: {
-        validate: (proof: any) => {
-          return {
-            valid: proof.proofPurpose === "assertionMethod"
-          };
-        },
-        match: (proof: any, {document, documentLoader}: any) => {
-          return true;
-        }
-      }
-    }
-  );
+  const output = await vc.verifyCredential({
+    credential,
+    suite,
+    documentLoader,
+    purpose: {
+      validate: (proof: any) => {
+        return {
+          valid: proof.proofPurpose === "assertionMethod",
+        };
+      },
+      match: (proof: any, { document, documentLoader }: any) => {
+        return true;
+      },
+    },
+  });
   return output.verified;
-}
+};

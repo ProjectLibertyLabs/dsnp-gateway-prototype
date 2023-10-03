@@ -128,8 +128,13 @@ export const createBroadcast: Handler<T.Paths.CreateBroadcast.RequestBody> = asy
         })
     );
 
-    const note = createNote(fields.content, new Date(), { attachment });
+    const params = { attachment, tag: undefined };
+    if (fields.tag) {
+      params.tag = JSON.parse(fields.tag);
+    }
+    const note = createNote(fields.content, new Date(), params);
     const noteString = JSON.stringify(note);
+    console.log("Made note: ", noteString);
     const { cid, hash: contentHash } = await ipfsPin("application/json", Buffer.from(noteString, "utf8"));
 
     const announcement = fields.inReplyTo

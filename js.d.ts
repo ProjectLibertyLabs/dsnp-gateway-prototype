@@ -1,6 +1,6 @@
 declare module "@digitalbazaar/vc" {
   export function defaultDocumentLoader(url: string): any;
-  export function issue(params: IssueParams): T.Components.Schemas.VerifiableCredentialWithEd25519Proof;
+  export function issue(params: any): import("./types/openapi.d.ts").Components.Schemas.VerifiableCredentialWithEd25519Proof;
   export function verifyCredential(options: any): any;
 }
 

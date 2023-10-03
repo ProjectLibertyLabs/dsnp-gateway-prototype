@@ -1,79 +1,88 @@
 import { Context, Handler } from "openapi-backend";
 import type * as T from "../types/openapi.js";
 import { Keyring } from "@polkadot/api";
-import { signedCopyOf } from "../services/vc.js"
-import type { KeyringPair } from "@polkadot/keyring/types.js"
+import { signedCopyOf } from "../services/vc.js";
+import type { KeyringPair } from "@polkadot/keyring/types.js";
 
-type VerifierOutput = {
-  verified: boolean,
-  ticketType: string,
-  schemaUrl: string,
-  href: string,
+export type CheckerOutput = {
+  entitled: boolean;
+  ticketType: string;
+  schemaUrl: string;
+  href: string;
 };
 
-type Verifier = (c: Context) => VerifierOutput;
+type EntitlementChecker = (c: Context) => CheckerOutput;
 
-const verifiers: any = {
+const checkers: any = {
   "dsnp://1#OndcProofOfPurchase": (c: Context) => {
     // Insert logic to validate c.request.body.reference here
+    const reference = c.request.body.reference;
+
+    // Example only!
+    if (reference.hello !== "world") {
+      return { entitled: false };
+    }
 
     return {
-      verified: true,
+      entitled: true,
       ticketType: "ProofOfPurchase",
-      schemaUrl: "https://ondc.org/schema/interactions/ProductLinkV1",
-      href: "https://ondc.org/product/123"
+      schemaUrl: "https://ondc.org/schema/interactions/ProofOfPurchase.json",
+      href: "https://ondc.org/product/123",
     };
-  }
+  },
 };
 
 // Note: The public key for this is added to the chain in scripts/local-init.cjs
-const signingKeys = new Keyring({ type: "ed25519" })
-  .addFromUri(process.env.PROVIDER_KEY_URI + "//assertionMethod");
+const signingKeys = new Keyring({ type: "ed25519" }).addFromUri(process.env.PROVIDER_KEY_URI + "//assertionMethod");
 
 export const submitInteraction: Handler<T.Paths.SubmitInteraction.RequestBody> = async (c, req, res) => {
-  const verifier = verifiers[c.request.body.attributeSetType];
-  if (!verifier) {
-    // No verifier for attributeSetType
+console.log(c.request.body);
+  const checker = checkers[c.request.body.attributeSetType];
+  if (!checker) {
+    // No entitlement checker for attributeSetType
     return res.status(404).send();
   }
-  const verifyOutput = verifier(c);
-  if (!verifyOutput.verified) {
-    // Failed verification
+  const checkerOutput = checker(c);
+  if (!checkerOutput.entitled) {
+    // Failed entitlement check
     return res.status(401).send();
   }
   try {
-    const unsignedTicket : T.Components.Schemas.InteractionTicket = {
+    const unsignedTicket: T.Components.Schemas.InteractionTicket = {
       "@context": [
         "https://www.w3.org/2018/credentials/v1",
         {
           "@vocab": "dsnp://" + process.env.PROVIDER_ID + "#",
         },
       ],
-      "type": [verifyOutput.ticketType, "VerifiableCredential"],
-      "issuer": "dsnp://" + process.env.PROVIDER_ID,
-      "issuanceDate": new Date().toISOString(),
-      "credentialSchema": {
-        "type": "VerifiableCredentialSchema2023",
-        "id": verifyOutput.schemaUrl,
+      type: [checkerOutput.ticketType, "VerifiableCredential"],
+      issuer: "dsnp://" + process.env.PROVIDER_ID,
+      issuanceDate: new Date().toISOString(),
+      credentialSchema: {
+        type: "VerifiableCredentialSchema2023",
+        id: checkerOutput.schemaUrl,
       },
-      "credentialSubject": {
-        "interactionId": c.request.body.interactionId,
-        "href": "https://mystore.com/item/123", // FIXME
-        "reference": c.request.body.reference,
-      }
+      credentialSubject: {
+        interactionId: c.request.body.interactionId,
+        href: checkerOutput.href,
+        reference: c.request.body.reference,
+      },
     };
 
-    const signingKeys = new Keyring({ type: "ed25519" })
-      .addFromUri("//Alice//assertionMethod", {}, "ed25519");
+    const signingKeys = new Keyring({ type: "ed25519" }).addFromUri(
+      String(process.env.PROVIDER_CREDENTIAL_SIGNING_KEY_URI),
+      {},
+      "ed25519"
+    );
 
     const signedTicket = await signedCopyOf(
       unsignedTicket,
       signingKeys,
-      "dsnp://" + process.env.PROVIDER_ID + "#0" // key is announced in local-init.cjs
+      "dsnp://" + process.env.PROVIDER_ID + "#" + process.env.PROVIDER_CREDENTIAL_SIGNING_KEY_ID
     );
 
     const response: T.Paths.SubmitInteraction.Responses.$200 = {
-      "attributeSetType": c.request.body.attributeSetType,
+      attributeSetType: c.request.body.attributeSetType,
       ticket: signedTicket,
     };
     return res.status(200).json(response);
