@@ -3,7 +3,7 @@ import Busboy from "busboy";
 import type * as T from "../types/openapi.js";
 import { ipfsPin, ipfsUrl } from "../services/ipfs.js";
 import * as dsnp from "../services/dsnp.js";
-import { createImageAttachment, createImageLink, createNote } from "@dsnp/activity-content/factories";
+import { factories } from "@dsnp/activity-content";
 import { publish } from "../services/announce.js";
 import { getPostsInRange } from "../services/feed.js";
 import { getCurrentBlockNumber } from "../services/frequency.js";
@@ -124,7 +124,9 @@ export const createBroadcast: Handler<T.Paths.CreateBroadcast.RequestBody> = asy
         .filter((x) => x.name === "images")
         .map(async (image) => {
           const { cid, hash } = await ipfsPin(image.info.mimeType, image.file);
-          return createImageAttachment([createImageLink(ipfsUrl(cid), image.info.mimeType, [hash])]);
+          return factories.createImageAttachment([
+            factories.createImageLink(ipfsUrl(cid), image.info.mimeType, [hash]),
+          ]);
         })
     );
 
@@ -132,7 +134,7 @@ export const createBroadcast: Handler<T.Paths.CreateBroadcast.RequestBody> = asy
     if (fields.tag) {
       params.tag = JSON.parse(fields.tag);
     }
-    const note = createNote(fields.content, new Date(), params);
+    const note = factories.createNote(fields.content, new Date(), params);
     const noteString = JSON.stringify(note);
     console.log("Made note: ", noteString);
     const { cid, hash: contentHash } = await ipfsPin("application/json", Buffer.from(noteString, "utf8"));

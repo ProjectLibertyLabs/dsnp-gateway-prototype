@@ -14,7 +14,7 @@ export type CheckerOutput = {
 type EntitlementChecker = (c: Context) => CheckerOutput;
 
 const checkers: any = {
-  "dsnp://1#OndcProofOfPurchase": (c: Context) => {
+  "dsnp://1#OndcProofOfPurchase": async (c: Context) => {
     // Insert logic to validate c.request.body.reference here
     const reference = c.request.body.reference;
 
@@ -25,9 +25,8 @@ const checkers: any = {
 
     return {
       entitled: true,
-      ticketType: "ProofOfPurchase",
       schemaUrl: "https://ondc.org/schema/interactions/ProofOfPurchase.json",
-      href: "https://ondc.org/product/123",
+      href: c.request.body.href,
     };
   },
 };
@@ -36,17 +35,19 @@ const checkers: any = {
 const signingKeys = new Keyring({ type: "ed25519" }).addFromUri(process.env.PROVIDER_KEY_URI + "//assertionMethod");
 
 export const submitInteraction: Handler<T.Paths.SubmitInteraction.RequestBody> = async (c, req, res) => {
-console.log(c.request.body);
-  const checker = checkers[c.request.body.attributeSetType];
+  console.log(c.request.body);
+  const attributeSetType = c.request.body.attributeSetType;
+  const checker = checkers[attributeSetType];
   if (!checker) {
     // No entitlement checker for attributeSetType
     return res.status(404).send();
   }
-  const checkerOutput = checker(c);
+  const checkerOutput = await checker(c);
   if (!checkerOutput.entitled) {
     // Failed entitlement check
     return res.status(401).send();
   }
+  const ticketType = attributeSetType.substring(attributeSetType.indexOf("#") + 1);
   try {
     const unsignedTicket: T.Components.Schemas.InteractionTicket = {
       "@context": [
@@ -55,7 +56,7 @@ console.log(c.request.body);
           "@vocab": "dsnp://" + process.env.PROVIDER_ID + "#",
         },
       ],
-      type: [checkerOutput.ticketType, "VerifiableCredential"],
+      type: [ticketType, "VerifiableCredential"],
       issuer: "dsnp://" + process.env.PROVIDER_ID,
       issuanceDate: new Date().toISOString(),
       credentialSchema: {

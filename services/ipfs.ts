@@ -4,7 +4,7 @@ import { bases } from "multiformats/basics";
 import axios from "axios";
 import FormData from "form-data";
 import { extension as getExtension } from "mime-types";
-import { toMultibase } from "@dsnp/activity-content/hash";
+import { hash as activityContentHash } from "@dsnp/activity-content";
 
 export interface FilePin {
   cid: string;
@@ -79,7 +79,7 @@ const ipfsPinBuffer = async (filename: string, contentType: string, fileBuffer: 
 
 const hashBuffer = async (fileBuffer: Buffer): Promise<string> => {
   const hash = await blake2b256.digest(fileBuffer);
-  return toMultibase(hash.bytes, "blake2b-256");
+  return activityContentHash.toMultibase(hash.bytes, "blake2b-256");
 };
 
 export const ipfsPin = async (mimeType: string, file: Buffer): Promise<FilePin> => {

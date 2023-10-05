@@ -74,7 +74,7 @@ api.register("unauthorizedHandler", (_c, _req, res) => {
   return res.status(401).send();
 });
 
-app.get("/preview", async (req, res) =>  {
+app.get("/preview", async (req, res) => {
   try {
     //get url to generate preview, the url will be based as a query param.
 
@@ -82,19 +82,19 @@ app.get("/preview", async (req, res) =>  {
     /*request url html document*/
     const { data } = await axios.get(url);
     //load html document in cheerio
-    const $ = load(data);
+    const dom = load(data);
     /*function to get needed values from meta tags to generate preview*/
     const getMetaTag = (name: string) => {
       return (
-        $(`meta[name=${name}]`).attr("content") ||
-        $(`meta[property="twitter${name}"]`).attr("content") ||
-        $(`meta[property="og:${name}"]`).attr("content")
+        dom(`meta[name=${name}]`).attr("content") ||
+        dom(`meta[property="twitter${name}"]`).attr("content") ||
+        dom(`meta[property="og:${name}"]`).attr("content")
       );
     };
 
     /*Fetch values into an object */
     const preview = {
-      title: $("title").first().text(),
+      title: dom("title").first().text(),
       description: getMetaTag("description"),
       image: getMetaTag("image"),
     };
@@ -102,13 +102,10 @@ app.get("/preview", async (req, res) =>  {
     //Send object as response
     res.status(200).json(preview);
   } catch (error) {
-    res
-      .status(500)
-      .json(error)
-      ;
+    res.status(500).json(error);
   }
 });
-    
+
 // use as express middleware
 app.use((req, res) => api.handleRequest(req as Request, req, res));
 
