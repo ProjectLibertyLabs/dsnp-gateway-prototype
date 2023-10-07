@@ -74,6 +74,23 @@
         }
       }
     },
+    "/v1/auth/assert": {
+      "post": {
+        "operationId": "authAssert",
+        "summary": "Returns 204 No Content if the caller's token is valid, 401 Unauthorized if not",
+        "security": [{
+          "tokenAuth": []
+        }],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "204": {
+            "description": "Successful response"
+          }
+        }
+      }
+    },
     "/v1/auth/logout": {
       "post": {
         "operationId": "authLogout",
@@ -329,6 +346,61 @@
             "required": false,
             "schema": {
               "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedBroadcast"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/content/interactions": {
+      "get": {
+        "operationId": "getInteractionsFeed",
+        "summary": "Get the feed of posts with interaction tags of a given attribute set type and URL, paginated.",
+        "parameters": [
+          {
+            "name": "newestBlockNumber",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "oldestBlockNumber",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "rel",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "href",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
             }
           }
         ],

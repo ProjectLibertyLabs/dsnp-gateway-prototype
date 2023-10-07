@@ -55,6 +55,12 @@ export const authLogin: Handler<T.Paths.AuthLogin.RequestBody> = async (c, _req,
   return res.status(200).json(response);
 };
 
+export const authAssert: Handler<{}> = async (c, _req, res) => {
+    const msaId = c.security?.tokenAuth?.msaId;
+    if (msaId === null) return res.status(401).send();
+    return res.status(204).send();
+};
+
 export const authLogout: Handler<{}> = async (_c, _req, res) => {
   return res.status(201);
 };
