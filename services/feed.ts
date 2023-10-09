@@ -8,6 +8,7 @@ import axios from "axios";
 import { ParquetReader } from "@dsnp/parquetjs";
 import { MessageResponse } from "@frequency-chain/api-augment/interfaces";
 import { ipfsUrl } from "./ipfs.js";
+import { verifiedInteractionsFromContent } from "./interaction.js";
 
 type Post = T.Components.Schemas.BroadcastExtended;
 interface CachedPosts {
@@ -68,6 +69,10 @@ const getPostsForBlockRange = async ({ from, to }: BlockRange): Promise<[number,
             responseType: "text",
             timeout: 10_000,
           });
+
+          // Pre-parse interaction tags
+          const verifiedInteractions = await verifiedInteractionsFromContent(postResp.data, announcement.fromId);
+
           posts.push([
             msg.block_number,
             {
@@ -76,6 +81,7 @@ const getPostsForBlockRange = async ({ from, to }: BlockRange): Promise<[number,
               content: postResp.data as unknown as string,
               timestamp: new Date().toISOString(), // TODO: Use Block timestamp
               replies: [], // TODO: Support replies
+              verifiedInteractions,
             },
           ]);
         } catch (e) {

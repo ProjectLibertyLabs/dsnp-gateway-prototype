@@ -14,7 +14,7 @@ Environment variables can be setup by creating a `.env` file in the root folder.
 - `IPFS_GATEWAY` (Required): IPFS Gateway. Use `[CID]` to position the CID correctly in the URL. e.g. `https://ipfs.io/ipfs/[CID]`
 - `IPFS_BASIC_AUTH_USER`: The Basic Auth for the IPFS connection
 - `IPFS_BASIC_AUTH_SECRET`: The Basic Auth for the IPFS connection
-- `FREQUENCY_NODE` (Required): The WebSocket address for a Frequency Node e.g. `ws://127.0.0.1:9944` (Note: Use `172.0.0.1` over `localhost`)
+- `FREQUENCY_NODE` (Required): The WebSocket address for a Frequency Node e.g. `ws://127.0.0.1:9944` (Note: Use `127.0.0.1` over `localhost`)
 - `FREQUENCY_PUBLIC_ENDPOINT`: The HTTP(S) endpoint so the website can interact with the bare minimum of node interactions. (Required for the Social Web Example Client)
 - `PROVIDER_KEY_URI`: The URI or seed phrase for the provider key. e.g. `//Alice`
 - `PROVIDER_ID`: The ID of the Provider that will be used.

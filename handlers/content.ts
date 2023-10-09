@@ -84,7 +84,11 @@ export const getDiscover: Handler<{}> = async (c: Context<{}, {}, T.Paths.GetDis
   return res.status(200).json(response);
 };
 
-export const getInteractionsFeed: Handler<{}> = async (c: Context<{}, {}, T.Paths.GetInteractionsFeed.QueryParameters>, req, res) => {
+export const getInteractionsFeed: Handler<{}> = async (
+  c: Context<{}, {}, T.Paths.GetInteractionsFeed.QueryParameters>,
+  req,
+  res
+) => {
   // Return only items that have a tag with type Interaction and matching rel/href values
   const { newestBlockNumber, oldestBlockNumber, rel, href } = c.request.query;
   // Default to now
@@ -102,10 +106,10 @@ export const getInteractionsFeed: Handler<{}> = async (c: Context<{}, {}, T.Path
 
         const isInteraction = (tag: ActivityContentTag): tag is ActivityContentInteraction => {
           return (tag as any).type?.toLowerCase() === "interaction";
-        }
+        };
 
         const hasMatchingInteraction = (tag: ActivityContentTag) =>
-          (isInteraction(tag) && (!rel || rel === tag.rel) && (!href || href === tag.href));
+          isInteraction(tag) && (!rel || rel === tag.rel) && (!href || href === tag.href);
 
         if (Array.isArray(note.tag)) {
           for (const tag of note.tag) {

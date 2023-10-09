@@ -1039,6 +1039,29 @@
               "$ref": "#/components/schemas/ReplyExtended"
             },
             "description": "Array of ReplyExtended objects"
+          },
+          "verifiedInteractions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "href": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "object",
+                  "description": "Language map for label localization",
+                  "minProperties": 1,
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "href",
+                "label"
+              ]
+            }
           }
         },
         "required": [
@@ -1210,6 +1233,9 @@
               "@context": {
                 "$ref": "#/components/schemas/JsonLdContext"
               },
+              "id": {
+                "type": "string"
+              },
               "type": {
                 "type": "array",
                 "uniqueItems": true,
@@ -1223,18 +1249,25 @@
               "issuanceDate": {
                 "type": "string"
               },
+              "expirationDate": {
+                "type": "string"
+              },
               "credentialSchema": {
                 "type": "object",
                 "properties": {
                   "type": {
                     "type": "string",
                     "enum": [
-                      "VerifiableCredentialSchema2023"
+                      "VerifiableCredentialSchema2023",
+                      "JsonSchema"
                     ]
                   },
                   "id": {
                     "type": "string",
                     "description": "URL of schema verifiable credential"
+                  },
+                  "digestSRI": {
+                    "type": "string"
                   }
                 },
                 "required": [
@@ -1245,19 +1278,8 @@
               "credentialSubject": {
                 "type": "object",
                 "properties": {
-                  "interactionId": {
-                    "type": "string"
-                  },
-                  "href": {
-                    "type": "string"
-                  },
-                  "reference": {
-                    "type": "object"
-                  }
                 },
                 "required": [
-                  "interactionId",
-                  "reference"
                 ]
               }
             },
@@ -1274,40 +1296,40 @@
         "allOf": [{"$ref": "#/components/schemas/VerifiableCredentialWithoutProof"}],
         "properties": {
           "proof": {
-                "type": "object",
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "Ed25519Signature2020"
-                    ]
-                  },
-                  "verificationMethod": {
-                    "type": "string",
-                    "description": "URI of public key, e.g. dsnp://{yourMsa}#1"
-                  },
-                  "created": {
-                    "type": "string",
-                    "description": "ISO 8601 datetime, e.g. 2023-01-01T12:00:00.000Z"
-                  },
-                  "proofPurpose": {
-                    "type": "string",
-                    "enum": [
-                      "assertionMethod"
-                    ]
-                  },
-                  "proofValue": {
-                    "type": "string",
-                    "description": "multibase-encoded signature"
-                  }
-                },
-                "required": [
-                  "type",
-                  "verificationMethod",
-                  "created",
-                  "proofPurpose",
-                  "proofValue"
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "Ed25519Signature2020"
                 ]
+              },
+              "verificationMethod": {
+                "type": "string",
+                "description": "URI of public key, e.g. dsnp://{yourMsa}#1"
+              },
+              "created": {
+                "type": "string",
+                "description": "ISO 8601 datetime, e.g. 2023-01-01T12:00:00.000Z"
+              },
+              "proofPurpose": {
+                "type": "string",
+                "enum": [
+                  "assertionMethod"
+                ]
+              },
+              "proofValue": {
+                "type": "string",
+                "description": "multibase-encoded signature"
+              }
+            },
+            "required": [
+              "type",
+              "verificationMethod",
+              "created",
+              "proofPurpose",
+              "proofValue"
+            ]
           }
         },
         "required": [
@@ -1315,7 +1337,7 @@
         ]
       },
       "InteractionTicket": {
-        "allOf": [{"$ref": "#/components/schemas/VerifiableCredentialWithoutProof"}],
+        "allOf": [{"$ref": "#/components/schemas/VerifiableCredentialWithEd25519Proof"}],
         "properties": {
           "credentialSubject": {
                 "type": "object",
@@ -1344,7 +1366,7 @@
             "type": "string"
           },
           "ticket": {
-            "$ref": "#/components/schemas/InteractionTicket"
+            "$ref": "#/components/schemas/VerifiableCredentialWithEd25519Proof"
           }
         },
         "required": [

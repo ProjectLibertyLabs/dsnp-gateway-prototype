@@ -49,7 +49,7 @@ export const submitInteraction: Handler<T.Paths.SubmitInteraction.RequestBody> =
   }
   const ticketType = attributeSetType.substring(attributeSetType.indexOf("#") + 1);
   try {
-    const unsignedTicket: T.Components.Schemas.InteractionTicket = {
+    const unsignedTicket: T.Components.Schemas.VerifiableCredentialWithoutProof = {
       "@context": [
         "https://www.w3.org/2018/credentials/v1",
         {
@@ -81,6 +81,8 @@ export const submitInteraction: Handler<T.Paths.SubmitInteraction.RequestBody> =
       signingKeys,
       "dsnp://" + process.env.PROVIDER_ID + "#" + process.env.PROVIDER_CREDENTIAL_SIGNING_KEY_ID
     );
+
+    console.log(signedTicket);
 
     const response: T.Paths.SubmitInteraction.Responses.$200 = {
       attributeSetType: c.request.body.attributeSetType,
