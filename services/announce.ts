@@ -28,7 +28,7 @@ const TestnetSchemas = (type: AnnouncementType): number => {
     case AnnouncementType.PrivateConnections:
       return 15;
     case AnnouncementType.PublicKey_AssertionMethod:
-      throw new Error("Schema not yet published");
+      return 100;
   }
   throw new Error("Unknown Announcement Type");
 };

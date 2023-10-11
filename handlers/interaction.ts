@@ -29,10 +29,22 @@ const checkers: any = {
       href: c.request.body.href,
     };
   },
-};
+  "dsnp://13972#OndcProofOfPurchase": async (c: Context) => {
+    // Insert logic to validate c.request.body.reference here
+    const reference = c.request.body.reference;
 
-// Note: The public key for this is added to the chain in scripts/local-init.cjs
-const signingKeys = new Keyring({ type: "ed25519" }).addFromUri(process.env.PROVIDER_KEY_URI + "//assertionMethod");
+    // Example only!
+    if (reference.hello !== "world") {
+      return { entitled: false };
+    }
+
+    return {
+      entitled: true,
+      schemaUrl: "https://ondc.org/schema/interactions/testnet/ProofOfPurchase.json",
+      href: c.request.body.href,
+    };
+  },
+};
 
 export const submitInteraction: Handler<T.Paths.SubmitInteraction.RequestBody> = async (c, req, res) => {
   console.log(c.request.body);

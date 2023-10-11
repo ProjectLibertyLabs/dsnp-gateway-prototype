@@ -51,11 +51,7 @@ export const newVerifiableCredential = async () => {
                 reference: {
                   type: "object",
                   properties: {
-                    hello: {
-                      type: "string",
-                    },
                   },
-                  required: ["hello"],
                 },
               },
               required: ["interactionId", "href", "reference"],
@@ -70,7 +66,7 @@ export const newVerifiableCredential = async () => {
             },
           },
           trust: {
-            oneOf: ["dsnp://1#OndcVerifiedBuyerPlatform", "dsnp://1#OndcVerifiedSellerPlatform"],
+            oneOf: ["dsnp://" + process.env.PROVIDER_ID + "#OndcVerifiedBuyerPlatform", "dsnp://" + process.env.PROVIDER_ID + "#OndcVerifiedSellerPlatform"],
           },
         },
       },
@@ -104,15 +100,15 @@ console.log("verifyResult: ", verifyResult);
 const interactionVC: T.Components.Schemas.VerifiableCredentialWithEd25519Proof = {
   "@context": [
     "https://www.w3.org/2018/credentials/v1",
-    { "@vocab": "dsnp://1#" },
+    { "@vocab": "dsnp://" + process.env.PROVIDER_ID + "#" },
     "https://w3id.org/security/suites/ed25519-2020/v1",
   ],
   type: ["OndcProofOfPurchase", "VerifiableCredential"],
-  issuer: "dsnp://1",
+  issuer: "dsnp://" + process.env.PROVIDER_ID,
   issuanceDate: "2023-10-08T21:14:01.230Z",
   credentialSchema: {
     type: "VerifiableCredentialSchema2023",
-    id: "https://ondc.org/schema/interactions/ProofOfPurchase.json",
+    id: "https://ondc.org/schema/interactions/" + process.env.FREQUENCY_NETWORK + "/ProofOfPurchase.json",
   },
   credentialSubject: {
     interactionId: "zH47VxQmaLFN2Kk7KowLvQYhHooqbyYLw7WuyfxBNC75x7Dqr",
