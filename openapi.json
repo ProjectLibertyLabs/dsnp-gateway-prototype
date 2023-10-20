@@ -349,6 +349,51 @@
         }
       }
     },
+    "/v1/content/live":{
+      "get": {
+        "operationId": "getLiveFeed",
+        "summary": "Get the Live Feed for the current user, paginated",
+        "security": [{
+          "tokenAuth": []
+        }],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedBroadcast"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/webhooks/broadcast":{
+      "post": {
+        "operationId": "postBroadcastWebhook",
+        "summary": "Webhook for new broadcasts",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BroadcastExtended"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful response"
+          }
+        }
+      }
+    },
     "/v1/content/create": {
       "post": {
         "operationId": "createBroadcast",

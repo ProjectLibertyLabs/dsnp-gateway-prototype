@@ -132,6 +132,7 @@ const fetchAndCachePosts = (newestBlockNumber: number, oldestBlockNumber: number
 };
 
 const cache: CachedPosts = {};
+const watcherCache: Post[] = [];
 
 export const getPostsInRange = async (newestBlockNumber: number, oldestBlockNumber: number): Promise<Post[]> => {
   // Trigger the fetch and caching
@@ -143,4 +144,15 @@ export const getPostsInRange = async (newestBlockNumber: number, oldestBlockNumb
     posts.push(...blockPosts);
   }
   return posts;
+};
+
+export const setPostsFromWatcher = async (post: Post): Promise<void> => {
+  watcherCache.push(post);
+  if (watcherCache.length > 100) {
+    watcherCache.shift();
+  }
+}
+
+export const getPostsFromWatcher= async (): Promise<Post[]> => {
+  return watcherCache;
 };

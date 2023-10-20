@@ -31,6 +31,11 @@ declare namespace Components {
        */
       replies?: ReplyExtended[];
     }
+
+    export interface BroadcastMessage {
+      schemaId: number;
+      announcement: BroadcastExtended;
+    }
     export interface ChallengeResponse {
       challenge: string;
     }
@@ -246,6 +251,12 @@ declare namespace Paths {
       export type $401 = Components.Responses.UnauthorizedError;
     }
   }
+  namespace GetLiveFeed {
+    namespace Responses {
+      export type $200 = Components.Schemas.PaginatedBroadcast;
+      export type $401 = Components.Responses.UnauthorizedError;
+    }
+  }
   namespace GetFeed {
     namespace Parameters {
       export type NewestBlockNumber = number;
@@ -324,6 +335,14 @@ declare namespace Paths {
     namespace Responses {
       export type $200 = string[];
       export type $401 = Components.Responses.UnauthorizedError;
+    }
+  }
+  namespace PostBroadcastWebhook {
+    export type RequestBody = Components.Schemas.BroadcastMessage;
+    namespace Responses {
+      export type $401 = Components.Responses.UnauthorizedError;
+      export type $201 = {};
+      export interface $404 {}
     }
   }
 }
@@ -481,6 +500,24 @@ export interface OperationMethods {
     data?: Paths.CreateProfile.RequestBody,
     config?: AxiosRequestConfig
   ): OperationResponse<Paths.CreateProfile.Responses.$200>;
+
+  /**
+   * postBroadcastWebhook - Webhook for new posts
+  */
+  "postBroadcastWebhook"(
+    parameters?: Parameters<UnknownParamsObject> | null,
+    data?: Paths.PostBroadcastWebhook.RequestBody,
+    config?: AxiosRequestConfig
+  ): OperationResponse<Paths.PostBroadcastWebhook.Responses.$201>;
+
+  /**
+   * getLiveFeed - Get the Live Feed for the current user, paginated
+   */
+  "getLiveFeed"(
+    parameters?: Parameters<{}> | null,
+    data?: any,
+    config?: AxiosRequestConfig
+  ): OperationResponse<Paths.GetLiveFeed.Responses.$200>;
 }
 
 export interface PathsDictionary {
@@ -671,6 +708,26 @@ export interface PathsDictionary {
       data?: Paths.CreateProfile.RequestBody,
       config?: AxiosRequestConfig
     ): OperationResponse<Paths.CreateProfile.Responses.$200>;
+  };
+  ["/v1/webhooks/broadcast"]: {
+    /**
+     * postBroadcastWebhook - Webhook for new posts
+     */
+    "post"(
+      parameters?: Parameters<UnknownParamsObject> | null,
+      data?: Paths.PostBroadcastWebhook.RequestBody,
+      config?: AxiosRequestConfig
+    ): OperationResponse<Paths.PostBroadcastWebhook.Responses.$201>;
+  };
+  ["/v1/content/live"]: {
+    /**
+     * getLiveFeed - Get the Live Feed for the current user, paginated
+     */
+    "get"(
+      parameters?: Parameters<{}> | null,
+      data?: any,
+      config?: AxiosRequestConfig
+    ): OperationResponse<Paths.GetLiveFeed.Responses.$200>;
   };
 }
 

@@ -5,7 +5,7 @@ import { ipfsPin, ipfsUrl } from "../services/ipfs.js";
 import * as dsnp from "../services/dsnp.js";
 import { createImageAttachment, createImageLink, createNote } from "@dsnp/activity-content/factories";
 import { publish } from "../services/announce.js";
-import { getPostsInRange } from "../services/feed.js";
+import { getPostsFromWatcher, getPostsInRange, setPostsFromWatcher } from "../services/feed.js";
 import { getCurrentBlockNumber } from "../services/frequency.js";
 import { getMsaByPublicKey } from "../services/auth.js";
 import { getPublicFollows } from "../services/graph.js";
@@ -78,6 +78,16 @@ export const getDiscover: Handler<{}> = async (c: Context<{}, {}, T.Paths.GetDis
   const response: T.Paths.GetFeed.Responses.$200 = {
     newestBlockNumber: newest,
     oldestBlockNumber: oldest,
+    posts: posts,
+  };
+  return res.status(200).json(response);
+};
+
+export const getLiveFeed: Handler<{}> = async (c: Context<{},{}>, _req, res) => {
+  const posts = await getPostsFromWatcher();
+  const response: T.Paths.GetLiveFeed.Responses.$200 = {
+    newestBlockNumber: 0,
+    oldestBlockNumber: 0,
     posts: posts,
   };
   return res.status(200).json(response);
@@ -182,4 +192,11 @@ export const editContent: Handler<T.Paths.EditContent.RequestBody> = async (
     replies: [],
   };
   return res.status(200).json(response);
+};
+
+export const postBroadcastWebhook: Handler<T.Paths.PostBroadcastWebhook.RequestBody> = async (c, _req, res) => {
+  const response: T.Paths.PostBroadcastWebhook.Responses.$201 = {};
+  await setPostsFromWatcher(c.request.requestBody.announcement);
+  const broadCast = c.request.requestBody.announcement;
+  return res.status(201).json(response);
 };
