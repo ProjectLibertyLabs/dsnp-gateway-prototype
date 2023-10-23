@@ -196,7 +196,15 @@ export const editContent: Handler<T.Paths.EditContent.RequestBody> = async (
 
 export const postBroadcastWebhook: Handler<T.Paths.PostBroadcastWebhook.RequestBody> = async (c, _req, res) => {
   const response: T.Paths.PostBroadcastWebhook.Responses.$201 = {};
-  await setPostsFromWatcher(c.request.requestBody.announcement);
-  const broadCast = c.request.requestBody.announcement;
-  return res.status(201).json(response);
+  console.log("Received broadcast webhook", c.request.requestBody);
+  if (!c.request.requestBody.announcement) {
+    return res.status(404).json({ err: "No announcement" });
+  }
+  await setPostsFromWatcher({
+    fromId: c.request.requestBody.announcement.fromId.toString(),
+    contentHash: c.request.requestBody.announcement.contentHash,
+    url: c.request.requestBody.announcement.url,
+    announcementType: c.request.requestBody.announcement.announcementType,
+  });
+  return res.status(201).json("Received broadcast via webhook");
 };

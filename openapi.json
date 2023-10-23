@@ -382,7 +382,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/BroadcastExtended"
+                "$ref": "#/components/schemas/BroadCastMessage"
               }
             }
           }
@@ -1098,6 +1098,33 @@
         "required": [
           "content"
         ]
+      },
+      "BroadCastMessage": {
+        "type": "object",
+        "properties": {
+          "schemaId": {
+            "type": "integer"
+          },
+          "announcement": {
+            "type": "object",
+            "properties": {
+              "fromId": {
+                "type": "string"
+              },
+              "contentHash": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "fromId",
+              "contentHash",
+              "url"
+            ]
+          }
+        }
       }
     }
   }

@@ -32,9 +32,15 @@ declare namespace Components {
       replies?: ReplyExtended[];
     }
 
+    export interface BroadcastAnnouncement {
+      fromId: string;
+      contentHash: string;
+      url: string;
+      announcementType: number;
+    }
     export interface BroadcastMessage {
       schemaId: number;
-      announcement: BroadcastExtended;
+      announcement: BroadcastAnnouncement;
     }
     export interface ChallengeResponse {
       challenge: string;
