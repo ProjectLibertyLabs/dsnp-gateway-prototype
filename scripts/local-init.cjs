@@ -14,7 +14,7 @@ const eventWithSectionAndMethod = (events, section, method) => {
 
 
 const main = async () => {
-  console.log("A quick script that will setup a clean localhost instance of Frequency for DSNP ");
+  console.log("A quick script that will setup a clean localhost instance of Frequency for DSNP");
 
   const providerUri = "ws://127.0.0.1:9944";
   const provider = new WsProvider(providerUri);
@@ -106,15 +106,13 @@ const main = async () => {
   );
   const avroBuffer = publicKeyAvroSchema.toBuffer({ publicKey: publicKeyMulticodec });
   
-  const bufferWithHeader = Buffer.concat([Buffer.from([ avroBuffer.length << 2 ]), avroBuffer]);
-  
   const keyPayloadRaw = {
     schemaId: assertionMethodSchemaId,
     expiration: blockNum + 50,
     actions: [
       {
         Add: {
-          data: bufferWithHeader
+          data: [ ...avroBuffer ]
         }
       }
     ]

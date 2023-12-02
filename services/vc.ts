@@ -2,10 +2,8 @@ import type * as T from "../types/openapi.js";
 import { getSchemaId } from "./announce.js";
 import { AnnouncementType } from "./dsnp.js";
 import { getApi } from "./frequency.js";
-import { bases } from "multiformats/basics";
 import { hexToString } from "@polkadot/util";
 import axios from "axios";
-import { Keyring } from "@polkadot/api";
 import type { KeyringPair } from "@polkadot/keyring/types.js";
 import { signatureVerify } from "@polkadot/util-crypto";
 import * as vc from "@digitalbazaar/vc";
@@ -21,8 +19,22 @@ import Ajv from "ajv/dist/2020.js";
 const ajv = new Ajv();
 const publicKeyAvroSchema = avro.parse(dsnp.publicKey);
 
+type SchemaCacheType = {
+  [schemaUrl: string]: object;
+};
+
+const schemaCache: SchemaCacheType = {};
+
+export const registerCredentialSchema = (schemaUrl: string, documentLoaderOutput: object) => {
+  if (schemaCache[schemaUrl]) {
+    throw new Error(`A document is already registered for credential schema URL '${schemaUrl}'`);
+  }
+  schemaCache[schemaUrl] = documentLoaderOutput;
+};
+
 // Document loader used to resolve links in credentials and schema
-// TODO this should do more caching
+// TODO currently never expires anything from cache, this should be tuneable
+// TODO check if default document loader does caching
 export const documentLoader = extendContextLoader(async (url: string) => {
   // Served from the default document loader
   if (url === "https://www.w3.org/2018/credentials/v1") return vc.defaultDocumentLoader(url);
@@ -30,76 +42,31 @@ export const documentLoader = extendContextLoader(async (url: string) => {
   // Served from the cryptographic suite's document loader
   if (url === "https://w3id.org/security/suites/ed25519-2020/v1") return suiteContext.documentLoader(url);
 
-  // Well known documents for POC only
-  if (url.startsWith("https://ondc.org/schema/interactions/testnet/ProofOfPurchase.json")) {
-  return { document: {"@context":["https://www.w3.org/2018/credentials/v1",{"@vocab":"dsnp://13972#"},"https://w3id.org/security/suites/ed25519-2020/v1"],"type":["VerifiableCredential","JsonSchemaCredential"],"issuer":"dsnp://13972","issuanceDate":"2023-10-11T22:30:03.607Z","expirationDate":"2099-01-01T00:00:00.000Z","credentialSchema":{"id":"https://www.w3.org/2022/credentials/v2/json-schema-credential-schema.json","type":"JsonSchema","digestSRI":"sha384-S57yQDg1MTzF56Oi9DbSQ14u7jBy0RDdx0YbeV7shwhCS88G8SCXeFq82PafhCrW"},"credentialSubject":{"type":"JsonSchema","jsonSchema":{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"OndcProofOfPurchase","type":"object","properties":{"credentialSubject":{"type":"object","properties":{"interactionId":{"type":"string"},"href":{"type":"string"},"reference":{"type":"object","properties":{}}},"required":["interactionId","href","reference"]}}},"dsnp":{"display":{"label":{"en-US":"Verified Purchase"}},"trust":{"oneOf":["dsnp://13972#OndcVerifiedBuyerPlatform","dsnp://13972#OndcVerifiedSellerPlatform"]}}},"proof":{"type":"Ed25519Signature2020","created":"2023-10-11T22:30:03Z","verificationMethod":"dsnp://13972#0","proofPurpose":"assertionMethod","proofValue":"z2c62FsZNHR68kX3BpN4zpLfBS2wxJFXp7c63dzCb8nRsajH7rhMWHLue914vWZN7YfwSaidPKZEfv6b5GcS2ZQuH"}}};
+  const cached = schemaCache[url];
+  if (cached) {
+    return cached;
   }
-  if (url.startsWith("https://ondc.org/schema/interactions/ProofOfPurchase.json"))
-    return {
-      document: {
-        "@context": [
-          "https://www.w3.org/2018/credentials/v1",
-          { "@vocab": "dsnp://1#" },
-          "https://w3id.org/security/suites/ed25519-2020/v1",
-        ],
-        type: ["VerifiableCredential", "JsonSchemaCredential"],
-        issuer: "dsnp://1",
-        issuanceDate: "2023-10-09T03:31:37.264Z",
-        expirationDate: "2099-01-01T00:00:00.000Z",
-        credentialSchema: {
-          id: "https://www.w3.org/2022/credentials/v2/json-schema-credential-schema.json",
-          type: "JsonSchema",
-          digestSRI: "sha384-S57yQDg1MTzF56Oi9DbSQ14u7jBy0RDdx0YbeV7shwhCS88G8SCXeFq82PafhCrW",
-        },
-        credentialSubject: {
-          type: "JsonSchema",
-          jsonSchema: {
-            $schema: "https://json-schema.org/draft/2020-12/schema",
-            title: "OndcProofOfPurchase",
-            type: "object",
-            properties: {
-              credentialSubject: {
-                type: "object",
-                properties: {
-                  interactionId: { type: "string" },
-                  href: { type: "string" },
-                  reference: { type: "object", properties: { hello: { type: "string" } }, required: ["hello"] },
-                },
-                required: ["interactionId", "href", "reference"],
-              },
-            },
-          },
-          dsnp: {
-            display: { label: { "en-US": "Verified Purchase" } },
-            trust: { oneOf: ["dsnp://1#OndcVerifiedBuyerPlatform", "dsnp://1#OndcVerifiedSellerPlatform"] },
-          },
-        },
-        proof: {
-          type: "Ed25519Signature2020",
-          created: "2023-10-09T03:31:37Z",
-          verificationMethod: "dsnp://1#0",
-          proofPurpose: "assertionMethod",
-          proofValue: "z5bGHHXkuPtybipzWfda1EBbzGeK95VMJGg7FuoKq5JSD4akPejDxqEw9pEJwo36BaFXw8x2hrBpgotwx9e7BE9hq",
-        },
-      },
-    };
 
-  // DSNP URIs may be used for public keys
-  if (url.startsWith("dsnp://"))
+  // DID URIs may hit this when used for public keys
+  // TODO This was the result of trial and error -- may not be the best way
+  if (url.startsWith("did:")) {
     return {
       document: {
         "@context": "https://w3id.org/security/suites/ed25519-2020/v1",
         type: "Ed25519VerificationKey2020",
       },
     };
+  }
 
   // Fall back to loading from the web
   const { data: document } = await axios.get(url);
-  return {
-    contextUrl: null,
+  const output = {
+    contextUrl: null, // TODO not sure what this is
     document,
     documentUrl: url,
   };
+  schemaCache[url] = output;
+  return output;
 });
 
 export const signedCopyOf = async (

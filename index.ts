@@ -22,6 +22,9 @@ import openapiJson from "./openapi.json" assert { type: "json" };
 import { getApi } from "./services/frequency.js";
 import { getAccountFromAuth } from "./services/auth.js";
 
+// For Beckn prototype
+import "services/ondc-entitlement-checker.ts";
+
 // Support BigInt JSON
 (BigInt.prototype as any).toJSON = function () {
   return this.toString();

@@ -50,8 +50,7 @@ export const newVerifiableCredential = async () => {
                 },
                 reference: {
                   type: "object",
-                  properties: {
-                  },
+                  properties: {},
                 },
               },
               required: ["interactionId", "href", "reference"],
@@ -66,7 +65,10 @@ export const newVerifiableCredential = async () => {
             },
           },
           trust: {
-            oneOf: ["dsnp://" + process.env.PROVIDER_ID + "#OndcVerifiedBuyerPlatform", "dsnp://" + process.env.PROVIDER_ID + "#OndcVerifiedSellerPlatform"],
+            oneOf: [
+              "dsnp://" + process.env.PROVIDER_ID + "#OndcVerifiedBuyerPlatform",
+              "dsnp://" + process.env.PROVIDER_ID + "#OndcVerifiedSellerPlatform",
+            ],
           },
         },
       },
@@ -118,7 +120,7 @@ const interactionVC: T.Components.Schemas.VerifiableCredentialWithEd25519Proof =
   proof: {
     type: "Ed25519Signature2020",
     created: "2023-10-08T21:14:01Z",
-    verificationMethod: "dsnp://1#0",
+    verificationMethod: "dsnp://" + process.env.PROVIDER_ID + "#0",
     proofPurpose: "assertionMethod",
     proofValue: "z3W6RLJVMa72h61XvwjSd4Xed8jYFCwfaWunPVcSC8DBBpVRJnDgemYiwBkFUAezJWPnLXpVjmL2S2RmyPrt1QTjZ",
   },

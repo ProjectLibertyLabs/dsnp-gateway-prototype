@@ -1,61 +1,26 @@
-import { Context, Handler } from "openapi-backend";
+import { Handler } from "openapi-backend";
 import type * as T from "../types/openapi.js";
 import { Keyring } from "@polkadot/api";
 import { signedCopyOf } from "../services/vc.js";
-import type { KeyringPair } from "@polkadot/keyring/types.js";
+import { getEntitlementChecker } from "../services/entitlement-checker.js";
+import { base58btc } from "multiformats/bases/base58";
 
-export type CheckerOutput = {
-  entitled: boolean;
-  ticketType: string;
-  schemaUrl: string;
-  href: string;
-};
-
-type EntitlementChecker = (c: Context) => CheckerOutput;
-
-const checkers: any = {
-  "dsnp://1#OndcProofOfPurchase": async (c: Context) => {
-    // Insert logic to validate c.request.body.reference here
-    const reference = c.request.body.reference;
-
-    // Example only!
-    if (reference.hello !== "world") {
-      return { entitled: false };
-    }
-
-    return {
-      entitled: true,
-      schemaUrl: "https://ondc.org/schema/interactions/ProofOfPurchase.json",
-      href: c.request.body.href,
-    };
-  },
-  "dsnp://13972#OndcProofOfPurchase": async (c: Context) => {
-    // Insert logic to validate c.request.body.reference here
-    const reference = c.request.body.reference;
-
-    // Example only!
-    if (reference.hello !== "world") {
-      return { entitled: false };
-    }
-
-    return {
-      entitled: true,
-      schemaUrl: "https://ondc.org/schema/interactions/testnet/ProofOfPurchase.json",
-      href: c.request.body.href,
-    };
-  },
-};
+const signingKeys = new Keyring({ type: "ed25519" }).addFromUri(
+  String(process.env.PROVIDER_CREDENTIAL_SIGNING_KEY_URI),
+  {},
+  "ed25519"
+);
 
 export const submitInteraction: Handler<T.Paths.SubmitInteraction.RequestBody> = async (c, req, res) => {
   console.log(c.request.body);
   const attributeSetType = c.request.body.attributeSetType;
-  const checker = checkers[attributeSetType];
+  const checker = getEntitlementChecker(attributeSetType);
   if (!checker) {
     // No entitlement checker for attributeSetType
     return res.status(404).send();
   }
-  const checkerOutput = await checker(c);
-  if (!checkerOutput.entitled) {
+  const entitlement = await checker(c);
+  if (!entitlement) {
     // Failed entitlement check
     return res.status(401).send();
   }
@@ -73,25 +38,19 @@ export const submitInteraction: Handler<T.Paths.SubmitInteraction.RequestBody> =
       issuanceDate: new Date().toISOString(),
       credentialSchema: {
         type: "VerifiableCredentialSchema2023",
-        id: checkerOutput.schemaUrl,
+        id: entitlement.schemaUrl,
       },
       credentialSubject: {
         interactionId: c.request.body.interactionId,
-        href: checkerOutput.href,
+        href: entitlement.href,
         reference: c.request.body.reference,
       },
     };
 
-    const signingKeys = new Keyring({ type: "ed25519" }).addFromUri(
-      String(process.env.PROVIDER_CREDENTIAL_SIGNING_KEY_URI),
-      {},
-      "ed25519"
-    );
-
     const signedTicket = await signedCopyOf(
       unsignedTicket,
       signingKeys,
-      "dsnp://" + process.env.PROVIDER_ID + "#" + process.env.PROVIDER_CREDENTIAL_SIGNING_KEY_ID
+      `did:dsnp:${process.env.PROVIDER_ID}#${base58btc.encode(signingKeys.publicKey)}`
     );
 
     console.log(signedTicket);
