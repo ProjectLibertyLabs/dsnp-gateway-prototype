@@ -8,12 +8,18 @@ import {
   getProviderHttp,
   getProviderKey,
 } from "../services/frequency.js";
-import { generateChallenge, createAuthToken, getMsaByPublicKey, useChallenge } from "../services/auth.js";
+import {
+  generateChallenge,
+  createAuthToken,
+  getMsaByPublicKey,
+  useChallenge,
+} from "../services/auth.js";
 import { AnnouncementType } from "../services/dsnp.js";
 import { getSchemaId } from "../services/announce.js";
 import { getIpfsGateway } from "../services/ipfs.js";
 import { signatureVerify } from "@polkadot/util-crypto";
 import { hexToU8a, numberToU8a } from "@polkadot/util";
+import { parseMessage, SiwsMessage } from "@talismn/siws";
 
 // Environment Variables
 const providerId = process.env.PROVIDER_ID;
@@ -35,11 +41,17 @@ const addProviderSchemas = [
 addProviderSchemas.sort();
 
 export const authChallenge: Handler<{}> = async (_c, _req, res) => {
-  const response: T.Paths.AuthChallenge.Responses.$200 = { challenge: generateChallenge() };
+  const response: T.Paths.AuthChallenge.Responses.$200 = {
+    challenge: generateChallenge(),
+  };
   return res.status(200).json(response);
 };
 
-export const authLogin: Handler<T.Paths.AuthLogin.RequestBody> = async (c, _req, res) => {
+export const authLogin: Handler<T.Paths.AuthLogin.RequestBody> = async (
+  c,
+  _req,
+  res
+) => {
   const { publicKey, encodedValue, challenge } = c.request.requestBody;
   const msaId = await getMsaByPublicKey(publicKey);
   if (!msaId || !useChallenge(challenge)) return res.status(401).send();
@@ -53,6 +65,67 @@ export const authLogin: Handler<T.Paths.AuthLogin.RequestBody> = async (c, _req,
     dsnpId: msaId,
   };
   return res.status(200).json(response);
+};
+
+export const authLogin2: Handler<T.Paths.AuthLogin2.RequestBody> = async (
+  c,
+  _req,
+  res
+) => {
+  const { signIn, signUp } = c.request.requestBody;
+  const api = await getApi();
+  if (signUp?.extrinsics) {
+    // TODO: (Might be part of the library)
+    // Verify each call's data, signatures, and expiration
+
+    const transactions = signUp?.extrinsics.map((e) => e.encodedExtrinsic);
+    const txns = transactions?.map((t) => api.tx(t));
+    const calls = api.registry.createType("Vec<Call>", txns);
+
+    await api.tx.frequencyTxPayment
+      .payWithCapacityBatchAll(calls)
+      .signAndSend(
+        getProviderKey(),
+        { nonce: await getNonce() },
+        ({ status, dispatchError }) => {
+          if (dispatchError) {
+            console.error("ERROR in Signup: ", dispatchError.toHuman());
+          } else if (status.isInBlock || status.isFinalized) {
+            console.log("Account signup processed", status.toHuman());
+          }
+        }
+      );
+  }
+  // Is signin always required? Assume Yes for now for this code
+  if (signIn.siwsPayload) {
+    const parsedSignin = parseMessage(signIn.siwsPayload.message);
+    const publicKey = parsedSignin.address;
+    // TODO Verification like domain
+    if (false && parsedSignin.domain !== "") {
+      // return res.status(401).send();
+    }
+    // Verify Signature
+    const { isValid } = signatureVerify(
+      parsedSignin.prepareMessage(),
+      signIn.siwsPayload?.signature,
+      publicKey
+    );
+    if (!isValid) return res.status(401).send();
+
+    // TODO: Burn the nonce for as long as expiration is to stop MitM attacks
+    // if (isNonceValid(parsedSignin.nonce, parsedSignin.expirationTime) {
+    //   return res.status(401).send();
+    // }
+
+    const response: T.Paths.AuthLogin2.Responses.$200 = {
+      accessToken: await createAuthToken(publicKey),
+      expires: Date.now() + 60 * 60 * 24,
+    };
+    return res.status(200).json(response);
+  }
+
+  // We got some bad data if we got here.
+  return res.status(500).send();
 };
 
 export const authLogout: Handler<{}> = async (_c, _req, res) => {
@@ -70,7 +143,11 @@ export const authProvider: Handler<{}> = async (_c, _req, res) => {
   return res.status(200).json(response);
 };
 
-export const authCreate: Handler<T.Paths.AuthCreate.RequestBody> = async (c, _req, res) => {
+export const authCreate: Handler<T.Paths.AuthCreate.RequestBody> = async (
+  c,
+  _req,
+  res
+) => {
   try {
     const api = await getApi();
     const publicKey = c.request.requestBody.publicKey;
@@ -81,13 +158,17 @@ export const authCreate: Handler<T.Paths.AuthCreate.RequestBody> = async (c, _re
       schemaIds: addProviderSchemas,
     };
 
-    const createSponsoredAccountWithDelegation = api.tx.msa.createSponsoredAccountWithDelegation(
-      publicKey,
-      { Sr25519: c.request.requestBody.addProviderSignature },
-      addProviderData
-    );
+    const createSponsoredAccountWithDelegation =
+      api.tx.msa.createSponsoredAccountWithDelegation(
+        publicKey,
+        { Sr25519: c.request.requestBody.addProviderSignature },
+        addProviderData
+      );
 
-    const handleBytes = api.registry.createType("Bytes", c.request.requestBody.baseHandle);
+    const handleBytes = api.registry.createType(
+      "Bytes",
+      c.request.requestBody.baseHandle
+    );
     const handlePayload = {
       baseHandle: handleBytes,
       expiration: c.request.requestBody.expiration,
@@ -103,7 +184,10 @@ export const authCreate: Handler<T.Paths.AuthCreate.RequestBody> = async (c, _re
     const blockNum = await getCurrentBlockNumber();
     if (blockNum > handlePayload.expiration) return res.status(409).send();
 
-    const claimHandlePayload = api.registry.createType("CommonPrimitivesHandlesClaimHandlePayload", handlePayload);
+    const claimHandlePayload = api.registry.createType(
+      "CommonPrimitivesHandlesClaimHandlePayload",
+      handlePayload
+    );
 
     const { isValid } = signatureVerify(
       claimHandlePayload.toU8a(),
@@ -118,13 +202,17 @@ export const authCreate: Handler<T.Paths.AuthCreate.RequestBody> = async (c, _re
     // Trigger it and just log if there is an error later
     await api.tx.frequencyTxPayment
       .payWithCapacityBatchAll(calls)
-      .signAndSend(getProviderKey(), { nonce: await getNonce() }, ({ status, dispatchError }) => {
-        if (dispatchError) {
-          console.error("ERROR: ", dispatchError.toHuman());
-        } else if (status.isInBlock || status.isFinalized) {
-          console.log("Account Created", status.toHuman());
+      .signAndSend(
+        getProviderKey(),
+        { nonce: await getNonce() },
+        ({ status, dispatchError }) => {
+          if (dispatchError) {
+            console.error("ERROR: ", dispatchError.toHuman());
+          } else if (status.isInBlock || status.isFinalized) {
+            console.log("Account Created", status.toHuman());
+          }
         }
-      });
+      );
 
     const response: T.Paths.AuthCreate.Responses.$200 = {
       accessToken: await createAuthToken(c.request.requestBody.publicKey),
@@ -161,7 +249,11 @@ export const authAccount: Handler<{}> = async (c, _req, res) => {
   }
 };
 
-export const authDelegate: Handler<T.Paths.AuthDelegate.RequestBody> = async (c, _req, res) => {
+export const authDelegate: Handler<T.Paths.AuthDelegate.RequestBody> = async (
+  c,
+  _req,
+  res
+) => {
   const response: T.Paths.AuthDelegate.Responses.$200 = {
     accessToken: await createAuthToken(c.request.requestBody.publicKey),
     expires: Date.now() + 60 * 60 * 24,
@@ -169,7 +261,11 @@ export const authDelegate: Handler<T.Paths.AuthDelegate.RequestBody> = async (c,
   return res.status(200).json(response);
 };
 
-export const authHandles: Handler<T.Paths.AuthHandles.RequestBody> = async (c, _req, res) => {
+export const authHandles: Handler<T.Paths.AuthHandles.RequestBody> = async (
+  c,
+  _req,
+  res
+) => {
   const response: T.Paths.AuthHandles.Responses.$200 = [];
   const api = await getApi();
   for await (const publicKey of c.request.requestBody) {

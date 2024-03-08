@@ -74,13 +74,43 @@
         }
       }
     },
+    "/v2/auth/login": {
+      "post": {
+        "operationId": "authLogin2",
+        "summary": "Use Wallet Proxy to login",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WalletLoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletLoginResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/auth/logout": {
       "post": {
         "operationId": "authLogout",
         "summary": "Logout and invalidate the access token",
-        "security": [{
-          "tokenAuth": []
-        }],
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
         "responses": {
           "401": {
             "$ref": "#/components/responses/UnauthorizedError"
@@ -126,9 +156,11 @@
       "get": {
         "operationId": "authAccount",
         "summary": "For polling to get the created account as authCreate can take time",
-        "security": [{
-          "tokenAuth": []
-        }],
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
         "responses": {
           "401": {
             "$ref": "#/components/responses/UnauthorizedError"
@@ -219,9 +251,11 @@
       "get": {
         "operationId": "getUserFeed",
         "summary": "Get recent posts from a user, paginated",
-        "security": [{
-          "tokenAuth": []
-        }],
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
         "parameters": [
           {
             "name": "dsnpId",
@@ -269,9 +303,11 @@
       "get": {
         "operationId": "getFeed",
         "summary": "Get the Feed for the current user, paginated",
-        "security": [{
-          "tokenAuth": []
-        }],
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
         "parameters": [
           {
             "name": "newestBlockNumber",
@@ -311,9 +347,11 @@
       "get": {
         "operationId": "getDiscover",
         "summary": "Get the Discovery Feed for the current user, paginated",
-        "security": [{
-          "tokenAuth": []
-        }],
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
         "parameters": [
           {
             "name": "newestBlockNumber",
@@ -353,9 +391,11 @@
       "post": {
         "operationId": "createBroadcast",
         "summary": "Create a new post",
-        "security": [{
-          "tokenAuth": []
-        }],
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -387,9 +427,11 @@
       "get": {
         "operationId": "getContent",
         "summary": "Get details of a specific post",
-        "security": [{
-          "tokenAuth": []
-        }],
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
         "parameters": [
           {
             "name": "dsnpId",
@@ -431,9 +473,11 @@
     "/v1/content/{type}/{contentHash}": {
       "put": {
         "operationId": "editContent",
-        "security": [{
-          "tokenAuth": []
-        }],
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
         "summary": "Edit the content of a specific post",
         "parameters": [
           {
@@ -485,9 +529,11 @@
       "get": {
         "operationId": "userFollowing",
         "summary": "Get a list of users that a specific user follows",
-        "security": [{
-          "tokenAuth": []
-        }],
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
         "parameters": [
           {
             "name": "dsnpId",
@@ -523,9 +569,11 @@
       "post": {
         "operationId": "graphFollow",
         "summary": "Follow a user",
-        "security": [{
-          "tokenAuth": []
-        }],
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
         "parameters": [
           {
             "name": "dsnpId",
@@ -550,9 +598,11 @@
       "post": {
         "operationId": "graphUnfollow",
         "summary": "Unfollow a user",
-        "security": [{
-          "tokenAuth": []
-        }],
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
         "parameters": [
           {
             "name": "dsnpId",
@@ -577,9 +627,11 @@
       "get": {
         "operationId": "getProfile",
         "summary": "Get profile information for a specific user",
-        "security": [{
-          "tokenAuth": []
-        }],
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
         "parameters": [
           {
             "name": "dsnpId",
@@ -609,9 +661,11 @@
       "put": {
         "operationId": "createProfile",
         "summary": "Create/Edit the profile information for a current user",
-        "security": [{
-          "tokenAuth": []
-        }],
+        "security": [
+          {
+            "tokenAuth": []
+          }
+        ],
         "parameters": [
           {
             "name": "dsnpId",
@@ -651,11 +705,11 @@
     }
   },
   "components": {
-    "securitySchemes":{
-    "tokenAuth": {
-      "type": "http",
-      "scheme": "bearer",
-      "bearerFormat": "accessToken"
+    "securitySchemes": {
+      "tokenAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "accessToken"
       }
     },
     "responses": {
@@ -685,19 +739,10 @@
           },
           "network": {
             "type": "string",
-            "enum": [
-              "local",
-              "testnet",
-              "mainnet"
-            ]
+            "enum": ["local", "testnet", "mainnet"]
           }
         },
-        "required": [
-          "nodeUrl",
-          "providerId",
-          "schemas",
-          "network"
-        ]
+        "required": ["nodeUrl", "providerId", "schemas", "network"]
       },
       "ChallengeResponse": {
         "type": "object",
@@ -706,24 +751,18 @@
             "type": "string"
           }
         },
-        "required": [
-          "challenge"
-        ]
+        "required": ["challenge"]
       },
       "LoginRequest": {
         "type": "object",
         "properties": {
           "algo": {
             "type": "string",
-            "enum": [
-              "SR25519"
-            ]
+            "enum": ["SR25519"]
           },
           "encoding": {
             "type": "string",
-            "enum": [
-              "hex"
-            ]
+            "enum": ["hex"]
           },
           "encodedValue": {
             "type": "string"
@@ -743,6 +782,88 @@
           "challenge"
         ]
       },
+      "WalletLoginResponse": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "expires": {
+            "type": "integer"
+          },
+          "dsnpId": {
+            "type": "string"
+          },
+          "handle": {
+            "type": "string"
+          }
+        },
+        "required": ["expires", "accessToken"]
+      },
+      "WalletLoginRequest": {
+        "type": "object",
+        "required": ["signIn"],
+        "properties": {
+          "signIn": {
+            "type": "object",
+            "properties": {
+              "siwsPayload": {
+                "type": "object",
+                "required": ["message", "signature"],
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  },
+                  "signature": {
+                    "type": "string"
+                  }
+                }
+              },
+              "error": {
+                "type": "object",
+                "required": ["message"],
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "signUp": {
+            "type": "object",
+            "properties": {
+              "extrinsics": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["pallet", "extrinsicName", "encodedExtrinsic"],
+                  "properties": {
+                    "pallet": {
+                      "type": "string"
+                    },
+                    "extrinsicName": {
+                      "type": "string"
+                    },
+                    "encodedExtrinsic": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "error": {
+                "type": "object",
+                "required": ["message"],
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "LoginResponse": {
         "type": "object",
         "properties": {
@@ -756,11 +877,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "expires",
-          "accessToken",
-          "dsnpId"
-        ]
+        "required": ["expires", "accessToken", "dsnpId"]
       },
       "CreateIdentityRequest": {
         "type": "object",
@@ -770,18 +887,14 @@
           },
           "algo": {
             "type": "string",
-            "enum": [
-              "SR25519"
-            ]
+            "enum": ["SR25519"]
           },
           "baseHandle": {
             "type": "string"
           },
           "encoding": {
             "type": "string",
-            "enum": [
-              "hex"
-            ]
+            "enum": ["hex"]
           },
           "expiration": {
             "type": "number"
@@ -813,10 +926,7 @@
             "type": "integer"
           }
         },
-        "required": [
-          "expires",
-          "accessToken"
-        ]
+        "required": ["expires", "accessToken"]
       },
       "AuthAccountResponse": {
         "type": "object",
@@ -828,24 +938,18 @@
             "type": "string"
           }
         },
-        "required": [
-          "dsnpId"
-        ]
+        "required": ["dsnpId"]
       },
       "DelegateRequest": {
         "type": "object",
         "properties": {
           "algo": {
             "type": "string",
-            "enum": [
-              "SR25519"
-            ]
+            "enum": ["SR25519"]
           },
           "encoding": {
             "type": "string",
-            "enum": [
-              "hex"
-            ]
+            "enum": ["hex"]
           },
           "encodedValue": {
             "type": "string"
@@ -854,12 +958,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "algo",
-          "encodedValue",
-          "encoding",
-          "publicKey"
-        ]
+        "required": ["algo", "encodedValue", "encoding", "publicKey"]
       },
       "DelegateResponse": {
         "type": "object",
@@ -871,10 +970,7 @@
             "type": "integer"
           }
         },
-        "required": [
-          "expires",
-          "accessToken"
-        ]
+        "required": ["expires", "accessToken"]
       },
       "HandlesResponse": {
         "type": "object",
@@ -886,10 +982,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "publicKey",
-          "handle"
-        ]
+        "required": ["publicKey", "handle"]
       },
       "PaginatedBroadcast": {
         "type": "object",
@@ -907,11 +1000,7 @@
             }
           }
         },
-        "required": [
-          "newestBlockNumber",
-          "oldestBlockNumber",
-          "posts"
-        ]
+        "required": ["newestBlockNumber", "oldestBlockNumber", "posts"]
       },
       "BroadcastExtended": {
         "type": "object",
@@ -938,12 +1027,7 @@
             "description": "Array of ReplyExtended objects"
           }
         },
-        "required": [
-          "fromId",
-          "contentHash",
-          "content",
-          "timestamp"
-        ]
+        "required": ["fromId", "contentHash", "content", "timestamp"]
       },
       "ReplyExtended": {
         "type": "object",
@@ -970,12 +1054,7 @@
             "description": "Array of ReplyExtended objects"
           }
         },
-        "required": [
-          "fromId",
-          "contentHash",
-          "content",
-          "timestamp"
-        ]
+        "required": ["fromId", "contentHash", "content", "timestamp"]
       },
       "CreatePostRequest": {
         "type": "object",
@@ -1009,11 +1088,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "content",
-          "targetAnnouncementType",
-          "targetContentHash"
-        ]
+        "required": ["content", "targetAnnouncementType", "targetContentHash"]
       },
       "Profile": {
         "type": "object",
@@ -1036,12 +1111,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "fromId",
-          "contentHash",
-          "content",
-          "timestamp"
-        ]
+        "required": ["fromId", "contentHash", "content", "timestamp"]
       },
       "EditProfileRequest": {
         "type": "object",
@@ -1050,9 +1120,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "content"
-        ]
+        "required": ["content"]
       }
     }
   }
