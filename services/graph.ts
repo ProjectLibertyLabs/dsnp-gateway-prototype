@@ -1,3 +1,5 @@
+// TODO: Remove this entirely and replace with Gateway Services
+
 import zlib from "node:zlib";
 import { getSchemaId } from "./announce.js";
 import { AnnouncementType } from "./dsnp.js";
@@ -39,10 +41,15 @@ const deflatePage = (edges: GraphEdge[]) => {
 export const getPublicFollows = async (msaId: string): Promise<string[]> => {
   const api = await getApi();
   const schemaId = getSchemaId(AnnouncementType.PublicFollows);
-  const resp = await api.rpc.statefulStorage.getPaginatedStorage(msaId, schemaId);
+  const resp = await api.rpc.statefulStorage.getPaginatedStorage(
+    msaId,
+    schemaId,
+  );
   const followList = resp.flatMap((page) => {
     try {
-      return inflatePage(page.toJSON().payload).map((x: { userId: number; since: number }) => x.userId.toString());
+      return inflatePage(page.toJSON().payload).map(
+        (x: { userId: number; since: number }) => x.userId.toString(),
+      );
     } catch (e) {
       console.error("Failed to parse public follows...", e);
       return [];
@@ -52,11 +59,17 @@ export const getPublicFollows = async (msaId: string): Promise<string[]> => {
   return followList;
 };
 
-export const follow = async (actorId: string, objectId: number): Promise<void> => {
+export const follow = async (
+  actorId: string,
+  objectId: number,
+): Promise<void> => {
   console.log("Follow Request", { actorId, objectId });
   const api = await getApi();
   const schemaId = getSchemaId(AnnouncementType.PublicFollows);
-  const resp = await api.rpc.statefulStorage.getPaginatedStorage(actorId, schemaId);
+  const resp = await api.rpc.statefulStorage.getPaginatedStorage(
+    actorId,
+    schemaId,
+  );
 
   const pages = resp.map((page) => page.toJSON());
 
@@ -95,24 +108,40 @@ export const follow = async (actorId: string, objectId: number): Promise<void> =
   const encodedPage = deflatePage(upsertEdges);
   const payload = "0x" + encodedPage.toString("hex");
 
-  const tx = api.tx.statefulStorage.upsertPage(actorId, schemaId, pageNumber, hash, payload);
+  const tx = api.tx.statefulStorage.upsertPage(
+    actorId,
+    schemaId,
+    pageNumber,
+    hash,
+    payload,
+  );
   // Do NOT wait for all the callbacks. Assume for now that it will work...
   await api.tx.frequencyTxPayment
     .payWithCapacity(tx)
-    .signAndSend(getProviderKey(), { nonce: await getNonce() }, ({ status, dispatchError }) => {
-      if (dispatchError) {
-        console.error("Graph ERROR: ", dispatchError.toHuman());
-      } else if (status.isInBlock || status.isFinalized) {
-        console.log("Graph Updated: ", status.toHuman());
-      }
-    });
+    .signAndSend(
+      getProviderKey(),
+      { nonce: await getNonce() },
+      ({ status, dispatchError }) => {
+        if (dispatchError) {
+          console.error("Graph ERROR: ", dispatchError.toHuman());
+        } else if (status.isInBlock || status.isFinalized) {
+          console.log("Graph Updated: ", status.toHuman());
+        }
+      },
+    );
 };
 
-export const unfollow = async (actorId: string, objectId: number): Promise<void> => {
+export const unfollow = async (
+  actorId: string,
+  objectId: number,
+): Promise<void> => {
   console.log("Unfollow Request", { actorId, objectId });
   const api = await getApi();
   const schemaId = getSchemaId(AnnouncementType.PublicFollows);
-  const resp = await api.rpc.statefulStorage.getPaginatedStorage(actorId, schemaId);
+  const resp = await api.rpc.statefulStorage.getPaginatedStorage(
+    actorId,
+    schemaId,
+  );
 
   const pages = resp.map((page) => page.toJSON());
 
@@ -135,20 +164,35 @@ export const unfollow = async (actorId: string, objectId: number): Promise<void>
   const hash = editPage.content_hash;
 
   const upsertEdges = originalEdges.filter(({ userId }) => userId !== objectId);
-  console.log("upsertEdges", upsertEdges, "Length Difference: ", originalEdges.length - upsertEdges.length);
+  console.log(
+    "upsertEdges",
+    upsertEdges,
+    "Length Difference: ",
+    originalEdges.length - upsertEdges.length,
+  );
 
   const encodedPage = deflatePage(upsertEdges);
   const payload = "0x" + encodedPage.toString("hex");
 
-  const tx = api.tx.statefulStorage.upsertPage(actorId, schemaId, pageNumber, hash, payload);
+  const tx = api.tx.statefulStorage.upsertPage(
+    actorId,
+    schemaId,
+    pageNumber,
+    hash,
+    payload,
+  );
   // Do NOT wait for all the callbacks. Assume for now that it will work...
   await api.tx.frequencyTxPayment
     .payWithCapacity(tx)
-    .signAndSend(getProviderKey(), { nonce: await getNonce() }, ({ status, dispatchError }) => {
-      if (dispatchError) {
-        console.error("Graph ERROR: ", dispatchError.toHuman());
-      } else if (status.isInBlock || status.isFinalized) {
-        console.log("Graph Updated: ", status.toHuman());
-      }
-    });
+    .signAndSend(
+      getProviderKey(),
+      { nonce: await getNonce() },
+      ({ status, dispatchError }) => {
+        if (dispatchError) {
+          console.error("Graph ERROR: ", dispatchError.toHuman());
+        } else if (status.isInBlock || status.isFinalized) {
+          console.log("Graph Updated: ", status.toHuman());
+        }
+      },
+    );
 };
