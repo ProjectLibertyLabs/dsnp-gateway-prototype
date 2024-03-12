@@ -1,3 +1,5 @@
+// TODO: Figure out how to integration with the Graph Service
+
 import { Handler } from "openapi-backend";
 import type * as T from "../types/openapi.js";
 import { getMsaByPublicKey } from "../services/auth.js";
@@ -22,7 +24,9 @@ export const userFollowing: Handler<{}> = async (c, _req, res) => {
 };
 
 export const graphFollow: Handler<{}> = async (c, _req, res) => {
-  const msaId = c.security.tokenAuth.msaId || (await getMsaByPublicKey(c.security.tokenAuth.publicKey));
+  const msaId =
+    c.security.tokenAuth.msaId ||
+    (await getMsaByPublicKey(c.security.tokenAuth.publicKey));
   const objectMsaId = c.request.params.dsnpId;
 
   if (typeof objectMsaId !== "string") {
@@ -40,7 +44,9 @@ export const graphFollow: Handler<{}> = async (c, _req, res) => {
 };
 
 export const graphUnfollow: Handler<{}> = async (c, _req, res) => {
-  const msaId = c.security.tokenAuth.msaId || (await getMsaByPublicKey(c.security.tokenAuth.publicKey));
+  const msaId =
+    c.security.tokenAuth.msaId ||
+    (await getMsaByPublicKey(c.security.tokenAuth.publicKey));
   const objectMsaId = c.request.params.dsnpId;
 
   if (typeof objectMsaId !== "string") {

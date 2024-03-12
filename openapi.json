@@ -10,24 +10,6 @@
     "version": "1.0.0"
   },
   "paths": {
-    "/v1/auth/challenge": {
-      "get": {
-        "operationId": "authChallenge",
-        "summary": "Return a challenge for login",
-        "responses": {
-          "200": {
-            "description": "Successful response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ChallengeResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/auth/provider": {
       "get": {
         "operationId": "authProvider",
@@ -39,34 +21,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ProviderResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/auth/login": {
-      "post": {
-        "operationId": "authLogin",
-        "summary": "Use a challenge to login",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/LoginRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LoginResponse"
                 }
               }
             }
@@ -121,37 +75,6 @@
         }
       }
     },
-    "/v1/auth/create": {
-      "post": {
-        "operationId": "authCreate",
-        "summary": "Creates a new DSNP Identity",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateIdentityRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "200": {
-            "description": "Successful response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CreateIdentityResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/auth/account": {
       "get": {
         "operationId": "authAccount",
@@ -174,72 +97,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AuthAccountResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/auth/handles": {
-      "post": {
-        "operationId": "authHandles",
-        "summary": "Get handles for public keys",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "array",
-                "items": {
-                  "type": "string",
-                  "description": "Public key to fetch a handle"
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful response of accounts with handles",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/HandlesResponse"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/auth/delegate": {
-      "post": {
-        "operationId": "authDelegate",
-        "summary": "Delegate to the provider with an existing DSNP Identity",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DelegateRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "200": {
-            "description": "Successful response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DelegateResponse"
                 }
               }
             }
