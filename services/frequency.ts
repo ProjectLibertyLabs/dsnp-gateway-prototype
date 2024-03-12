@@ -1,3 +1,5 @@
+// TODO: Remove this entirely and replace with Gateway Services
+
 import { options } from "@frequency-chain/api-augment";
 import { WsProvider, ApiPromise, Keyring } from "@polkadot/api";
 
@@ -19,13 +21,19 @@ if (!publicNodeHttp) {
   throw new Error("FREQUENCY_PUBLIC_ENDPOINT env variable is required");
 }
 
-if (!frequencyNetwork || !["local", "testnet", "mainnet"].includes(frequencyNetwork)) {
-  throw new Error('FREQUENCY_NETWORK env variable must be one of: "local", "testnet", "mainnet"');
+if (
+  !frequencyNetwork ||
+  !["local", "testnet", "mainnet"].includes(frequencyNetwork)
+) {
+  throw new Error(
+    'FREQUENCY_NETWORK env variable must be one of: "local", "testnet", "mainnet"',
+  );
 }
 
 export const getProviderHttp = () => publicNodeHttp;
 
-export const getNetwork = () => frequencyNetwork as "local" | "testnet" | "mainnet";
+export const getNetwork = () =>
+  frequencyNetwork as "local" | "testnet" | "mainnet";
 
 export const getProviderKey = () => {
   return new Keyring().addFromUri(providerKeyUri, {}, "sr25519");
@@ -53,7 +61,11 @@ export const getApi = (): Promise<ApiPromise> => {
   }
 
   const provider = new WsProvider(providerUri);
-  _singletonApi = ApiPromise.create({ provider: provider, throwOnConnect: true, ...options });
+  _singletonApi = ApiPromise.create({
+    provider: provider,
+    throwOnConnect: true,
+    ...options,
+  });
 
   return _singletonApi;
 };
@@ -66,7 +78,11 @@ export enum ChainType {
 
 export const getChainType = (): ChainType => {
   if (providerUri?.includes("rococo")) return ChainType.Testnet;
-  if (providerUri?.includes("localhost") || providerUri?.includes("127.0.0.1") || providerUri?.includes("::1"))
+  if (
+    providerUri?.includes("localhost") ||
+    providerUri?.includes("127.0.0.1") ||
+    providerUri?.includes("::1")
+  )
     return ChainType.Local;
   return ChainType.Mainnet;
 };
@@ -79,7 +95,9 @@ export const getNonce = async (): Promise<number> => {
     return _nonce[1];
   }
   const api = await getApi();
-  const startNonce = (await api.rpc.system.accountNextIndex(getProviderKey().address)).toNumber();
+  const startNonce = (
+    await api.rpc.system.accountNextIndex(getProviderKey().address)
+  ).toNumber();
   _nonce = [new Date(), startNonce];
   return startNonce;
 };

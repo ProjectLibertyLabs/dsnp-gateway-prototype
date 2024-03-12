@@ -1,9 +1,21 @@
+// TODO: Replace with Gateway Publishing Service
+
 import { PassThrough } from "node:stream";
 import { parquet } from "@dsnp/frequency-schemas";
 import { ParquetWriter } from "@dsnp/parquetjs";
-import { ChainType, getApi, getChainType, getNonce, getProviderKey } from "./frequency.js";
+import {
+  ChainType,
+  getApi,
+  getChainType,
+  getNonce,
+  getProviderKey,
+} from "./frequency.js";
 import { ipfsPin } from "./ipfs.js";
-import { AnnouncementType, BroadcastAnnouncement, ReplyAnnouncement } from "./dsnp.js";
+import {
+  AnnouncementType,
+  BroadcastAnnouncement,
+  ReplyAnnouncement,
+} from "./dsnp.js";
 
 const TestnetSchemas = (type: AnnouncementType): number => {
   switch (type) {
@@ -53,15 +65,23 @@ export const getSchemaId = (type: AnnouncementType): number => {
   }
 };
 
-export const publish = async <T extends BroadcastAnnouncement | ReplyAnnouncement>(announcements: Array<T>) => {
-  console.log(`Preparing to publish a batch of announcements. Count: ${announcements.length}`);
+export const publish = async <
+  T extends BroadcastAnnouncement | ReplyAnnouncement,
+>(
+  announcements: Array<T>,
+) => {
+  console.log(
+    `Preparing to publish a batch of announcements. Count: ${announcements.length}`,
+  );
   const api = await getApi();
 
   const announcementType = announcements[0].announcementType;
 
-  const schemaString = announcementType === AnnouncementType.Broadcast ? "broadcast" : "reply";
+  const schemaString =
+    announcementType === AnnouncementType.Broadcast ? "broadcast" : "reply";
 
-  const [parquetSchema, writerOptions] = parquet.fromFrequencySchema(schemaString);
+  const [parquetSchema, writerOptions] =
+    parquet.fromFrequencySchema(schemaString);
 
   const publishStream = new PassThrough();
   const parquetBufferAwait = new Promise<Buffer>((resolve, reject) => {
@@ -73,7 +93,11 @@ export const publish = async <T extends BroadcastAnnouncement | ReplyAnnouncemen
     publishStream.on("error", reject);
   });
 
-  const writer = await ParquetWriter.openStream(parquetSchema, publishStream as any, writerOptions);
+  const writer = await ParquetWriter.openStream(
+    parquetSchema,
+    publishStream as any,
+    writerOptions,
+  );
 
   for await (let announcement of announcements) {
     await writer.appendRow(announcement);
@@ -90,12 +114,16 @@ export const publish = async <T extends BroadcastAnnouncement | ReplyAnnouncemen
   // Do NOT wait for all the callbacks. Assume for now that it will work...
   await api.tx.frequencyTxPayment
     .payWithCapacity(tx)
-    .signAndSend(getProviderKey(), { nonce: await getNonce() }, ({ status, dispatchError }) => {
-      if (dispatchError) {
-        console.error("ERROR: ", dispatchError.toHuman());
-      } else if (status.isInBlock || status.isFinalized) {
-        console.log("Message Posted", status.toHuman());
-      }
-    });
+    .signAndSend(
+      getProviderKey(),
+      { nonce: await getNonce() },
+      ({ status, dispatchError }) => {
+        if (dispatchError) {
+          console.error("ERROR: ", dispatchError.toHuman());
+        } else if (status.isInBlock || status.isFinalized) {
+          console.log("Message Posted", status.toHuman());
+        }
+      },
+    );
   return;
 };

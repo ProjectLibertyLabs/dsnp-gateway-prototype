@@ -1,4 +1,5 @@
 import { Handler } from "openapi-backend";
+// TODO: Figure out a better way to handle the type checking of the OpenAPI
 import type * as T from "../types/openapi.js";
 import {
   getApi,
@@ -40,37 +41,11 @@ const addProviderSchemas = [
 // Make sure they are sorted.
 addProviderSchemas.sort();
 
-export const authChallenge: Handler<{}> = async (_c, _req, res) => {
-  const response: T.Paths.AuthChallenge.Responses.$200 = {
-    challenge: generateChallenge(),
-  };
-  return res.status(200).json(response);
-};
-
-export const authLogin: Handler<T.Paths.AuthLogin.RequestBody> = async (
-  c,
-  _req,
-  res
-) => {
-  const { publicKey, encodedValue, challenge } = c.request.requestBody;
-  const msaId = await getMsaByPublicKey(publicKey);
-  if (!msaId || !useChallenge(challenge)) return res.status(401).send();
-  // Validate Challenge signature
-  const { isValid } = signatureVerify(challenge, encodedValue, publicKey);
-  if (!isValid) return res.status(401).send();
-
-  const response: T.Paths.AuthLogin.Responses.$200 = {
-    accessToken: await createAuthToken(c.request.requestBody.publicKey),
-    expires: Date.now() + 60 * 60 * 24,
-    dsnpId: msaId,
-  };
-  return res.status(200).json(response);
-};
-
+// TODO: Make work with `@frequency-chain/siwf`
 export const authLogin2: Handler<T.Paths.AuthLogin2.RequestBody> = async (
   c,
   _req,
-  res
+  res,
 ) => {
   const { signIn, signUp } = c.request.requestBody;
   const api = await getApi();
@@ -93,7 +68,7 @@ export const authLogin2: Handler<T.Paths.AuthLogin2.RequestBody> = async (
           } else if (status.isInBlock || status.isFinalized) {
             console.log("Account signup processed", status.toHuman());
           }
-        }
+        },
       );
   }
   // Is signin always required? Assume Yes for now for this code
@@ -108,7 +83,7 @@ export const authLogin2: Handler<T.Paths.AuthLogin2.RequestBody> = async (
     const { isValid } = signatureVerify(
       parsedSignin.prepareMessage(),
       signIn.siwsPayload?.signature,
-      publicKey
+      publicKey,
     );
     if (!isValid) return res.status(401).send();
 
@@ -132,6 +107,8 @@ export const authLogout: Handler<{}> = async (_c, _req, res) => {
   return res.status(201);
 };
 
+// TODO: Figure out a better way to do this perhaps?
+// It provides to the frontend the various direct conenctions it might need
 export const authProvider: Handler<{}> = async (_c, _req, res) => {
   const response: T.Paths.AuthProvider.Responses.$200 = {
     nodeUrl: getProviderHttp(),
@@ -143,88 +120,8 @@ export const authProvider: Handler<{}> = async (_c, _req, res) => {
   return res.status(200).json(response);
 };
 
-export const authCreate: Handler<T.Paths.AuthCreate.RequestBody> = async (
-  c,
-  _req,
-  res
-) => {
-  try {
-    const api = await getApi();
-    const publicKey = c.request.requestBody.publicKey;
-
-    const addProviderData = {
-      authorizedMsaId: providerId,
-      expiration: c.request.requestBody.expiration,
-      schemaIds: addProviderSchemas,
-    };
-
-    const createSponsoredAccountWithDelegation =
-      api.tx.msa.createSponsoredAccountWithDelegation(
-        publicKey,
-        { Sr25519: c.request.requestBody.addProviderSignature },
-        addProviderData
-      );
-
-    const handleBytes = api.registry.createType(
-      "Bytes",
-      c.request.requestBody.baseHandle
-    );
-    const handlePayload = {
-      baseHandle: handleBytes,
-      expiration: c.request.requestBody.expiration,
-    };
-
-    const claimHandle = api.tx.handles.claimHandle(
-      publicKey,
-      { Sr25519: c.request.requestBody.handleSignature },
-      handlePayload
-    );
-
-    // Validate the expiration and the signature before submitting them
-    const blockNum = await getCurrentBlockNumber();
-    if (blockNum > handlePayload.expiration) return res.status(409).send();
-
-    const claimHandlePayload = api.registry.createType(
-      "CommonPrimitivesHandlesClaimHandlePayload",
-      handlePayload
-    );
-
-    const { isValid } = signatureVerify(
-      claimHandlePayload.toU8a(),
-      hexToU8a(c.request.requestBody.handleSignature),
-      publicKey
-    );
-    if (!isValid) return res.status(401).send();
-
-    const calls = [createSponsoredAccountWithDelegation, claimHandle];
-
-    // TEMP: Undo the actual submission for now.s
-    // Trigger it and just log if there is an error later
-    await api.tx.frequencyTxPayment
-      .payWithCapacityBatchAll(calls)
-      .signAndSend(
-        getProviderKey(),
-        { nonce: await getNonce() },
-        ({ status, dispatchError }) => {
-          if (dispatchError) {
-            console.error("ERROR: ", dispatchError.toHuman());
-          } else if (status.isInBlock || status.isFinalized) {
-            console.log("Account Created", status.toHuman());
-          }
-        }
-      );
-
-    const response: T.Paths.AuthCreate.Responses.$200 = {
-      accessToken: await createAuthToken(c.request.requestBody.publicKey),
-      expires: Date.now() + 60 * 60 * 24,
-    };
-    return res.status(200).json(response);
-  } catch (e) {
-    console.error(e);
-    return res.status(500).send();
-  }
-};
-
+// This allows the user to get their logged in MSA.
+// TODO: Figure out how to handle the time between when a user signs up and user has an MSA
 export const authAccount: Handler<{}> = async (c, _req, res) => {
   try {
     const msaId = c.security?.tokenAuth?.msaId;
@@ -247,38 +144,4 @@ export const authAccount: Handler<{}> = async (c, _req, res) => {
     console.error(e);
     return res.status(500).send();
   }
-};
-
-export const authDelegate: Handler<T.Paths.AuthDelegate.RequestBody> = async (
-  c,
-  _req,
-  res
-) => {
-  const response: T.Paths.AuthDelegate.Responses.$200 = {
-    accessToken: await createAuthToken(c.request.requestBody.publicKey),
-    expires: Date.now() + 60 * 60 * 24,
-  };
-  return res.status(200).json(response);
-};
-
-export const authHandles: Handler<T.Paths.AuthHandles.RequestBody> = async (
-  c,
-  _req,
-  res
-) => {
-  const response: T.Paths.AuthHandles.Responses.$200 = [];
-  const api = await getApi();
-  for await (const publicKey of c.request.requestBody) {
-    const msaId = await api.query.msa.publicKeyToMsaId(publicKey);
-    if (msaId.isSome) {
-      const handle = await api.rpc.handles.getHandleForMsa(msaId.value);
-      if (handle.isSome) {
-        response.push({
-          publicKey,
-          handle: `${handle.value.base_handle}.${handle.value.suffix}`,
-        });
-      }
-    }
-  }
-  return res.status(200).json(response);
 };
