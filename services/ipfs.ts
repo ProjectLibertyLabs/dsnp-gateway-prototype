@@ -33,9 +33,7 @@ if (!ipfsGateway) {
 }
 
 if (!ipfsGateway.includes("[CID]")) {
-  throw new Error(
-    "IPFS_GATEWAY env variable must have the '[CID]' positioning string.",
-  );
+  throw new Error("IPFS_GATEWAY env variable must have the '[CID]' positioning string.");
 }
 
 // Returns the root of the path style IPFS Gateway
@@ -46,16 +44,9 @@ export const getIpfsGateway = (): string | undefined => {
 };
 
 const ipfsAuth =
-  ipfsAuthUser && ipfsAuthSecret
-    ? "Basic " +
-      Buffer.from(ipfsAuthUser + ":" + ipfsAuthSecret).toString("base64")
-    : "";
+  ipfsAuthUser && ipfsAuthSecret ? "Basic " + Buffer.from(ipfsAuthUser + ":" + ipfsAuthSecret).toString("base64") : "";
 
-const ipfsPinBuffer = async (
-  filename: string,
-  contentType: string,
-  fileBuffer: Buffer,
-) => {
+const ipfsPinBuffer = async (filename: string, contentType: string, fileBuffer: Buffer) => {
   const ipfsAdd = `${ipfsEndpoint}/api/v0/add`;
   const form = new FormData();
   form.append("file", fileBuffer, {
@@ -93,10 +84,7 @@ const hashBuffer = async (fileBuffer: Buffer): Promise<string> => {
   return toMultibase(hash.bytes, "blake2b-256");
 };
 
-export const ipfsPin = async (
-  mimeType: string,
-  file: Buffer,
-): Promise<FilePin> => {
+export const ipfsPin = async (mimeType: string, file: Buffer): Promise<FilePin> => {
   const hash = await hashBuffer(file);
   const extension = getExtension(mimeType);
   if (extension === false) {

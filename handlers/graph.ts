@@ -5,7 +5,7 @@ import type * as T from "../types/openapi.js";
 import { getMsaByPublicKey } from "../services/auth.js";
 import { follow, getPublicFollows, unfollow } from "../services/graph.js";
 
-export const userFollowing: Handler<{}> = async (c, _req, res) => {
+export const userFollowing: Handler<object> = async (c, _req, res) => {
   const msaId = c.request.params.dsnpId;
 
   if (typeof msaId !== "string") {
@@ -23,7 +23,7 @@ export const userFollowing: Handler<{}> = async (c, _req, res) => {
   }
 };
 
-export const graphFollow: Handler<{}> = async (c, _req, res) => {
+export const graphFollow: Handler<object> = async (c, _req, res) => {
   const msaId =
     c.security.tokenAuth.msaId ||
     (await getMsaByPublicKey(c.security.tokenAuth.publicKey));
@@ -43,7 +43,7 @@ export const graphFollow: Handler<{}> = async (c, _req, res) => {
   }
 };
 
-export const graphUnfollow: Handler<{}> = async (c, _req, res) => {
+export const graphUnfollow: Handler<object> = async (c, _req, res) => {
   const msaId =
     c.security.tokenAuth.msaId ||
     (await getMsaByPublicKey(c.security.tokenAuth.publicKey));

@@ -4,7 +4,7 @@ import { Handler } from "openapi-backend";
 import type * as T from "../types/openapi.js";
 import { getApi } from "../services/frequency.js";
 
-export const getProfile: Handler<{}> = async (c, _req, res) => {
+export const getProfile: Handler<object> = async (c, _req, res) => {
   // T.Paths.GetProfile.PathParameters
   const msaId = c.request.params.dsnpId;
 

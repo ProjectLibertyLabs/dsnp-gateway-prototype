@@ -23,8 +23,8 @@ type File = {
   info: Busboy.FileInfo;
 };
 
-export const getUserFeed: Handler<{}> = async (
-  c: Context<{}, {}, T.Paths.GetUserFeed.QueryParameters>,
+export const getUserFeed: Handler<object> = async (
+  c: Context<object, object, T.Paths.GetUserFeed.QueryParameters>,
   _req,
   res,
 ) => {
@@ -49,8 +49,8 @@ export const getUserFeed: Handler<{}> = async (
   return res.status(200).json(response);
 };
 
-export const getFeed: Handler<{}> = async (
-  c: Context<{}, {}, T.Paths.GetFeed.QueryParameters>,
+export const getFeed: Handler<object> = async (
+  c: Context<object, object, T.Paths.GetFeed.QueryParameters>,
   _req,
   res,
 ) => {
@@ -84,8 +84,8 @@ export const getFeed: Handler<{}> = async (
   }
 };
 
-export const getDiscover: Handler<{}> = async (
-  c: Context<{}, {}, T.Paths.GetDiscover.QueryParameters>,
+export const getDiscover: Handler<object> = async (
+  c: Context<object, object, T.Paths.GetDiscover.QueryParameters>,
   _req,
   res,
 ) => {
@@ -131,7 +131,7 @@ export const createBroadcast: Handler<
               });
             });
         })
-          .on("field", (name, val, info) => {
+          .on("field", (name, val, _info) => {
             fields[name] = val;
           })
           .on("error", (e) => {
@@ -184,7 +184,7 @@ export const createBroadcast: Handler<
   }
 };
 
-export const getContent: Handler<{}> = async (c, _req, res) => {
+export const getContent: Handler<object> = async (c, _req, res) => {
   // T.Paths.GetContent.PathParameters
   if (c.request.params.dsnpId === "123") {
     const response: T.Paths.GetContent.Responses.$200 = {

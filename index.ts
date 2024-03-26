@@ -39,8 +39,7 @@ const api = new openapiBackend.OpenAPIBackend({
 
     validationFail: async (c, req: Express.Request, res: Express.Response) =>
       res.status(400).json({ err: c.validation.errors }),
-    notFound: async (c, req: Express.Request, res: Express.Response) =>
-      res.status(404).json({ err: "not found" }),
+    notFound: async (c, req: Express.Request, res: Express.Response) => res.status(404).json({ err: "not found" }),
   },
 });
 
@@ -81,7 +80,5 @@ app.listen(port, () => {
   getApi().catch((e) => {
     console.error("Error connecting to Frequency Node!!", e.message);
   });
-  console.info(
-    `api listening at http://localhost:${port}\nOpenAPI Docs at http://localhost:${port}/docs`,
-  );
+  console.info(`api listening at http://localhost:${port}\nOpenAPI Docs at http://localhost:${port}/docs`);
 });

@@ -99,7 +99,7 @@ export const publish = async <
     writerOptions,
   );
 
-  for await (let announcement of announcements) {
+  for await (const announcement of announcements) {
     await writer.appendRow(announcement);
   }
 
