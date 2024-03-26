@@ -107,6 +107,7 @@ declare namespace Components {
         }
         export interface ProviderResponse {
             nodeUrl: string;
+            siwfUrl: string;
             /**
              * IPFS Path Style Gateway base URI
              */
@@ -132,7 +133,7 @@ declare namespace Components {
             replies?: ReplyExtended[];
         }
         export interface WalletLoginRequest {
-            signIn: {
+            signIn?: {
                 siwsPayload?: {
                     message: string;
                     signature: string;
@@ -167,37 +168,6 @@ declare namespace Paths {
             export interface $202 {
             }
             export type $401 = Components.Responses.UnauthorizedError;
-        }
-    }
-    namespace AuthChallenge {
-        namespace Responses {
-            export type $200 = Components.Schemas.ChallengeResponse;
-        }
-    }
-    namespace AuthCreate {
-        export type RequestBody = Components.Schemas.CreateIdentityRequest;
-        namespace Responses {
-            export type $200 = Components.Schemas.CreateIdentityResponse;
-            export type $401 = Components.Responses.UnauthorizedError;
-        }
-    }
-    namespace AuthDelegate {
-        export type RequestBody = Components.Schemas.DelegateRequest;
-        namespace Responses {
-            export type $200 = Components.Schemas.DelegateResponse;
-            export type $401 = Components.Responses.UnauthorizedError;
-        }
-    }
-    namespace AuthHandles {
-        export type RequestBody = string[];
-        namespace Responses {
-            export type $200 = Components.Schemas.HandlesResponse[];
-        }
-    }
-    namespace AuthLogin {
-        export type RequestBody = Components.Schemas.LoginRequest;
-        namespace Responses {
-            export type $200 = Components.Schemas.LoginResponse;
         }
     }
     namespace AuthLogin2 {
@@ -369,14 +339,6 @@ declare namespace Paths {
 
 export interface OperationMethods {
   /**
-   * authChallenge - Return a challenge for login
-   */
-  'authChallenge'(
-    parameters?: Parameters<UnknownParamsObject> | null,
-    data?: any,
-    config?: AxiosRequestConfig  
-  ): OperationResponse<Paths.AuthChallenge.Responses.$200>
-  /**
    * authProvider - Return the delegation and provider information
    */
   'authProvider'(
@@ -384,14 +346,6 @@ export interface OperationMethods {
     data?: any,
     config?: AxiosRequestConfig  
   ): OperationResponse<Paths.AuthProvider.Responses.$200>
-  /**
-   * authLogin - Use a challenge to login
-   */
-  'authLogin'(
-    parameters?: Parameters<UnknownParamsObject> | null,
-    data?: Paths.AuthLogin.RequestBody,
-    config?: AxiosRequestConfig  
-  ): OperationResponse<Paths.AuthLogin.Responses.$200>
   /**
    * authLogin2 - Use Wallet Proxy to login
    */
@@ -409,14 +363,6 @@ export interface OperationMethods {
     config?: AxiosRequestConfig  
   ): OperationResponse<Paths.AuthLogout.Responses.$201>
   /**
-   * authCreate - Creates a new DSNP Identity
-   */
-  'authCreate'(
-    parameters?: Parameters<UnknownParamsObject> | null,
-    data?: Paths.AuthCreate.RequestBody,
-    config?: AxiosRequestConfig  
-  ): OperationResponse<Paths.AuthCreate.Responses.$200>
-  /**
    * authAccount - For polling to get the created account as authCreate can take time
    */
   'authAccount'(
@@ -424,22 +370,6 @@ export interface OperationMethods {
     data?: any,
     config?: AxiosRequestConfig  
   ): OperationResponse<Paths.AuthAccount.Responses.$200 | Paths.AuthAccount.Responses.$202>
-  /**
-   * authHandles - Get handles for public keys
-   */
-  'authHandles'(
-    parameters?: Parameters<UnknownParamsObject> | null,
-    data?: Paths.AuthHandles.RequestBody,
-    config?: AxiosRequestConfig  
-  ): OperationResponse<Paths.AuthHandles.Responses.$200>
-  /**
-   * authDelegate - Delegate to the provider with an existing DSNP Identity
-   */
-  'authDelegate'(
-    parameters?: Parameters<UnknownParamsObject> | null,
-    data?: Paths.AuthDelegate.RequestBody,
-    config?: AxiosRequestConfig  
-  ): OperationResponse<Paths.AuthDelegate.Responses.$200>
   /**
    * getUserFeed - Get recent posts from a user, paginated
    */
@@ -531,16 +461,6 @@ export interface OperationMethods {
 }
 
 export interface PathsDictionary {
-  ['/v1/auth/challenge']: {
-    /**
-     * authChallenge - Return a challenge for login
-     */
-    'get'(
-      parameters?: Parameters<UnknownParamsObject> | null,
-      data?: any,
-      config?: AxiosRequestConfig  
-    ): OperationResponse<Paths.AuthChallenge.Responses.$200>
-  }
   ['/v1/auth/provider']: {
     /**
      * authProvider - Return the delegation and provider information
@@ -550,16 +470,6 @@ export interface PathsDictionary {
       data?: any,
       config?: AxiosRequestConfig  
     ): OperationResponse<Paths.AuthProvider.Responses.$200>
-  }
-  ['/v1/auth/login']: {
-    /**
-     * authLogin - Use a challenge to login
-     */
-    'post'(
-      parameters?: Parameters<UnknownParamsObject> | null,
-      data?: Paths.AuthLogin.RequestBody,
-      config?: AxiosRequestConfig  
-    ): OperationResponse<Paths.AuthLogin.Responses.$200>
   }
   ['/v2/auth/login']: {
     /**
@@ -581,16 +491,6 @@ export interface PathsDictionary {
       config?: AxiosRequestConfig  
     ): OperationResponse<Paths.AuthLogout.Responses.$201>
   }
-  ['/v1/auth/create']: {
-    /**
-     * authCreate - Creates a new DSNP Identity
-     */
-    'post'(
-      parameters?: Parameters<UnknownParamsObject> | null,
-      data?: Paths.AuthCreate.RequestBody,
-      config?: AxiosRequestConfig  
-    ): OperationResponse<Paths.AuthCreate.Responses.$200>
-  }
   ['/v1/auth/account']: {
     /**
      * authAccount - For polling to get the created account as authCreate can take time
@@ -600,26 +500,6 @@ export interface PathsDictionary {
       data?: any,
       config?: AxiosRequestConfig  
     ): OperationResponse<Paths.AuthAccount.Responses.$200 | Paths.AuthAccount.Responses.$202>
-  }
-  ['/v1/auth/handles']: {
-    /**
-     * authHandles - Get handles for public keys
-     */
-    'post'(
-      parameters?: Parameters<UnknownParamsObject> | null,
-      data?: Paths.AuthHandles.RequestBody,
-      config?: AxiosRequestConfig  
-    ): OperationResponse<Paths.AuthHandles.Responses.$200>
-  }
-  ['/v1/auth/delegate']: {
-    /**
-     * authDelegate - Delegate to the provider with an existing DSNP Identity
-     */
-    'post'(
-      parameters?: Parameters<UnknownParamsObject> | null,
-      data?: Paths.AuthDelegate.RequestBody,
-      config?: AxiosRequestConfig  
-    ): OperationResponse<Paths.AuthDelegate.Responses.$200>
   }
   ['/v1/content/{dsnpId}']: {
     /**

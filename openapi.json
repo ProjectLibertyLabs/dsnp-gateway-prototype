@@ -581,6 +581,9 @@
           "nodeUrl": {
             "type": "string"
           },
+          "siwfUrl": {
+            "type": "string"
+          },
           "ipfsGateway": {
             "description": "IPFS Path Style Gateway base URI",
             "type": "string"
@@ -599,7 +602,7 @@
             "enum": ["local", "testnet", "mainnet"]
           }
         },
-        "required": ["nodeUrl", "providerId", "schemas", "network"]
+        "required": ["nodeUrl", "siwfUrl", "providerId", "schemas", "network"]
       },
       "ChallengeResponse": {
         "type": "object",
@@ -659,7 +662,9 @@
       },
       "WalletLoginRequest": {
         "type": "object",
-        "required": ["signIn"],
+        "minProperties": 1,
+        "maxProperties": 1,
+        "additionalProperties": false,
         "properties": {
           "signIn": {
             "type": "object",
