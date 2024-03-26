@@ -144,3 +144,28 @@ export const getPostsInRange = async (newestBlockNumber: number, oldestBlockNumb
   }
   return posts;
 };
+const watcherCache: Post[] = [];
+
+export const setPostsFromWatcher = async (announcement: BroadcastAnnouncement): Promise<void> => {
+  const postResp = await axios.get(announcement.url, {
+    responseType: "text",
+    timeout: 10_000,
+  });
+  console.log("Setting post from watcher", announcement);
+  watcherCache.push({
+    fromId: announcement.fromId.toString(),
+    contentHash: announcement.contentHash,
+    content: postResp.data as unknown as string,
+    timestamp: new Date().toISOString(), // TODO: Use Block timestamp
+    replies: [], // TODO: Support replies
+  });
+  console.log("Watcher cache length", watcherCache.length);
+  if (watcherCache.length > 100) {
+    watcherCache.shift();
+  }
+};
+
+export const getPostsFromWatcher = async (): Promise<Post[]> => {
+  console.log("Getting posts from watcher", watcherCache.length);
+  return watcherCache;
+};

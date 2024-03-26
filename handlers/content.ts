@@ -5,10 +5,11 @@ import { ipfsPin, ipfsUrl } from "../services/ipfs.js";
 import * as dsnp from "../services/dsnp.js";
 import { createImageAttachment, createImageLink, createNote } from "@dsnp/activity-content/factories";
 import { publish } from "../services/announce.js";
-import { getPostsInRange } from "../services/feed.js";
+import { getPostsInRange, setPostsFromWatcher, getPostsFromWatcher } from "../services/feed.js";
 import { getCurrentBlockNumber } from "../services/frequency.js";
 import { getMsaByPublicKey } from "../services/auth.js";
 import { getPublicFollows } from "../services/graph.js";
+import axios from "axios";
 
 type Fields = Record<string, string>;
 type File = {
@@ -182,4 +183,97 @@ export const editContent: Handler<T.Paths.EditContent.RequestBody> = async (
     replies: [],
   };
   return res.status(200).json(response);
+};
+
+function createAsset(asset: string) {
+  return {
+    // maybe we need to add this
+    type: "image",
+    references: [
+      {
+        referenceId: asset,
+      },
+    ],
+  };
+}
+
+function createPayload(content: string, date: Date, assets: [string]) {
+  return {
+    content: {
+      content,
+      published: date.toISOString(),
+      assets: assets.map((asset) => createAsset(asset)),
+      //   tag: [
+      //     {
+      //       type: "mention",
+      //       name: "string",
+      //       mentionedId: "DSNP_USER_URI_REGEX",
+      //     },
+      //   ],
+      //   location: {
+      //     name: "string",
+      //     accuracy: 100,
+      //     altitude: 0,
+      //     latitude: 0,
+      //     longitude: 0,
+      //     radius: 0,
+      //     units: "cm",
+      //   },
+      // },
+    },
+  };
+}
+
+export const createBroadcastV2: Handler<T.Paths.CreateBroadcastV2.RequestBody> = async (c, req, res) => {
+  try {
+    const msaId = c.security.tokenAuth.msaId || (await getMsaByPublicKey(c.security.tokenAuth.publicKey));
+
+    const { assets, content, inReplyTo } = req.body;
+    console.log("request.body", req.body);
+
+    if (!inReplyTo) {
+      const payload = createPayload(content, new Date(), assets);
+      console.log("note------------", payload);
+      const someReferenceId = await axios.post(`http://localhost:3000/api/content/${msaId}/broadcast`, payload);
+      console.log("someReferenceId", someReferenceId);
+      // const { cid, hash: contentHash } = await ipfsPin("application/json", Buffer.from(noteString, "utf8"));
+    }
+
+    const response = {
+      fromId: "1",
+      content: "hello",
+      contentHash: "0x123",
+      timestamp: "2021-09-01T00:00:00Z",
+      replies: [],
+    };
+    return res.status(200).json(response);
+  } catch (e) {
+    console.error(e);
+    return res.status(500);
+  }
+};
+
+export const getFeedV2: Handler<{}> = async (c: Context<{}, {}>, _req, res) => {
+  const posts = await getPostsFromWatcher();
+  const response: T.Paths.GetFeedV2.Responses.$200 = {
+    newestBlockNumber: 0,
+    oldestBlockNumber: 0,
+    posts: posts,
+  };
+  return res.status(200).json(response);
+};
+
+export const postBroadcastWebhook: Handler<T.Paths.PostBroadcastWebhook.RequestBody> = async (c, _req, res) => {
+  const response: T.Paths.PostBroadcastWebhook.Responses.$201 = {};
+  console.log("Received broadcast webhook", c.request.requestBody);
+  if (!c.request.requestBody.announcement) {
+    return res.status(404).json({ err: "No announcement" });
+  }
+  await setPostsFromWatcher({
+    fromId: c.request.requestBody.announcement.fromId.toString(),
+    contentHash: c.request.requestBody.announcement.contentHash,
+    url: c.request.requestBody.announcement.url,
+    announcementType: c.request.requestBody.announcement.announcementType,
+  });
+  return res.status(201).json("Received broadcast via webhook");
 };

@@ -14,6 +14,7 @@ import { getSchemaId } from "../services/announce.js";
 import { getIpfsGateway } from "../services/ipfs.js";
 import { signatureVerify } from "@polkadot/util-crypto";
 import { hexToU8a, numberToU8a } from "@polkadot/util";
+import { getLoginOrRegistrationPayload, setConfig } from "@frequency-control-panel/utils";
 
 // Environment Variables
 const providerId = process.env.PROVIDER_ID;

@@ -30,6 +30,7 @@
     "@dsnp/frequency-schemas": "^1.0.2",
     "@dsnp/parquetjs": "^1.3.1",
     "@frequency-chain/api-augment": "^1.7.2",
+    "@frequency-control-panel/utils": "file:vendor/frequency-control-panel-utils-0.0.0-enddy.tgz",
     "@multiformats/blake2": "^1.0.13",
     "@polkadot/api": "^10.9.1",
     "@polkadot/util": "^12.3.2",

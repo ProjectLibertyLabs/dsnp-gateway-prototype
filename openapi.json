@@ -10,6 +10,34 @@
     "version": "1.0.0"
   },
   "paths": {
+    "/v1/assets": {
+      "post": {
+        "operationId": "uploadAsset",
+        "summary": "Create a new post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/UploadAssetRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadAssetResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/auth/challenge": {
       "get": {
         "operationId": "authChallenge",
@@ -342,6 +370,85 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PaginatedBroadcast"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/content/feed":{
+      "get": {
+        "operationId": "getFeedV2",
+        "summary": "Get the Live Feed for the current user, paginated",
+        "security": [{
+          "tokenAuth": []
+        }],
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedBroadcast"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/webhooks/broadcast":{
+      "post": {
+        "operationId": "postBroadcastWebhook",
+        "summary": "Webhook for new broadcasts",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BroadCastMessage"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful response"
+          }
+        }
+      }
+    },
+    "/v2/content": {
+      "post": {
+        "operationId": "createBroadcastV2",
+        "summary": "Create a new post",
+        "security": [{
+          "tokenAuth": []
+        }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePostRequestV2"
+              }
+            }
+          }
+        },
+        "responses": {
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BroadcastExtended"
                 }
               }
             }
@@ -976,6 +1083,80 @@
           "content",
           "timestamp"
         ]
+      },
+      "BroadCastMessage": {
+        "type": "object",
+        "properties": {
+          "schemaId": {
+            "type": "integer"
+          },
+          "announcement": {
+            "type": "object",
+            "properties": {
+              "fromId": {
+                "type": "string"
+              },
+              "contentHash": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              },
+              "announcementType": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "fromId",
+              "contentHash",
+              "url",
+              "announcementType"
+            ]
+          }
+        }
+      },
+      "UploadAssetRequest": {
+        "type": "object",
+        "properties": {
+          "files": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "binary"
+            }
+          }
+        },
+        "required": ["files"]
+      },
+      "UploadAssetResponse": {
+        "type": "object",
+        "properties": {
+          "assetIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["assetIds"]
+      },
+      "CreatePostRequestV2": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string"
+          },
+          "inReplyTo": {
+            "type": "string"
+          },
+          "assets": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": ["content"]
       },
       "CreatePostRequest": {
         "type": "object",
