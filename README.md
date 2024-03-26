@@ -19,6 +19,8 @@ Environment variables can be setup by creating a `.env` file in the root folder.
 - `PROVIDER_KEY_URI`: The URI or seed phrase for the provider key. e.g. `//Alice`
 - `PROVIDER_ID`: The ID of the Provider that will be used.
 - `PORT`: The port to launch the service on. Defaults to `5005`
+- `SIWF_URL`: The current Sign-In With Frequency UI deployment. Current Deployed Version: `https://amplicalabs.github.io/siwf/ui`
+- `SIWF_DOMAIN`: The raw domain that the user is logging in through. Example: `localhost`, `amplica.io`
 
 ### IPFS Endpoint
 

@@ -8,6 +8,8 @@ const providerUri = process.env.FREQUENCY_NODE;
 const publicNodeHttp = process.env.FREQUENCY_PUBLIC_ENDPOINT;
 const providerKeyUri = process.env.PROVIDER_KEY_URI;
 const frequencyNetwork = process.env.FREQUENCY_NETWORK;
+const siwfUrl = process.env.SIWF_URL;
+const siwfDomain = process.env.SIWF_DOMAIN;
 
 if (!providerKeyUri) {
   throw new Error("PROVIDER_KEY_URI env variable is required");
@@ -29,6 +31,17 @@ if (
     'FREQUENCY_NETWORK env variable must be one of: "local", "testnet", "mainnet"',
   );
 }
+
+if (!siwfUrl) {
+  throw new Error("SIWF_URL env variable is required");
+}
+
+if (!siwfDomain) {
+  throw new Error("SIWF_DOMAIN env variable is required");
+}
+
+export const getSiwfUrl = () => siwfUrl;
+export const getSiwfDomain = () => siwfDomain;
 
 export const getProviderHttp = () => publicNodeHttp;
 
