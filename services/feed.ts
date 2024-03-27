@@ -25,7 +25,10 @@ interface MsgParsed {
   payload_length: number;
 }
 
-const getPostsForBlockRange = async ({ from, to }: BlockRange): Promise<[number, Post][]> => {
+const getPostsForBlockRange = async ({
+  from,
+  to,
+}: BlockRange): Promise<[number, Post][]> => {
   // Get the events from the block
   const api = await getApi();
   const schemaId = getSchemaId(AnnouncementType.Broadcast);
@@ -61,7 +64,9 @@ const getPostsForBlockRange = async ({ from, to }: BlockRange): Promise<[number,
       // Fetch the individual posts
       const cursor = reader.getCursor();
       let announcement: null | BroadcastAnnouncement = null;
-      while ((announcement = (await cursor.next()) as null | BroadcastAnnouncement)) {
+      while (
+        (announcement = (await cursor.next()) as null | BroadcastAnnouncement)
+      ) {
         try {
           // TODO: Validate Hash
           const postResp = await axios.get(announcement.url, {
@@ -72,7 +77,9 @@ const getPostsForBlockRange = async ({ from, to }: BlockRange): Promise<[number,
             msg.block_number,
             {
               fromId: announcement.fromId.toString(),
-              contentHash: bases.base58btc.encode(announcement.contentHash as any),
+              contentHash: bases.base58btc.encode(
+                announcement.contentHash as any,
+              ),
               content: postResp.data as unknown as string,
               timestamp: new Date().toISOString(), // TODO: Use Block timestamp
               replies: [], // TODO: Support replies
@@ -114,9 +121,15 @@ const toRanges = (prev: BlockRange[], cur: number): BlockRange[] => {
   return prev;
 };
 
-const fetchAndCachePosts = (newestBlockNumber: number, oldestBlockNumber: number): void => {
+const fetchAndCachePosts = (
+  newestBlockNumber: number,
+  oldestBlockNumber: number,
+): void => {
   // Create the range
-  Array.from({ length: Math.abs(newestBlockNumber - oldestBlockNumber) + 1 }, (_x, i) => oldestBlockNumber + i)
+  Array.from(
+    { length: Math.abs(newestBlockNumber - oldestBlockNumber) + 1 },
+    (_x, i) => oldestBlockNumber + i,
+  )
     // Skip those already in the cache
     .filter((x) => !(x in cache))
     // Create ranges
@@ -133,7 +146,10 @@ const fetchAndCachePosts = (newestBlockNumber: number, oldestBlockNumber: number
 
 const cache: CachedPosts = {};
 
-export const getPostsInRange = async (newestBlockNumber: number, oldestBlockNumber: number): Promise<Post[]> => {
+export const getPostsInRange = async (
+  newestBlockNumber: number,
+  oldestBlockNumber: number,
+): Promise<Post[]> => {
   // Trigger the fetch and caching
   fetchAndCachePosts(newestBlockNumber, oldestBlockNumber);
 

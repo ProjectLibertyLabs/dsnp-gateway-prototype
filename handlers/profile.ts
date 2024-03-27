@@ -2,7 +2,7 @@ import { Handler } from "openapi-backend";
 import type * as T from "../types/openapi.js";
 import { getApi } from "../services/frequency.js";
 
-export const getProfile: Handler<{}> = async (c, _req, res) => {
+export const getProfile: Handler<object> = async (c, _req, res) => {
   // T.Paths.GetProfile.PathParameters
   const msaId = c.request.params.dsnpId;
 
@@ -37,7 +37,7 @@ export const createProfile: Handler<T.Paths.CreateProfile.RequestBody> = async (
   // T.Paths.CreateProfile.PathParameters
   c,
   req,
-  res
+  res,
 ) => {
   const response: T.Paths.CreateProfile.Responses.$200 = {
     fromId: "123",

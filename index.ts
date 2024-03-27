@@ -27,7 +27,7 @@ import { getAccountFromAuth } from "./services/auth.js";
 const app = Express();
 app.use(Express.json());
 
-// define api
+// TODO: See if we want to generate the OpenAPI doc instead of spec first
 const api = new openapiBackend.OpenAPIBackend({
   definition: "openapi.json",
   handlers: {
@@ -38,7 +38,8 @@ const api = new openapiBackend.OpenAPIBackend({
 
     validationFail: async (c, req: Express.Request, res: Express.Response) =>
       res.status(400).json({ err: c.validation.errors }),
-    notFound: async (c, req: Express.Request, res: Express.Response) => res.status(404).json({ err: "not found" }),
+    notFound: async (c, req: Express.Request, res: Express.Response) =>
+      res.status(404).json({ err: "not found" }),
   },
 });
 
@@ -79,5 +80,7 @@ app.listen(port, () => {
   getApi().catch((e) => {
     console.error("Error connecting to Frequency Node!!", e.message);
   });
-  console.info(`api listening at http://localhost:${port}\nOpenAPI Docs at http://localhost:${port}/docs`);
+  console.info(
+    `api listening at http://localhost:${port}\nOpenAPI Docs at http://localhost:${port}/docs`,
+  );
 });

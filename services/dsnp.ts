@@ -1,3 +1,5 @@
+// TODO: Can this come from a DSNP package instead?
+
 /**
  * AnnouncementType: an enum representing different types of DSNP announcements
  */
@@ -72,7 +74,7 @@ export type TombstoneAnnouncement = TypedAnnouncement<AnnouncementType.Tombstone
 export const createTombstone = (
   fromId: string,
   targetType: AnnouncementType,
-  targetSignature: string
+  targetSignature: string,
 ): TombstoneAnnouncement => ({
   announcementType: AnnouncementType.Tombstone,
   targetAnnouncementType: targetType,
