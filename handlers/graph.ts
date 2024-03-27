@@ -1,5 +1,3 @@
-// TODO: Figure out how to integration with the Graph Service
-
 import { Handler } from "openapi-backend";
 import type * as T from "../types/openapi.js";
 import { getMsaByPublicKey } from "../services/auth.js";

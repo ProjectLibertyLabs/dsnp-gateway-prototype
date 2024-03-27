@@ -1,5 +1,3 @@
-// TODO: Remove this entirely and replace with Gateway Services
-
 import { options } from "@frequency-chain/api-augment";
 import { WsProvider, ApiPromise, Keyring } from "@polkadot/api";
 

@@ -1,5 +1,3 @@
-// TODO: Figure out how to replace/integrate with Account Service
-
 import { randomUUID } from "crypto";
 import { getApi } from "./frequency.js";
 
@@ -14,7 +12,9 @@ export const createAuthToken = async (publicKey: string): Promise<string> => {
   return uuid;
 };
 
-export const getAccountFromAuth = async (token: string): Promise<null | RequestAccount> => {
+export const getAccountFromAuth = async (
+  token: string,
+): Promise<null | RequestAccount> => {
   const account = authTokenRegistry.get(token);
   if (!account) return null;
   if (account.msaId) return account;
@@ -28,9 +28,14 @@ export const getAccountFromAuth = async (token: string): Promise<null | RequestA
 type CacheData = { msaId: string; added: Date };
 const cachePublicKeys: Map<string, CacheData> = new Map();
 
-export const getMsaByPublicKey = async (publicKey: string): Promise<string | null> => {
+export const getMsaByPublicKey = async (
+  publicKey: string,
+): Promise<string | null> => {
   const cachedResult = cachePublicKeys.get(publicKey);
-  if (cachedResult && cachedResult.added.getTime() + 360 < new Date().getTime()) {
+  if (
+    cachedResult &&
+    cachedResult.added.getTime() + 360 < new Date().getTime()
+  ) {
     return cachedResult.msaId;
   }
   const api = await getApi();

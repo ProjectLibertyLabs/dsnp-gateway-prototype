@@ -1,5 +1,3 @@
-// TODO: Figure out how to integrate with Content Watcher and Publishing Services
-
 import { Context, Handler } from "openapi-backend";
 import Busboy from "busboy";
 import type * as T from "../types/openapi.js";

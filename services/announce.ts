@@ -1,5 +1,3 @@
-// TODO: Replace with Gateway Publishing Service
-
 import { PassThrough } from "node:stream";
 import { parquet } from "@dsnp/frequency-schemas";
 import { ParquetWriter } from "@dsnp/parquetjs";

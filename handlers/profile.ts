@@ -1,5 +1,3 @@
-// TODO: Figure out how to integrate with Content Watcher and Publishing Services
-
 import { Handler } from "openapi-backend";
 import type * as T from "../types/openapi.js";
 import { getApi } from "../services/frequency.js";
