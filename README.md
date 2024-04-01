@@ -1,3 +1,5 @@
+# Replaced with [social-app-template](https://github.com/AmplicaLabs/social-app-template)
+
 # DSNP Gateway Prototype
 
 This is a prototype for a DSNP Gateway to allow for simple provider setup.
